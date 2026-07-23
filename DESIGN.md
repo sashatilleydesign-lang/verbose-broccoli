@@ -265,7 +265,62 @@ calibration).
    stale `waiting` items, and projects with no `next` action set, prompting
    (not demanding) a decision on each.
 
-## 9. Suggested tech stack
+## 9. Cross-device sync (Mac + Android)
+
+Because the architecture is already "thin clients talking to one central
+backend" (§2) rather than a local-first app, this is simpler than it
+sounds — there's no peer-to-peer sync problem, just multiple clients
+against one source of truth.
+
+**What "sync" actually means here:** one Postgres-backed API (already the
+design) is the single source of truth. The Mac and Android apps are both
+just clients of it, not separate local databases that need to reconcile
+with each other. "Sync" reduces to two things: (1) getting local writes to
+the server reliably even when offline, and (2) pushing server changes back
+out to other open devices quickly.
+
+**One codebase, not three.** Ship the actual product as the existing web
+app (Next.js). Maintaining parallel Swift (Mac) and Kotlin (Android)
+codebases alongside the web app means building every feature three times —
+its own kind of maintenance nightmare for a solo build.
+- **Fastest path:** an installable PWA. Mac (Safari/Chrome "Add to Dock")
+  and Android (Chrome "Add to Home Screen") both get a real app icon, own
+  window, and offline caching straight from the existing web build — zero
+  extra code.
+- **If deeper native integration is wanted later** (Android share-sheet
+  "send to Capture" from any app, a Mac menu-bar quick-capture, native push
+  instead of web push): wrap the same web frontend with **Capacitor**
+  (Android) and **Tauri** (Mac) — thin native shells around the existing
+  code, not rewrites.
+
+**Offline-first capture** is the part that actually matters here: quick
+capture (§5) must never block on network, so "offline" can't be allowed to
+break the 2-second capture promise. Local writes go to an on-device queue
+(IndexedDB in a PWA, or SQLite if wrapped natively) immediately, render
+optimistically, and sync to the server in the background once connectivity
+returns. This is a simple queue-and-retry, not a CRDT merge problem —
+there's only one person writing and one server arbiter, so conflicts are
+rare and "last write wins" is enough; no real distributed-sync engine
+needed.
+
+**Live updates across devices:** a lightweight WebSocket (or
+Server-Sent Events) connection from each open client to the backend pushes
+changes through, so finishing a task on Android clears it from the Mac
+Focus view within a second or two without a manual refresh. Cheap at
+single-user scale — a simple per-user pub/sub channel is enough.
+
+**Auth across devices:** since it's single-user, each device just holds
+its own long-lived session token (or passkey) rather than needing full
+multi-device OAuth infrastructure — add/revoke a device from a plain
+"devices" list in settings.
+
+**Push notifications:** Web Push covers both installed-PWA platforms
+(Android Chrome and macOS Safari/Chrome) for the daily digest and
+Waiting-On resurfacing pings, with no native push infrastructure required.
+If wrapped via Capacitor/Tauri later, swap in native push (FCM for
+Android, APNs for Mac) for more reliable delivery.
+
+## 10. Suggested tech stack
 
 - **Frontend:** Next.js (React) + Tailwind, single-user session (no
   multi-tenant complexity needed for a freelancer's own tool).
@@ -295,8 +350,14 @@ calibration).
 - **Auth:** since this is single-user, a simple session/password (or
   passkey) is enough — don't build multi-tenant auth for a tool only you
   will use.
+- **Cross-device clients:** installable PWA (Workbox/next-pwa for offline
+  caching + an IndexedDB write queue) as the default Mac + Android app
+  shell; Capacitor (Android) and Tauri (Mac) as an optional later wrap for
+  native push/share-sheet integration. A small WebSocket layer (or
+  Supabase/Postgres LISTEN-NOTIFY if using Supabase) for live cross-device
+  updates.
 
-## 10. Phased build plan
+## 11. Phased build plan
 
 1. **Foundation:** schema (Client/Project/Task/EmailAccount/EmailThread/
    EmailMessage/TaskEmailLink/CaptureItem), auth, manual task CRUD, IMAP
@@ -314,9 +375,11 @@ calibration).
    `UserScheduleProfile` schema, the greedy scheduler, and reflow-on-trigger
    logic — start with soft-deadline-only reflow before adding hard-deadline
    at-risk flagging.
-7. **Polish:** duration calibration loop, mobile quick-capture, simple
-   automations (e.g. auto-tag emails from known clients into their
-   Project).
+7. **Cross-device:** PWA install support on Mac + Android, offline capture
+   write-queue, and the WebSocket live-update channel between open devices.
+8. **Polish:** duration calibration loop, native Capacitor/Tauri wrap if
+   deeper platform integration is wanted, simple automations (e.g.
+   auto-tag emails from known clients into their Project).
 
 Start at Phase 1 with the smallest possible slice: one EmailAccount synced
 read-only, and manual tasks — prove the unified per-client timeline feels
