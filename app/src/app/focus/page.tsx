@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { verifySession } from "@/lib/dal";
 import { getFocusData } from "@/lib/focus";
 import { AppShell } from "@/components/AppShell";
@@ -5,9 +6,22 @@ import { CompleteTaskButton } from "@/components/CompleteTaskButton";
 import { archiveThread, convertThreadToTask } from "@/app/actions/emails";
 import { relativePast, relativeDeadline } from "@/lib/format";
 
-export default async function FocusPage() {
+const ENERGY_OPTIONS = [
+  { value: undefined, label: "All" },
+  { value: "low", label: "Low" },
+  { value: "medium", label: "Medium" },
+  { value: "high", label: "High" },
+] as const;
+
+export default async function FocusPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ energy?: string }>;
+}) {
   await verifySession();
-  const { nextTask, batchProgress, deadlineTask, emailThread } = await getFocusData();
+  const { energy } = await searchParams;
+  const energyFilter = energy === "low" || energy === "medium" || energy === "high" ? energy : undefined;
+  const { nextTask, batchProgress, deadlineTask, emailThread } = await getFocusData(energyFilter);
   const email = emailThread?.messages[0];
 
   const itemCount = [nextTask, deadlineTask, emailThread].filter(Boolean).length;
@@ -16,11 +30,34 @@ export default async function FocusPage() {
     <AppShell>
       <div className="mb-6">
         <p className="mb-2 text-[11.5px] font-bold tracking-wide text-accent uppercase">Right now</p>
-        <p className="max-w-[64ch] text-[15.5px] leading-relaxed text-ink-dim">
+        <p className="mb-4 max-w-[64ch] text-[15.5px] leading-relaxed text-ink-dim">
           {itemCount > 0
             ? "Three things, at most. Everything else exists — just not on this screen."
-            : "Nothing pinned right now. Capture something, or check Workspace for what's open."}
+            : energyFilter
+              ? "Nothing pinned at that energy level right now."
+              : "Nothing pinned right now. Capture something, or check Workspace for what's open."}
         </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-[11px] font-bold tracking-wide text-ink-dim uppercase">Energy today:</span>
+          {ENERGY_OPTIONS.map((opt) => {
+            const active = opt.value === energyFilter;
+            const href = opt.value ? `/focus?energy=${opt.value}` : "/focus";
+            return (
+              <Link
+                key={opt.label}
+                href={href}
+                className={
+                  "min-h-8 rounded-md border px-3 py-1.5 text-[12px] font-bold transition " +
+                  (active
+                    ? "border-accent bg-accent text-ground"
+                    : "border-line bg-panel text-ink-dim hover:text-ink hover:border-ink-dim")
+                }
+              >
+                {opt.label}
+              </Link>
+            );
+          })}
+        </div>
       </div>
 
       {nextTask ? (

@@ -8,6 +8,10 @@ export function relativePast(date: Date): string {
   return `${days}d`;
 }
 
+export function daysSince(date: Date): number {
+  return Math.max(0, Math.floor((Date.now() - date.getTime()) / DAY_MS));
+}
+
 export function relativeDeadline(date: Date): string {
   const now = new Date();
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());

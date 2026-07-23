@@ -21,7 +21,8 @@ async function main() {
   const lumen = await prisma.client.create({ data: { name: "Lumen Skincare" } });
   const nova = await prisma.client.create({ data: { name: "Nova Coffee Co." } });
   const bramble = await prisma.client.create({ data: { name: "Bramble & Co." } });
-  await prisma.client.create({ data: { name: "Kite Studio" } });
+  const kite = await prisma.client.create({ data: { name: "Kite Studio" } });
+  const personal = await prisma.client.create({ data: { name: "Personal" } });
 
   // --- Lumen Skincare: the 10-ad batch, extracted from a brief ---
   const lumenThread = await prisma.emailThread.create({
@@ -105,6 +106,16 @@ async function main() {
     });
   }
 
+  // A task waiting on the client, stale for 11 days — Weekly Review fodder.
+  await prisma.task.create({
+    data: {
+      title: "Brand deck v2",
+      projectId: lumenProject.id,
+      state: "waiting",
+      updatedAt: daysAgo(11),
+    },
+  });
+
   // --- Nova Coffee Co.: an unprocessed email, no task yet ---
   await prisma.emailThread.create({
     data: {
@@ -123,6 +134,18 @@ async function main() {
           },
         ],
       },
+    },
+  });
+
+  const novaProject = await prisma.project.create({
+    data: { clientId: nova.id, name: "Brand Refresh", status: "active" },
+  });
+  await prisma.task.create({
+    data: {
+      title: "Final copy approval",
+      projectId: novaProject.id,
+      state: "waiting",
+      updatedAt: daysAgo(6),
     },
   });
 
@@ -149,10 +172,42 @@ async function main() {
     data: { nextActionId: invoiceTask.id },
   });
 
-  // A second Bramble project with no next action set — Weekly Review fodder later.
-  await prisma.project.create({
+  // A second Bramble project with no next action set — Weekly Review fodder.
+  const websiteRefresh = await prisma.project.create({
     data: { clientId: bramble.id, name: "Website Refresh", status: "active" },
   });
+  await prisma.task.create({
+    data: {
+      title: "Sketch new homepage wireframe",
+      projectId: websiteRefresh.id,
+      state: "later",
+      energy: "medium",
+    },
+  });
+
+  // A stuck task, flagged 9 days ago — not nagged about daily, surfaced in review.
+  const homepageCopy = await prisma.task.create({
+    data: { title: "Rewrite homepage hero copy", projectId: websiteRefresh.id, state: "stuck" },
+  });
+  await prisma.task.update({ where: { id: homepageCopy.id }, data: { updatedAt: daysAgo(9) } });
+
+  // --- Kite Studio: a stuck task, flagged 4 days ago ---
+  const kiteProject = await prisma.project.create({
+    data: { clientId: kite.id, name: "Renewal", status: "active" },
+  });
+  const renewalOutline = await prisma.task.create({
+    data: { title: "Renewal proposal outline", projectId: kiteProject.id, state: "stuck" },
+  });
+  await prisma.task.update({ where: { id: renewalOutline.id }, data: { updatedAt: daysAgo(4) } });
+
+  // --- Personal: a stuck task, flagged 21 days ago ---
+  const personalProject = await prisma.project.create({
+    data: { clientId: personal.id, name: "Portfolio", status: "active" },
+  });
+  const portfolioTask = await prisma.task.create({
+    data: { title: "Update portfolio site", projectId: personalProject.id, state: "stuck" },
+  });
+  await prisma.task.update({ where: { id: portfolioTask.id }, data: { updatedAt: daysAgo(21) } });
 
   // --- Capture inbox: raw, untriaged ---
   await prisma.captureItem.createMany({

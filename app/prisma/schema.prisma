@@ -91,6 +91,7 @@ model Task {
   asNextActionOf   Project?        @relation("ProjectNextAction")
   emailLinks       TaskEmailLink[]
   createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
   completedAt      DateTime?
 }
 

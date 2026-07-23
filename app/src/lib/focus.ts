@@ -4,7 +4,9 @@ import { prisma } from "@/lib/prisma";
 const DEADLINE_WINDOW_MS = 24 * 60 * 60 * 1000;
 const STALE_EMAIL_MS = 48 * 60 * 60 * 1000;
 
-export async function getFocusData() {
+type EnergyFilter = "low" | "medium" | "high" | undefined;
+
+export async function getFocusData(energyFilter?: EnergyFilter) {
   const now = new Date();
   const deadlineCutoff = new Date(now.getTime() + DEADLINE_WINDOW_MS);
   const staleEmailCutoff = new Date(now.getTime() - STALE_EMAIL_MS);
@@ -22,6 +24,7 @@ export async function getFocusData() {
     where: {
       state: "next",
       id: deadlineTask ? { not: deadlineTask.id } : undefined,
+      energy: energyFilter,
     },
     orderBy: { createdAt: "asc" },
     include: { project: { include: { client: true } } },

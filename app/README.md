@@ -1,11 +1,12 @@
-# Strobe — Phase 1
+# Strobe — Phase 1–3
 
-The foundation slice of the ADHD-friendly freelance console described in
+The foundation and ADHD layer of the freelance console described in
 [`/DESIGN.md`](../DESIGN.md): schema, single-user auth, manual task/project
-CRUD, a Focus view, a per-client Workspace timeline, and Capture — wired to
-a real Postgres database. Email is seeded mock data for now (see DESIGN.md
-§4 for the real IMAP/Migadu plan); no brief extraction, scheduling, or
-send-mail yet — those are later phases.
+CRUD, Focus (with energy-tag filtering), a per-client Workspace timeline,
+Capture, and Weekly Review (stuck / waiting / no-next-action) — all wired
+to a real Postgres database. Email is seeded mock data for now (see
+DESIGN.md §4 for the real IMAP/Migadu plan); no brief extraction,
+scheduling, or send-mail yet — those are later phases.
 
 ## Setup
 
@@ -46,6 +47,10 @@ directory for the actual dev values used locally.
 - `prisma/seed.ts` — the same Lumen Skincare / Nova Coffee Co. / Bramble &
   Co. / Kite Studio scenario used throughout the design mockups
 - `src/lib/dal.ts`, `src/lib/session.ts` — auth
-- `src/lib/focus.ts` — the Focus view's 3-slot selection logic
+- `src/lib/focus.ts` — the Focus view's 3-slot selection logic (with
+  optional energy filter)
+- `src/lib/weekly.ts` — Weekly Review queries (stuck / waiting / projects
+  with no next action)
 - `src/app/actions/*` — Server Actions (complete task w/ batch auto-advance,
-  archive/convert email, capture CRUD)
+  `markAsNext` w/ single-pinned-next-action enforcement, `touchTask` for
+  snooze/still-waiting, archive/convert email, capture CRUD)

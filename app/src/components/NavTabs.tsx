@@ -7,6 +7,7 @@ const TABS = [
   { href: "/focus", label: "Focus" },
   { href: "/clients", label: "Workspace" },
   { href: "/capture", label: "Capture" },
+  { href: "/weekly", label: "Weekly Review" },
 ];
 
 export function NavTabs() {
