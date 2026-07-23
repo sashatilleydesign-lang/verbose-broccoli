@@ -73,6 +73,26 @@ tabs.
 - **CaptureItem** — the universal quick-capture bucket. Raw, untyped text
   dropped from anywhere (global hotkey, mobile, forwarded email). Triage
   turns it into a Task, Project, or discards it.
+- **BriefExtraction** — record of an LLM extraction run against an
+  EmailThread (+ attachments): stores the raw model output, which Tasks it
+  produced, and whether it was accepted/edited/discarded, so a batch of
+  generated tasks is always traceable back to the source brief and
+  re-editable if the parse was off.
+- **Task (extended fields)** — `estimatedDuration`, `actualDuration`
+  (captured on completion, used to calibrate future estimates),
+  `deadlineType: hard|soft` (hard = client-committed, soft = self-imposed —
+  only soft deadlines get silently moved by the scheduler).
+- **ScheduledBlock** — a specific instance of a Task placed on the
+  calendar (`task_id`, `start`, `end`). Kept separate from the Task itself
+  so a task can be rescheduled repeatedly without losing its identity or
+  history.
+- **CalendarEvent** — read-only synced copy of existing calendar
+  commitments (meetings, personal events) from an external calendar, used
+  as fixed obstacles the scheduler must route around.
+- **UserScheduleProfile** — working hours, energy windows (e.g. "deep work
+  9-11am", "low-energy after 3pm"), and default transition/buffer time
+  between blocks — the personal constraints the auto-scheduler plans
+  around.
 
 ## 4. Email client architecture (custom domain)
 
@@ -147,7 +167,89 @@ and defaults energy/context based on simple heuristics (contains "call"
 → `@calls`, contains attachment → `@admin`, etc.) — again, so the user
 doesn't have to make decisions that don't need to be made by a human.
 
-## 6. Unified UI surfaces
+## 6. Bulk task extraction from briefs (LLM-assisted)
+
+The simple "Turn into task" button (§5) assumes 1 email → 1 task. A brief
+("10 ads, here's the copy and specs for each") is really 1 email → 1
+project + N related tasks, and needs its own path:
+
+1. **Extract, don't auto-run.** An explicit "Extract tasks" action on the
+   thread — not something that fires automatically on arrival — sends the
+   email body plus any attachments (PDF/Word brief, spec sheet, image refs)
+   to an LLM with a structured-output schema. Attachments are text-extracted
+   first so the model sees the brief's actual content, not just the email
+   chrome around it. The model returns a list of discrete deliverables, each
+   with a title, any spec/copy/dimension notes, and a shared deadline if one
+   is stated.
+2. **Preview before commit.** Results land in an editable confirmation
+   screen — "found 10 items, confirm/edit/merge/discard before adding" —
+   never silently created. LLM extraction won't always split things exactly
+   right, and a surprise pile of 10 new tasks appearing unannounced is a bad
+   experience for exactly the brain this system is designed for.
+3. **Group, don't scatter.** Accepted items become one Project ("10 ads —
+   [Client]") with 10 child Tasks, each carrying its own spec as a note and
+   a `TaskEmailLink` back to the source thread, so the original brief never
+   needs to be re-opened and re-read to remember what "ad 7" was.
+4. **Focus view stays calm.** Even though 10 tasks now exist, the
+   Today/Focus view (§5) still only ever surfaces that project's single
+   pinned `next` task. The batch is worked one item at a time; the other 9
+   are one click away under the project, never the first thing seen.
+5. **BriefExtraction record** keeps the raw model output and links to the
+   generated tasks, so a bad parse can be reopened and re-edited rather
+   than manually cleaned up task-by-task.
+
+## 7. Auto-scheduling calendar (Motion-style time-blocking)
+
+A scheduler that automatically places tasks into open calendar time and
+reflows them when things change — with ADHD-specific behavior Motion
+doesn't have (grace instead of guilt, transition buffers, estimate
+calibration).
+
+**Inputs the scheduler needs:**
+- Task `estimatedDuration`, `deadlineType` (hard/soft), and existing
+  energy/context tags (§5) — context maps to preferred time-of-day windows
+  (e.g. `@deep-work` prefers morning blocks).
+- `CalendarEvent`s synced read-only from an external calendar (Google
+  Calendar/CalDAV) — real meetings and commitments are fixed obstacles, not
+  something the scheduler can move.
+- `UserScheduleProfile` — working hours, personal energy windows, and a
+  default transition buffer between blocks (task-switching has a real cost
+  for ADHD; back-to-back blocks with zero gap invite burnout and slippage).
+
+**Scheduling algorithm:**
+- A greedy constraint scheduler (sufficient at single-person scale — no
+  need for a heavy solver): sort unscheduled tasks by deadline urgency,
+  then place each into the next open slot that matches its duration,
+  energy/context window, and required buffer, working forward from now.
+- Re-runs automatically on triggers: a task is added or edited, a deadline
+  changes, a new `CalendarEvent` conflicts with an existing block, or a
+  scheduled block passes without being marked done.
+- If a hard deadline genuinely doesn't fit the remaining open time, the
+  scheduler does **not** silently overcommit — it flags the task as
+  "at risk" in the Focus view with the reason ("not enough open hours before
+  Friday"), so the user finds out early instead of on the deadline day.
+
+**Deadline readjustment — hard vs. soft:**
+- `soft` deadlines (self-imposed) can be quietly pushed by the scheduler
+  when something doesn't fit — no confirmation needed, no red banner.
+- `hard` deadlines (client-committed) are never silently moved. If they're
+  at risk, they surface once in the Focus view as a heads-up, not a
+  recurring nag.
+
+**ADHD-specific behavior beyond vanilla Motion:**
+- **No shame reflow.** A missed block doesn't trigger red alerts or
+  cascading urgency — it's quietly re-slotted into the next open matching
+  window, consistent with the "no shame states" philosophy in §1.
+- **Duration calibration loop.** `actualDuration` (captured when a task is
+  marked done) is compared against `estimatedDuration` over time to learn a
+  personal bias correction (ADHD time estimation is notoriously optimistic)
+  and pad future estimates automatically rather than trusting each guess
+  literally.
+- **Manual override always wins.** Drag-to-reschedule any block by hand at
+  any time — the algorithm proposes a plan, it never locks the user out of
+  moving things.
+
+## 8. Unified UI surfaces
 
 1. **Today/Focus** (default view) — the 3-item view above.
 2. **Client workspace** — per-client page merging their Project(s), open
@@ -163,7 +265,7 @@ doesn't have to make decisions that don't need to be made by a human.
    stale `waiting` items, and projects with no `next` action set, prompting
    (not demanding) a decision on each.
 
-## 7. Suggested tech stack
+## 9. Suggested tech stack
 
 - **Frontend:** Next.js (React) + Tailwind, single-user session (no
   multi-tenant complexity needed for a freelancer's own tool).
@@ -173,8 +275,20 @@ doesn't have to make decisions that don't need to be made by a human.
   (Migadu/Zoho); or Postmark/Resend SDKs + a Cloudflare Worker webhook if
   going API-first. Store raw MIME for audit/undo, parsed text/HTML for
   display.
+- **Brief extraction:** Claude API (Messages API with a structured-output
+  tool schema) for parsing email + attachment text into discrete
+  deliverables; a PDF/DOCX text-extraction step ahead of it for
+  attachments.
+- **Calendar sync:** Google Calendar API or CalDAV for pulling in existing
+  `CalendarEvent`s read-only; the auto-scheduler writes `ScheduledBlock`s
+  back either to its own calendar view or (optionally) as events on the
+  same synced calendar.
+- **Scheduler:** a greedy constraint-based scheduling job (plain
+  TypeScript logic is enough at single-person scale — no need for a full
+  solver like OR-Tools unless the greedy approach proves insufficient).
 - **Background jobs:** a queue (BullMQ + Redis, or a simple cron table) for
-  IMAP polling, daily digest generation, and stale-item resurfacing.
+  IMAP polling, daily digest generation, stale-item resurfacing, and
+  re-running the scheduler on trigger events.
 - **Hosting:** Vercel/Fly.io/Railway for the app, Neon/Supabase for
   Postgres, Upstash for Redis if needed — all low-maintenance managed
   services, matching the "don't build yourself a second job" principle.
@@ -182,7 +296,7 @@ doesn't have to make decisions that don't need to be made by a human.
   passkey) is enough — don't build multi-tenant auth for a tool only you
   will use.
 
-## 8. Phased build plan
+## 10. Phased build plan
 
 1. **Foundation:** schema (Client/Project/Task/EmailAccount/EmailThread/
    EmailMessage/TaskEmailLink/CaptureItem), auth, manual task CRUD, IMAP
@@ -194,7 +308,13 @@ doesn't have to make decisions that don't need to be made by a human.
 4. **Send + automate:** SMTP/API sending from within the app, reply
    templates, Weekly Review screen, daily digest email/notification
    summarizing what's in Focus for tomorrow.
-5. **Polish:** time-blocking calendar view, mobile quick-capture, simple
+5. **Brief extraction:** Claude API integration for multi-task extraction
+   from briefs, the preview/confirm UI, and `BriefExtraction` records.
+6. **Auto-scheduling:** calendar sync (read-only first), `ScheduledBlock`/
+   `UserScheduleProfile` schema, the greedy scheduler, and reflow-on-trigger
+   logic — start with soft-deadline-only reflow before adding hard-deadline
+   at-risk flagging.
+7. **Polish:** duration calibration loop, mobile quick-capture, simple
    automations (e.g. auto-tag emails from known clients into their
    Project).
 
