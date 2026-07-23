@@ -1,0 +1,135 @@
+// Strobe — Phase 1 schema
+// Scope: Client / Project / Task / mock EmailThread+EmailMessage / TaskEmailLink / CaptureItem
+// See /DESIGN.md §3 for the full data model this is drawn from.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ProjectStatus {
+  active
+  waiting
+  someday
+  done
+}
+
+enum TaskState {
+  next
+  later
+  waiting
+  stuck
+  done
+}
+
+enum Energy {
+  low
+  medium
+  high
+}
+
+enum TaskContext {
+  email
+  calls
+  deep_work
+  admin
+}
+
+enum DeadlineType {
+  hard
+  soft
+}
+
+enum EmailThreadStatus {
+  unprocessed
+  triaged
+  archived
+}
+
+model Client {
+  id        String        @id @default(cuid())
+  name      String
+  colorTag  String        @default("#ff4b1f")
+  createdAt DateTime      @default(now())
+  projects  Project[]
+  threads   EmailThread[]
+}
+
+model Project {
+  id           String        @id @default(cuid())
+  name         String
+  status       ProjectStatus @default(active)
+  dueDate      DateTime?
+  nextActionId String?       @unique
+  clientId     String?
+  client       Client?       @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  tasks        Task[]        @relation("ProjectTasks")
+  nextAction   Task?         @relation("ProjectNextAction", fields: [nextActionId], references: [id], onDelete: SetNull)
+  createdAt    DateTime      @default(now())
+}
+
+model Task {
+  id               String          @id @default(cuid())
+  title            String
+  note             String?
+  state            TaskState       @default(next)
+  energy           Energy?
+  context          TaskContext?
+  deadlineType     DeadlineType?
+  dueDate          DateTime?
+  phase            String?
+  estimatedMinutes Int?
+  actualMinutes    Int?
+  batchIndex       Int?
+  batchTotal       Int?
+  projectId        String?
+  project          Project?        @relation("ProjectTasks", fields: [projectId], references: [id], onDelete: Cascade)
+  asNextActionOf   Project?        @relation("ProjectNextAction")
+  emailLinks       TaskEmailLink[]
+  createdAt        DateTime        @default(now())
+  completedAt      DateTime?
+}
+
+model EmailThread {
+  id        String            @id @default(cuid())
+  subject   String
+  status    EmailThreadStatus @default(unprocessed)
+  clientId  String?
+  client    Client?           @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  messages  EmailMessage[]
+  taskLinks TaskEmailLink[]
+  createdAt DateTime          @default(now())
+}
+
+model EmailMessage {
+  id         String      @id @default(cuid())
+  threadId   String
+  thread     EmailThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  fromName   String
+  fromEmail  String
+  snippet    String
+  body       String
+  receivedAt DateTime
+  unread     Boolean     @default(true)
+}
+
+model TaskEmailLink {
+  id       String      @id @default(cuid())
+  taskId   String
+  threadId String
+  task     Task        @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  thread   EmailThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, threadId])
+}
+
+model CaptureItem {
+  id        String   @id @default(cuid())
+  text      String
+  triaged   Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
