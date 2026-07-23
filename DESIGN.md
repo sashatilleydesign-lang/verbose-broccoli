@@ -265,7 +265,59 @@ calibration).
    stale `waiting` items, and projects with no `next` action set, prompting
    (not demanding) a decision on each.
 
-## 9. Cross-device sync (Mac + Android)
+## 9. Visual design language — "acid maximalism, calm structure"
+
+A boring, beige SaaS look under-stimulates ADHD brains and quietly hurts
+whether the app is something you actually want to open. The visual
+identity leans into a maximalist, acid-design aesthetic — but deliberately
+kept separate from the information architecture in §1/§5/§8, which stays
+sparse. **Maximalist skin, minimalist content** — the Focus view still
+shows exactly 3 items; it just doesn't look like a corporate dashboard
+while doing it. Piling high-intensity visuals onto an already-dense screen
+stacks two kinds of cognitive load at once, so intensity is deliberately
+uneven across the app rather than applied everywhere at full volume.
+
+**The look:**
+- Saturated, clashing gradient palettes (hot pink/lime/cyan/purple —
+  acid-house/rave-flyer color logic) rather than a safe corporate blue.
+- Chrome/bubble, warped, or sticker-style display type for headers,
+  empty states, and badges; plain, high-legibility text everywhere actual
+  reading happens (task titles, email bodies, spec notes).
+- Grain/noise texture overlays and blobby, warped shapes instead of clean
+  flat corporate iconography.
+- Playful, bouncy micro-interaction motion (squish/pop on tap/complete)
+  rather than corporate ease-in-out easing.
+
+**Where the intensity is dialed up:**
+- **Capture confirmation & task completion** — a celebratory acid burst
+  animation on finishing something. This is the best possible use of the
+  aesthetic: a reward hit at exactly the moment ADHD dopamine-seeking wants
+  one, reinforcing the behavior loop.
+- **Empty states & onboarding** — no competing density yet, so full
+  personality here is free.
+- **Global chrome** (nav, capture bar, section headers) — vibrant and
+  characterful even on otherwise calm screens.
+
+**Where intensity is dialed down:**
+- **Dense/working screens** — Triage, full task lists, Weekly Review, the
+  client workspace timeline, email reading. These already carry real
+  cognitive load; the visual treatment here favors legibility and calm
+  (muted accents, restrained gradients) over maximalism, so the aesthetic
+  never fights the content.
+- **Focus view** — vibrant shell, but the 3-item layout itself stays
+  uncluttered; the acid treatment lives in the background/chrome, not in
+  how many things are on screen.
+
+**Two rules that keep this from becoming a liability:**
+- Respect `prefers-reduced-motion` throughout — bounce/squish/gradient
+  animation degrades to static on request.
+- A user-facing **Calm Mode** toggle (theme-level, not per-task) dials the
+  whole visual language down to a muted, low-stimulation version of the
+  same layout for overstimulated days — the same "match the interface to
+  current capacity" principle already applied to task energy tags (§5),
+  applied to the theme itself.
+
+## 10. Cross-device sync (Mac + Android)
 
 Because the architecture is already "thin clients talking to one central
 backend" (§2) rather than a local-first app, this is simpler than it
@@ -320,7 +372,7 @@ Waiting-On resurfacing pings, with no native push infrastructure required.
 If wrapped via Capacitor/Tauri later, swap in native push (FCM for
 Android, APNs for Mac) for more reliable delivery.
 
-## 10. Suggested tech stack
+## 11. Suggested tech stack
 
 - **Frontend:** Next.js (React) + Tailwind, single-user session (no
   multi-tenant complexity needed for a freelancer's own tool).
@@ -356,8 +408,12 @@ Android, APNs for Mac) for more reliable delivery.
   native push/share-sheet integration. A small WebSocket layer (or
   Supabase/Postgres LISTEN-NOTIFY if using Supabase) for live cross-device
   updates.
+- **Visual design system:** Tailwind + a custom theme layer (design tokens
+  for the acid palette/gradients, a separate muted Calm Mode token set),
+  Framer Motion for the bounce/squish micro-interactions, respecting
+  `prefers-reduced-motion` at the animation-library level.
 
-## 11. Phased build plan
+## 12. Phased build plan
 
 1. **Foundation:** schema (Client/Project/Task/EmailAccount/EmailThread/
    EmailMessage/TaskEmailLink/CaptureItem), auth, manual task CRUD, IMAP
@@ -377,7 +433,11 @@ Android, APNs for Mac) for more reliable delivery.
    at-risk flagging.
 7. **Cross-device:** PWA install support on Mac + Android, offline capture
    write-queue, and the WebSocket live-update channel between open devices.
-8. **Polish:** duration calibration loop, native Capacitor/Tauri wrap if
+8. **Visual identity:** acid-maximalist theme layer, completion/capture
+   celebration animations, and the Calm Mode toggle — layered on top of the
+   plain, functional UI shipped in earlier phases rather than blocking on
+   it.
+9. **Polish:** duration calibration loop, native Capacitor/Tauri wrap if
    deeper platform integration is wanted, simple automations (e.g.
    auto-tag emails from known clients into their Project).
 
