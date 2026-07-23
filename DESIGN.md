@@ -73,15 +73,21 @@ tabs.
 - **CaptureItem** — the universal quick-capture bucket. Raw, untyped text
   dropped from anywhere (global hotkey, mobile, forwarded email). Triage
   turns it into a Task, Project, or discards it.
-- **BriefExtraction** — record of an LLM extraction run against an
-  EmailThread (+ attachments): stores the raw model output, which Tasks it
-  produced, and whether it was accepted/edited/discarded, so a batch of
-  generated tasks is always traceable back to the source brief and
-  re-editable if the parse was off.
+- **BriefExtraction** — record of an LLM extraction run against a source
+  document: either an EmailThread's attachment, or a file dropped directly
+  into Capture or a Project with no email involved at all. Stores the raw
+  model output, which sections of the source were judged actionable vs.
+  reference-only, which Tasks it produced, and whether each was
+  accepted/edited/merged/discarded — so a batch of generated tasks is
+  always traceable back to the source and re-editable if the parse was off.
 - **Task (extended fields)** — `estimatedDuration`, `actualDuration`
   (captured on completion, used to calibrate future estimates),
   `deadlineType: hard|soft` (hard = client-committed, soft = self-imposed —
-  only soft deadlines get silently moved by the scheduler).
+  only soft deadlines get silently moved by the scheduler), `phase`
+  (optional short free-text label like "Pre-launch" or "Month 3," used
+  instead of a `dueDate` when the source organizes work by milestone rather
+  than a hard date — not every extracted task has a real deadline, and
+  fabricating one to fill the field is worse than leaving it blank).
 - **ScheduledBlock** — a specific instance of a Task placed on the
   calendar (`task_id`, `start`, `end`). Kept separate from the Task itself
   so a task can be rescheduled repeatedly without losing its identity or
@@ -170,33 +176,65 @@ doesn't have to make decisions that don't need to be made by a human.
 ## 6. Bulk task extraction from briefs (LLM-assisted)
 
 The simple "Turn into task" button (§5) assumes 1 email → 1 task. A brief
-("10 ads, here's the copy and specs for each") is really 1 email → 1
-project + N related tasks, and needs its own path:
+("10 ads, here's the copy and specs for each") is really 1 source → 1
+project + N related tasks, and needs its own path. Testing this against a
+real, messier document (a multi-section business plan, not a clean ad
+brief) surfaced three gaps in the original design, folded in below.
 
-1. **Extract, don't auto-run.** An explicit "Extract tasks" action on the
-   thread — not something that fires automatically on arrival — sends the
-   email body plus any attachments (PDF/Word brief, spec sheet, image refs)
-   to an LLM with a structured-output schema. Attachments are text-extracted
-   first so the model sees the brief's actual content, not just the email
-   chrome around it. The model returns a list of discrete deliverables, each
-   with a title, any spec/copy/dimension notes, and a shared deadline if one
-   is stated.
-2. **Preview before commit.** Results land in an editable confirmation
-   screen — "found 10 items, confirm/edit/merge/discard before adding" —
-   never silently created. LLM extraction won't always split things exactly
-   right, and a surprise pile of 10 new tasks appearing unannounced is a bad
-   experience for exactly the brain this system is designed for.
-3. **Group, don't scatter.** Accepted items become one Project ("10 ads —
-   [Client]") with 10 child Tasks, each carrying its own spec as a note and
-   a `TaskEmailLink` back to the source thread, so the original brief never
-   needs to be re-opened and re-read to remember what "ad 7" was.
-4. **Focus view stays calm.** Even though 10 tasks now exist, the
+1. **Extract, don't auto-run — from anywhere, not just email.** An
+   explicit "Extract tasks" action — never something that fires
+   automatically on arrival — sends the source to an LLM with a
+   structured-output schema. The source is either an email thread's
+   attachment (the original case) *or* a file dropped directly into
+   Capture or straight onto a Project, with no email involved at all.
+   Plenty of real source material — a personal business plan, a scope doc
+   a client hands over in person, a PDF pulled off Drive — never arrives
+   by email, so the entry point can't assume one did. Attachments are
+   text-extracted first so the model sees the document's actual content.
+2. **Scope to the actionable sections before extracting, not the whole
+   document.** A clean ad brief is almost entirely deliverables, so
+   extracting from the whole thing works. A planning document is mostly
+   *not* actionable — an executive summary, a market analysis, a financial
+   model are reference material, not tasks. Before pulling candidates, a
+   first pass classifies sections as reference vs. actionable (checklists,
+   milestones, "next steps" framing, imperative phrasing) and only sends
+   the actionable ones to extraction. Skipping this step means the model
+   eventually tries to manufacture a task out of a sentence like "the
+   market is growing at 23% annually" — a real failure mode, not a
+   hypothetical one.
+3. **Preview before commit.** Results land in an editable confirmation
+   screen — "found N items, confirm/edit/merge/discard before adding" —
+   never silently created. This step earns its keep even harder on messy
+   source material: a real planning document can describe the *same* task
+   twice in two different sections at two different levels of detail (a
+   milestone list says "sample shirts ordered," a separate open-questions
+   section says "order sample shirts from two printers for comparison") —
+   an organic duplicate the model won't reliably catch on its own, which
+   the merge step exists to catch.
+4. **Group, don't scatter — and don't require a client.** Accepted items
+   become one Project ("10 ads — [Client]") with child Tasks, each
+   carrying its own spec as a note and a link back to the source, so the
+   original document never needs to be re-opened and re-read to remember
+   what one item meant. When the source has a Client attached (an email
+   thread), the Project is tied to it; when it doesn't (a standalone
+   upload, a personal project with no client at all), the Project is
+   created freestanding — bulk extraction isn't only a client-work feature.
+5. **No forced shared deadline.** The ad-brief case had one clean date for
+   all 10 items, but that's the exception, not the rule — a planning
+   document organizes work by milestone ("Foundation," "Pre-launch,"
+   "Month 3") or leaves things as open decisions with no date at all. Each
+   extracted item carries whatever timing signal the source actually gives
+   it — a real `dueDate`, a `phase` label, or nothing — rather than being
+   forced into a fabricated shared deadline the confirmation screen has no
+   honest way to display.
+6. **Focus view stays calm.** Even though N tasks now exist, the
    Today/Focus view (§5) still only ever surfaces that project's single
-   pinned `next` task. The batch is worked one item at a time; the other 9
+   pinned `next` task. The batch is worked one item at a time; the rest
    are one click away under the project, never the first thing seen.
-5. **BriefExtraction record** keeps the raw model output and links to the
-   generated tasks, so a bad parse can be reopened and re-edited rather
-   than manually cleaned up task-by-task.
+7. **BriefExtraction record** keeps the raw model output, which sections
+   were judged actionable, and links to the generated tasks, so a bad
+   parse can be reopened and re-edited rather than manually cleaned up
+   task-by-task.
 
 ## 7. Auto-scheduling calendar (Motion-style time-blocking)
 
@@ -383,9 +421,10 @@ Android, APNs for Mac) for more reliable delivery.
   going API-first. Store raw MIME for audit/undo, parsed text/HTML for
   display.
 - **Brief extraction:** Claude API (Messages API with a structured-output
-  tool schema) for parsing email + attachment text into discrete
-  deliverables; a PDF/DOCX text-extraction step ahead of it for
-  attachments.
+  tool schema) for parsing source text into discrete deliverables, with a
+  reference-vs-actionable section-classification pass ahead of it; a
+  PDF/DOCX text-extraction step for attachments or direct uploads (the
+  source doesn't have to be an email).
 - **Calendar sync:** Google Calendar API or CalDAV for pulling in existing
   `CalendarEvent`s read-only; the auto-scheduler writes `ScheduledBlock`s
   back either to its own calendar view or (optionally) as events on the
