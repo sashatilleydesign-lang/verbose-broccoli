@@ -57,8 +57,9 @@ directory for the actual dev values used locally.
 - `src/lib/scheduler.ts` — the reflow algorithm: working-hours-aware slot
   finder, hard-deadline-first priority ordering, buffer time, at-risk
   flagging (computed at render time, not stored)
-- `src/lib/schedule.ts` — Schedule screen queries (today's hour-grid +
-  upcoming days)
+- `src/lib/schedule.ts` — Schedule screen queries: day (hour-grid + upcoming
+  agenda), week (7-day hour-grid), and month (calendar grid) views, all
+  driven off a shared `blocksAndEventsBetween` query
 - `src/app/actions/*` — Server Actions (complete task w/ batch auto-advance,
   `markAsNext` w/ single-pinned-next-action enforcement, `touchTask` for
   snooze/still-waiting, archive/convert email, capture CRUD, `reflowSchedule`,
@@ -77,6 +78,9 @@ directory for the actual dev values used locally.
   ever feels like friction.
 - `CalendarEvent`s are manually entered for now (no external calendar
   sync) — see DESIGN.md §7 for the phased plan to add that later.
+- The Schedule page has Day / Week / Month tabs (`?view=` + `?date=` in the
+  URL). Month cells link into that day's Day view instead of opening any
+  kind of modal — keeps the day-detail rendering logic in one place.
 
 ## Known bugs fixed in the last review pass
 

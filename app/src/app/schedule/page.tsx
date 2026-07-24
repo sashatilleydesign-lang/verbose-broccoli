@@ -1,41 +1,109 @@
+import Link from "next/link";
 import { verifySession } from "@/lib/dal";
-import { getTodaySchedule, getUpcomingSchedule } from "@/lib/schedule";
+import {
+  getDaySchedule,
+  getUpcomingSchedule,
+  getWeekSchedule,
+  getMonthGrid,
+  startOfWeek,
+  dateKey,
+  type ScheduleItem,
+} from "@/lib/schedule";
 import { AppShell } from "@/components/AppShell";
 import { ReflowButton } from "@/components/ReflowButton";
 import { createCalendarEvent, deleteCalendarEvent } from "@/app/actions/schedule";
 
 const ROW_H = 56;
+const WEEK_ROW_H = 44;
 
 function fmtTime(d: Date) {
   return d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
 }
 
-function todayInputValue() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+function parseDateParam(s: string | undefined): Date {
+  const m = s ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(s) : null;
+  if (m) {
+    const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    if (!Number.isNaN(d.getTime())) return d;
+  }
+  return new Date();
+}
+
+function viewHref(view: "day" | "week" | "month", date: Date) {
+  return `/schedule?view=${view}&date=${dateKey(date)}`;
+}
+
+function addDays(d: Date, n: number): Date {
+  const nd = new Date(d);
+  nd.setDate(nd.getDate() + n);
+  return nd;
 }
 
 function kindClasses(kind: string) {
   if (kind === "atRisk") return "bg-accent border-accent";
-  if (kind === "fixed") {
-    return "border-line";
-  }
+  if (kind === "fixed") return "border-line";
   return "border-line bg-[color-mix(in_srgb,var(--accent)_16%,var(--panel))]";
 }
 
-export default async function SchedulePage() {
-  await verifySession();
-  const today = await getTodaySchedule();
-  const upcoming = await getUpcomingSchedule(6);
+function hourBounds(items: ScheduleItem[]) {
+  const hours = items.map((i) => [i.start.getHours(), i.end.getHours() + (i.end.getMinutes() > 0 ? 1 : 0)]).flat();
+  const startHour = Math.max(6, Math.min(7, ...(hours.length ? hours : [7])));
+  const endHour = Math.min(22, Math.max(19, ...(hours.length ? hours : [19])));
+  return { startHour, endHour };
+}
 
-  // Auto-expand to fit outliers, but clamp so one stray odd-hour event
-  // (a 2am flight, say) can't blow the grid out to a nearly-empty span.
-  const hours = today.map((i) => [i.start.getHours(), i.end.getHours() + (i.end.getMinutes() > 0 ? 1 : 0)]).flat();
-  const gridStartHour = Math.max(6, Math.min(7, ...(hours.length ? hours : [7])));
-  const gridEndHour = Math.min(22, Math.max(19, ...(hours.length ? hours : [19])));
-  const gridStart = new Date();
-  gridStart.setHours(gridStartHour, 0, 0, 0);
-  const totalHours = gridEndHour - gridStartHour;
+function ViewTabs({ view, anchor }: { view: string; anchor: Date }) {
+  const tabs: Array<{ key: "day" | "week" | "month"; label: string }> = [
+    { key: "day", label: "Day" },
+    { key: "week", label: "Week" },
+    { key: "month", label: "Month" },
+  ];
+  return (
+    <div className="flex items-center gap-1 rounded-md border border-line bg-panel p-1">
+      {tabs.map((t) => (
+        <Link
+          key={t.key}
+          href={viewHref(t.key, anchor)}
+          className={`rounded-sm px-3 py-1.5 text-[12.5px] font-bold uppercase ${
+            view === t.key ? "bg-accent text-ground" : "text-ink-dim hover:text-ink"
+          }`}
+        >
+          {t.label}
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+function NavRow({ view, anchor, label }: { view: "day" | "week" | "month"; anchor: Date; label: string }) {
+  const prev = view === "day" ? addDays(anchor, -1) : view === "week" ? addDays(anchor, -7) : new Date(anchor.getFullYear(), anchor.getMonth() - 1, 1);
+  const next = view === "day" ? addDays(anchor, 1) : view === "week" ? addDays(anchor, 7) : new Date(anchor.getFullYear(), anchor.getMonth() + 1, 1);
+  return (
+    <div className="flex items-center gap-3">
+      <Link href={viewHref(view, prev)} aria-label="Previous" className="rounded-md border border-line px-2.5 py-1.5 text-[13px] font-bold text-ink-dim hover:text-accent">
+        ‹
+      </Link>
+      <span className="min-w-[11ch] text-center text-[13px] font-bold text-ink">{label}</span>
+      <Link href={viewHref(view, next)} aria-label="Next" className="rounded-md border border-line px-2.5 py-1.5 text-[13px] font-bold text-ink-dim hover:text-accent">
+        ›
+      </Link>
+      <Link href={viewHref(view, new Date())} className="rounded-md border border-line px-2.5 py-1.5 text-[11.5px] font-bold text-ink-dim uppercase hover:text-accent">
+        Today
+      </Link>
+    </div>
+  );
+}
+
+export default async function SchedulePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ view?: string; date?: string }>;
+}) {
+  await verifySession();
+  const sp = await searchParams;
+  const view: "day" | "week" | "month" = sp.view === "week" || sp.view === "month" ? sp.view : "day";
+  const anchor = parseDateParam(sp.date);
+  const todayKey = dateKey(new Date());
 
   return (
     <AppShell>
@@ -47,11 +115,44 @@ export default async function SchedulePage() {
         </p>
       </div>
 
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <ViewTabs view={view} anchor={anchor} />
+        <NavRow
+          view={view}
+          anchor={anchor}
+          label={
+            view === "day"
+              ? anchor.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })
+              : view === "week"
+                ? `Week of ${startOfWeek(anchor).toLocaleDateString(undefined, { month: "short", day: "numeric" })}`
+                : anchor.toLocaleDateString(undefined, { month: "long", year: "numeric" })
+          }
+        />
+      </div>
+
+      {view === "day" ? <DayView anchor={anchor} todayKey={todayKey} /> : null}
+      {view === "week" ? <WeekView anchor={anchor} todayKey={todayKey} /> : null}
+      {view === "month" ? <MonthView anchor={anchor} todayKey={todayKey} /> : null}
+    </AppShell>
+  );
+}
+
+async function DayView({ anchor, todayKey }: { anchor: Date; todayKey: string }) {
+  const today = await getDaySchedule(anchor);
+  const upcoming = await getUpcomingSchedule(6, anchor);
+  const { startHour: gridStartHour, endHour: gridEndHour } = hourBounds(today);
+  const gridStart = new Date(anchor);
+  gridStart.setHours(gridStartHour, 0, 0, 0);
+  const totalHours = gridEndHour - gridStartHour;
+  const isToday = dateKey(anchor) === todayKey;
+
+  return (
+    <>
       <div className="shadow-panel mb-8 rounded-md border border-line bg-panel">
         <div className="flex items-center justify-between border-b border-line p-4">
-          <h1 className="text-[15px] font-bold">Today&apos;s schedule</h1>
+          <h1 className="text-[15px] font-bold">{isToday ? "Today's schedule" : "Schedule"}</h1>
           <span className="text-[12px] text-ink-dim">
-            {new Date().toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}
+            {anchor.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}
           </span>
         </div>
 
@@ -68,7 +169,7 @@ export default async function SchedulePage() {
           ))}
           <div className="absolute top-4 right-4 bottom-4 left-[60px]">
             {today.length === 0 ? (
-              <p className="text-[13px] text-ink-dim">No blocks yet — hit Reflow to place today&apos;s work.</p>
+              <p className="text-[13px] text-ink-dim">Nothing scheduled — hit Reflow to place today&apos;s work.</p>
             ) : null}
             {today.map((item) => {
               const top = ((item.start.getTime() - gridStart.getTime()) / 3_600_000) * ROW_H;
@@ -80,9 +181,7 @@ export default async function SchedulePage() {
                   style={{ top, height }}
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <p
-                      className={`text-[12.5px] font-bold ${item.kind === "atRisk" ? "text-ground" : "text-ink"}`}
-                    >
+                    <p className={`text-[12.5px] font-bold ${item.kind === "atRisk" ? "text-ground" : "text-ink"}`}>
                       {item.kind === "fixed" ? "🔒 " : item.kind === "atRisk" ? "⚠ " : ""}
                       {item.title}
                     </p>
@@ -129,7 +228,7 @@ export default async function SchedulePage() {
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-[11px] font-bold text-ink-dim uppercase" htmlFor="date">Date</label>
-            <input id="date" name="date" type="date" required defaultValue={todayInputValue()} className="min-h-10 rounded-md border border-line bg-ground px-3 py-2 text-[14px] text-ink" />
+            <input id="date" name="date" type="date" required defaultValue={dateKey(anchor)} className="min-h-10 rounded-md border border-line bg-ground px-3 py-2 text-[14px] text-ink" />
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-[11px] font-bold text-ink-dim uppercase" htmlFor="startTime">Start</label>
@@ -148,7 +247,7 @@ export default async function SchedulePage() {
       <div>
         <p className="mb-3 text-[11.5px] font-bold tracking-wide text-ink-dim uppercase">Upcoming</p>
         {upcoming.size === 0 ? (
-          <p className="text-[13.5px] text-ink-dim">Nothing scheduled beyond today yet.</p>
+          <p className="text-[13.5px] text-ink-dim">Nothing scheduled beyond this day yet.</p>
         ) : (
           <div className="shadow-panel divide-y divide-line rounded-md border border-line bg-panel">
             {[...upcoming.entries()].map(([day, items]) => (
@@ -182,6 +281,115 @@ export default async function SchedulePage() {
           </div>
         )}
       </div>
-    </AppShell>
+    </>
+  );
+}
+
+async function WeekView({ anchor, todayKey }: { anchor: Date; todayKey: string }) {
+  const weekStart = startOfWeek(anchor);
+  const week = await getWeekSchedule(weekStart);
+  const allItems = week.flatMap((d) => d.items);
+  const { startHour: gridStartHour, endHour: gridEndHour } = hourBounds(allItems);
+  const totalHours = gridEndHour - gridStartHour;
+
+  return (
+    <div className="shadow-panel mb-8 overflow-hidden rounded-md border border-line bg-panel">
+      <div className="grid" style={{ gridTemplateColumns: "56px repeat(7, 1fr)" }}>
+        <div className="border-b border-line" />
+        {week.map((d) => (
+          <div key={`h-${d.key}`} className="border-b border-line px-1.5 py-2 text-center">
+            <p className="text-[10.5px] font-bold tracking-wide text-ink-dim uppercase">
+              {d.date.toLocaleDateString(undefined, { weekday: "short" })}
+            </p>
+            <p className={`text-[13px] font-bold ${d.key === todayKey ? "text-accent" : "text-ink"}`}>{d.date.getDate()}</p>
+          </div>
+        ))}
+
+        <div className="relative" style={{ height: totalHours * WEEK_ROW_H }}>
+          {Array.from({ length: totalHours }, (_, i) => (
+            <span
+              key={i}
+              className="font-mono-strobe absolute right-1.5 text-[10px] font-semibold text-ink-dim"
+              style={{ top: i * WEEK_ROW_H - 6 }}
+            >
+              {String(gridStartHour + i).padStart(2, "0")}:00
+            </span>
+          ))}
+        </div>
+
+        {week.map((d) => {
+          const dayGridStart = new Date(d.date);
+          dayGridStart.setHours(gridStartHour, 0, 0, 0);
+          return (
+            <div key={`b-${d.key}`} className={`relative border-l border-line ${d.key === todayKey ? "bg-[color-mix(in_srgb,var(--accent)_6%,transparent)]" : ""}`} style={{ height: totalHours * WEEK_ROW_H }}>
+              {Array.from({ length: totalHours }, (_, i) => (
+                <div key={i} className="absolute inset-x-0 border-t border-line first:border-t-0" style={{ top: i * WEEK_ROW_H }} />
+              ))}
+              {d.items.map((item) => {
+                const top = ((item.start.getTime() - dayGridStart.getTime()) / 3_600_000) * WEEK_ROW_H;
+                const height = Math.max(((item.end.getTime() - item.start.getTime()) / 3_600_000) * WEEK_ROW_H - 2, 16);
+                return (
+                  <div
+                    key={item.id}
+                    title={`${item.title} · ${fmtTime(item.start)}–${fmtTime(item.end)}`}
+                    className={`absolute right-0.5 left-0.5 overflow-hidden rounded-sm border px-1 py-0.5 ${kindClasses(item.kind)}`}
+                    style={{ top, height }}
+                  >
+                    <p className={`truncate text-[10.5px] font-bold ${item.kind === "atRisk" ? "text-ground" : "text-ink"}`}>
+                      {item.kind === "fixed" ? "🔒 " : ""}
+                      {item.title}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+async function MonthView({ anchor, todayKey }: { anchor: Date; todayKey: string }) {
+  const { days } = await getMonthGrid(anchor);
+  const MAX_CHIPS = 3;
+
+  return (
+    <div className="shadow-panel mb-8 overflow-hidden rounded-md border border-line bg-panel">
+      <div className="grid grid-cols-7 border-b border-line">
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((w) => (
+          <div key={w} className="px-2 py-2 text-center text-[10.5px] font-bold tracking-wide text-ink-dim uppercase">
+            {w}
+          </div>
+        ))}
+      </div>
+      <div className="grid grid-cols-7">
+        {days.map((d) => (
+          <Link
+            key={d.key}
+            href={viewHref("day", d.date)}
+            className={`min-h-[92px] border-r border-b border-line p-1.5 last:border-r-0 hover:bg-[color-mix(in_srgb,var(--accent)_8%,transparent)] ${
+              d.inMonth ? "" : "opacity-40"
+            }`}
+          >
+            <p className={`mb-1 text-[12px] font-bold ${d.key === todayKey ? "text-accent" : "text-ink"}`}>{d.date.getDate()}</p>
+            <div className="space-y-0.5">
+              {d.items.slice(0, MAX_CHIPS).map((item) => (
+                <p
+                  key={item.id}
+                  className={`truncate rounded-sm border px-1 text-[10px] font-semibold ${kindClasses(item.kind)} ${item.kind === "atRisk" ? "text-ground" : "text-ink"}`}
+                >
+                  {item.kind === "fixed" ? "🔒 " : ""}
+                  {item.title}
+                </p>
+              ))}
+              {d.items.length > MAX_CHIPS ? (
+                <p className="text-[10px] font-semibold text-ink-dim">+{d.items.length - MAX_CHIPS} more</p>
+              ) : null}
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
   );
 }
