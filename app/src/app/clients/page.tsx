@@ -2,6 +2,7 @@ import Link from "next/link";
 import { verifySession } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/AppShell";
+import { createClient } from "@/app/actions/entities";
 
 export default async function ClientsPage() {
   await verifySession();
@@ -22,6 +23,23 @@ export default async function ClientsPage() {
           Every email and every task for a client, in one scroll — not two tabs.
         </p>
       </div>
+
+      <form action={createClient} className="mb-5 flex gap-2.5">
+        <input
+          name="name"
+          type="text"
+          required
+          placeholder="New client name"
+          aria-label="New client name"
+          className="min-h-11 flex-1 rounded-md border border-line bg-panel px-3.5 py-2.5 text-[14px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        />
+        <button
+          type="submit"
+          className="min-h-11 rounded-md bg-accent px-4 text-[13px] font-semibold text-ground hover:opacity-90"
+        >
+          Add
+        </button>
+      </form>
 
       {clients.length === 0 ? (
         <p className="text-[13.5px] text-ink-dim">No clients yet.</p>

@@ -63,7 +63,8 @@ directory for the actual dev values used locally.
 - `src/app/actions/*` — Server Actions (complete task w/ batch auto-advance,
   `markAsNext` w/ single-pinned-next-action enforcement, `touchTask` for
   snooze/still-waiting, archive/convert email, capture CRUD, `reflowSchedule`,
-  fixed-event CRUD)
+  fixed-event CRUD, `entities.ts`'s direct-create for Client/Project/Task —
+  name/title only, everything else optional and editable later)
 
 ## Scheduler notes
 

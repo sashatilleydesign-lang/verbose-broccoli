@@ -779,7 +779,11 @@ better than separate Gmail + Notion tabs before building anything else.
 
 **Where the actual build has gotten to:** Phases 1, 2 (partial — bridge
 mechanics exist, but real IMAP/SMTP is still mocked pending a real
-mailbox/API credential), 3, and 6 are built and running against a real
+mailbox/API credential), 3, 6, and 8 are built and running against a real
 Postgres database. Phase 5 (brief extraction) is designed (§6) but not
 built — it needs a Claude API credential the project doesn't have yet.
-Phases 4, 7, 8, and 9 remain unbuilt. Phase 10 is next up.
+Phases 4, 7, and 9 remain unbuilt. Phase 10 (§11) is underway: §11.1
+(direct create for Client/Project/Task) is built — a "+ New" inline form
+on the Workspace index, on each client page (for projects), and on each
+project card (for tasks), all name/title-only with everything else
+editable later. The rest of §11 (§11.2 onward) is still queued.

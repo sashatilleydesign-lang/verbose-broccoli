@@ -3,6 +3,7 @@ import { verifySession } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/AppShell";
 import { ExpandableLater } from "@/components/ExpandableLater";
+import { createProject, createTask } from "@/app/actions/entities";
 
 type TimelineEntry = {
   kind: "email" | "done" | "next";
@@ -26,7 +27,6 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
   if (!client) notFound();
 
   const entries: TimelineEntry[] = [];
-  const laterTasks: { id: string; title: string }[] = [];
 
   for (const thread of client.threads) {
     for (const message of thread.messages) {
@@ -45,11 +45,6 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
         entries.push({ kind: "done", date: task.completedAt, title: task.title });
       } else if (task.state === "next") {
         entries.push({ kind: "next", date: task.createdAt, title: task.title });
-      } else if (task.state === "later" || task.state === "stuck" || task.state === "waiting") {
-        // Every task shows up somewhere in the workspace — a stuck or
-        // waiting task doesn't just silently disappear from view.
-        const suffix = task.state === "later" ? "" : ` (${task.state})`;
-        laterTasks.push({ id: task.id, title: `${task.title}${suffix}` });
       }
     }
   }
@@ -101,10 +96,82 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
             </li>
           ))}
         </ol>
+      </div>
 
-        <div className="mt-5 ml-1.5 pl-6">
-          <ExpandableLater tasks={laterTasks} />
-        </div>
+      <div className="mt-8">
+        <p className="mb-3 text-[11.5px] font-bold tracking-wide text-ink-dim uppercase">Projects</p>
+
+        <form action={createProject.bind(null, client.id)} className="mb-4 flex gap-2.5">
+          <input
+            name="name"
+            type="text"
+            required
+            placeholder="New project name"
+            aria-label="New project name"
+            className="min-h-11 flex-1 rounded-md border border-line bg-panel px-3.5 py-2.5 text-[14px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          />
+          <button
+            type="submit"
+            className="min-h-11 rounded-md bg-accent px-4 text-[13px] font-semibold text-ground hover:opacity-90"
+          >
+            Add
+          </button>
+        </form>
+
+        {client.projects.length === 0 ? (
+          <p className="text-[13.5px] text-ink-dim">No projects yet.</p>
+        ) : (
+          <div className="space-y-3">
+            {client.projects.map((project) => {
+              const otherTasks = project.tasks
+                .filter((t) => t.state === "later" || t.state === "stuck" || t.state === "waiting")
+                .map((t) => ({
+                  id: t.id,
+                  // Every task shows up somewhere in the workspace — a
+                  // stuck or waiting task doesn't just silently disappear.
+                  title: t.state === "later" ? t.title : `${t.title} (${t.state})`,
+                }));
+
+              return (
+                <div key={project.id} className="shadow-panel rounded-md border border-line bg-panel p-4">
+                  <div className="mb-2.5 flex flex-wrap items-center gap-2">
+                    <p className="text-[14.5px] font-semibold">{project.name}</p>
+                    {project.status !== "active" ? (
+                      <span className="rounded border border-line px-2 py-0.5 text-[11px] font-semibold text-ink-dim">
+                        {project.status}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {otherTasks.length === 0 ? (
+                    <p className="mb-3 text-[13px] text-ink-dim">No tasks yet.</p>
+                  ) : (
+                    <div className="mb-3">
+                      <ExpandableLater tasks={otherTasks} />
+                    </div>
+                  )}
+
+                  <form action={createTask.bind(null, project.id)} className="flex gap-2">
+                    <input
+                      name="title"
+                      type="text"
+                      required
+                      placeholder="New task"
+                      aria-label={`New task for ${project.name}`}
+                      className="min-h-9 flex-1 rounded-md border border-line bg-ground px-3 py-1.5 text-[13.5px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                    />
+                    <button
+                      type="submit"
+                      className="min-h-9 rounded-md bg-accent px-3 text-[12px] font-semibold text-ground hover:opacity-90"
+                    >
+                      Add
+                    </button>
+                  </form>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </AppShell>
   );
