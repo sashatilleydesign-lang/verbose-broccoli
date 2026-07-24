@@ -439,7 +439,7 @@ core loop. But measured against Monday/Motion/Asana as daily drivers, a
 few real gaps remain — surfaced by asking "what would make this feel
 unfinished after a month of actual use," not by chasing feature parity.
 Most of what those tools have would actively work against §1's
-minimalism (see §11.13); the following is the subset worth building, in
+minimalism (see §11.14); the following is the subset worth building, in
 priority order, plus the reasoning for each.
 
 **11.1 Direct create — no more database GUI.** Clients, Projects, and
@@ -577,7 +577,25 @@ reverse action after any of the handful of destructive-feeling moments
 case ("wrong button") without building general-purpose undo
 infrastructure.
 
-**11.13 Deliberately excluded.** Comments/activity feeds, file
+**11.13 Global quick-capture — a floating button, not a fifth tab.**
+§2's own architecture diagram and §5 both describe capture as a "global
+capture bar"/"global-hotkey text box" reachable from anywhere — but what
+actually got built (§9) is a fifth item in the Sidebar/drawer nav, which
+means "drop a thought in under 2 seconds" currently requires navigating
+away from whatever screen you're on first. That quietly breaks the
+promise §1 makes. The fix: pull the *input* out of the nav and make it a
+floating action button present on every screen, desktop and mobile
+alike, that opens the same one-field-no-picker box from §5 inline or as
+a lightweight overlay — never a full page navigation. The Capture
+*page* itself doesn't go away — the list of untriaged items you review
+later stays exactly where it is in the nav, since triage is a
+deliberate, scheduled pass (§5), not something you need mid-task. Only
+the "add one now" action moves to global chrome. On mobile this should
+sit thumb-reachable (bottom-right is the convention, matching the
+`Add`/`+` affordances already used in Schedule) rather than fighting the
+top hamburger for the same corner.
+
+**11.14 Deliberately excluded.** Comments/activity feeds, file
 attachments, task dependencies/blocking-chains, multi-user permissions,
 and a general-purpose automation-rule builder — the parts of
 Monday/Asana that make them fit for teams — are left out on purpose.
@@ -663,8 +681,9 @@ a rules engine the user has to go build.
     the Time report surface, resizable schedule blocks, project
     templates, v0 (in-tab) reminders, click-to-create on the calendar,
     a notes/brief click-through on tasks, a dedicated client view (scope
-    TBD), live at-risk feedback while dragging a hard-deadline task, and
-    lightweight undo (a reversible toast) on complete/discard/delete/drag.
+    TBD), live at-risk feedback while dragging a hard-deadline task,
+    lightweight undo (a reversible toast) on complete/discard/delete/drag,
+    and pulling quick-capture out of the nav into a global floating button.
 
 Start at Phase 1 with the smallest possible slice: one EmailAccount synced
 read-only, and manual tasks — prove the unified per-client timeline feels
