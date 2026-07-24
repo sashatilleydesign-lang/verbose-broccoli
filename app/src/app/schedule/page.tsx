@@ -183,7 +183,7 @@ async function DayView({ anchor, todayKey }: { anchor: Date; todayKey: string })
             <label className="text-[11px] font-bold text-ink-dim uppercase" htmlFor="endTime">End</label>
             <input id="endTime" name="endTime" type="time" required className="min-h-10 rounded-md border border-line bg-ground px-3 py-2 text-[14px] text-ink" />
           </div>
-          <button type="submit" className="min-h-10 rounded-md border border-accent px-4 text-[12.5px] font-bold text-accent uppercase hover:bg-accent hover:text-ground">
+          <button type="submit" className="min-h-10 rounded-md bg-accent px-4 text-[13px] font-semibold text-ground hover:opacity-90">
             Add
           </button>
         </form>

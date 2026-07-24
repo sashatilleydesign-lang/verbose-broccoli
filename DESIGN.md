@@ -312,57 +312,64 @@ calibration).
 6. **Time report** — a per-client rollup of logged `actualDuration`, by
    week/month, for invoicing. See §11.3.
 
-## 9. Visual design language — "acid maximalism, calm structure"
+## 9. Visual design language — clean, structured (Monday.com-inspired)
 
-A boring, beige SaaS look under-stimulates ADHD brains and quietly hurts
-whether the app is something you actually want to open. The visual
-identity leans into a maximalist, acid-design aesthetic — but deliberately
-kept separate from the information architecture in §1/§5/§8, which stays
-sparse. **Maximalist skin, minimalist content** — the Focus view still
-shows exactly 3 items; it just doesn't look like a corporate dashboard
-while doing it. Piling high-intensity visuals onto an already-dense screen
-stacks two kinds of cognitive load at once, so intensity is deliberately
-uneven across the app rather than applied everywhere at full volume.
+Superseded the original "acid maximalism" direction after live use: a
+high-intensity skin was interesting as a concept but fought the actual
+day-to-day experience of a tool meant to be opened dozens of times a day
+under real cognitive load. The revised bet is closer to Monday.com's own
+visual language — light, white/near-white panels, one calm brand blue, a
+lot of whitespace, plain system typography — because that register reads
+as *low-effort to look at*, which matters more for daily-driver use than
+personality. The information architecture from §1/§5/§8 doesn't change:
+the Focus view still shows exactly 3 items. What changes is that the
+shell around it stops working against that restraint instead of leaning
+into a contradiction (a maximalist skin around a minimalist screen).
 
 **The look:**
-- Saturated, clashing gradient palettes (hot pink/lime/cyan/purple —
-  acid-house/rave-flyer color logic) rather than a safe corporate blue.
-- Chrome/bubble, warped, or sticker-style display type for headers,
-  empty states, and badges; plain, high-legibility text everywhere actual
-  reading happens (task titles, email bodies, spec notes).
-- Grain/noise texture overlays and blobby, warped shapes instead of clean
-  flat corporate iconography.
-- Playful, bouncy micro-interaction motion (squish/pop on tap/complete)
-  rather than corporate ease-in-out easing.
+- Light by default: near-white app background, white panels, a light
+  gray border (`--line`) instead of heavy shadow/glow to separate
+  surfaces — the same restrained separation Monday/Asana/Motion all use.
+- **One accent blue, still reserved for the one thing** — this is the
+  one place the old philosophy carries over unchanged from §1. Monday
+  itself uses its brand blue everywhere (nav, chrome, links); this app
+  deliberately doesn't — accent color stays reserved for the pinned next
+  action and primary buttons specifically, and everything else (nav,
+  secondary text, borders) stays neutral gray. Borrowing Monday's palette
+  doesn't mean borrowing Monday's "brand color on everything" instinct.
+- Plain system sans-serif throughout, normal case and weight — the
+  stretched/condensed display treatment on headers is gone. Small
+  uppercase eyebrow labels (section headers like "SCHEDULE") stay; that
+  convention is common ground between the old and new look and isn't
+  specifically an "acid" trait.
+- No grain/noise texture, no warped/sticker shapes. Flat, clean surfaces.
+- Dark mode is kept as a plain, ordinary dark theme (not a separate
+  "Calm Mode" concept) — since the light default is already calm, the
+  toggle's job shrinks to "which theme do you prefer," same as any other
+  app's light/dark switch.
+- Completion still gets a small, satisfying acknowledgment (a checkbox
+  fill animation, a brief color flash) — the dopamine-on-completion
+  principle from §1 survives, just scaled down from a "celebratory acid
+  burst" to something that fits a quiet, professional-looking screen.
+- Respect `prefers-reduced-motion` throughout — this rule didn't depend
+  on the old aesthetic and still applies.
 
-**Where the intensity is dialed up:**
-- **Capture confirmation & task completion** — a celebratory acid burst
-  animation on finishing something. This is the best possible use of the
-  aesthetic: a reward hit at exactly the moment ADHD dopamine-seeking wants
-  one, reinforcing the behavior loop.
-- **Empty states & onboarding** — no competing density yet, so full
-  personality here is free.
-- **Global chrome** (nav, capture bar, section headers) — vibrant and
-  characterful even on otherwise calm screens.
-
-**Where intensity is dialed down:**
-- **Dense/working screens** — Triage, full task lists, Weekly Review, the
-  client workspace timeline, email reading. These already carry real
-  cognitive load; the visual treatment here favors legibility and calm
-  (muted accents, restrained gradients) over maximalism, so the aesthetic
-  never fights the content.
-- **Focus view** — vibrant shell, but the 3-item layout itself stays
-  uncluttered; the acid treatment lives in the background/chrome, not in
-  how many things are on screen.
-
-**Two rules that keep this from becoming a liability:**
-- Respect `prefers-reduced-motion` throughout — bounce/squish/gradient
-  animation degrades to static on request.
-- A user-facing **Calm Mode** toggle (theme-level, not per-task) dials the
-  whole visual language down to a muted, low-stimulation version of the
-  same layout for overstimulated days — the same "match the interface to
-  current capacity" principle already applied to task energy tags (§5),
-  applied to the theme itself.
+**Navigation shell — sidebar (desktop) / slide-out drawer (mobile).**
+The original top horizontal tab bar (§8's five surfaces: Focus,
+Workspace, Capture, Weekly Review, Schedule) doesn't scale down cleanly —
+five tabs wrap awkwardly on a phone width. The fix, modeled on how
+Monday.com (and most mature PM tools) actually handle this:
+- **Desktop:** a persistent left sidebar, icon + label per surface,
+  always visible — no click-to-reveal step for the primary navigation
+  action of the entire app.
+- **Mobile:** the sidebar collapses behind a hamburger icon in a slim top
+  bar; tapping it opens a full-height slide-out drawer with the same nav
+  list, closing on selection or an outside tap. This matches the
+  established mobile PM-app pattern (Google Calendar's own hamburger
+  drawer behaves the same way) rather than inventing a bespoke mobile nav.
+- Sign-out and the light/dark toggle live at the bottom of the sidebar
+  (desktop) and inside the drawer (mobile) — secondary actions, not
+  competing for space with the five primary surfaces.
 
 ## 10. Cross-device sync (Mac + Android)
 
@@ -564,9 +571,9 @@ a rules engine the user has to go build.
   native push/share-sheet integration. A small WebSocket layer (or
   Supabase/Postgres LISTEN-NOTIFY if using Supabase) for live cross-device
   updates.
-- **Visual design system:** Tailwind + a custom theme layer (design tokens
-  for the acid palette/gradients, a separate muted Calm Mode token set),
-  Framer Motion for the bounce/squish micro-interactions, respecting
+- **Visual design system:** Tailwind + a custom theme layer (light-theme
+  tokens by default, a plain dark-theme token set), light micro-interaction
+  motion for completion/capture acknowledgment, respecting
   `prefers-reduced-motion` at the animation-library level.
 
 ## 13. Phased build plan
@@ -589,10 +596,10 @@ a rules engine the user has to go build.
    at-risk flagging.
 7. **Cross-device:** PWA install support on Mac + Android, offline capture
    write-queue, and the WebSocket live-update channel between open devices.
-8. **Visual identity:** acid-maximalist theme layer, completion/capture
-   celebration animations, and the Calm Mode toggle — layered on top of the
-   plain, functional UI shipped in earlier phases rather than blocking on
-   it.
+8. **Visual identity:** the clean Monday.com-inspired theme layer (§9),
+   the sidebar/slide-out navigation shell, and light/dark mode — layered
+   on top of the plain, functional UI shipped in earlier phases rather
+   than blocking on it.
 9. **Polish:** duration calibration loop, native Capacitor/Tauri wrap if
    deeper platform integration is wanted, simple automations (e.g.
    auto-tag emails from known clients into their Project).

@@ -6,13 +6,13 @@ export const metadata: Metadata = {
   description: "An ADHD-friendly freelance PM + email console.",
 };
 
-// Set data-mode before paint so there's no flash of the wrong palette.
-const modeInitScript = `
+// Set data-theme before paint so there's no flash of the wrong palette.
+const themeInitScript = `
 (function () {
   try {
-    var stored = localStorage.getItem("strobe-mode");
-    var mode = stored || (window.matchMedia("(prefers-color-scheme: light)").matches ? "calm" : "acid");
-    document.documentElement.setAttribute("data-mode", mode);
+    var stored = localStorage.getItem("strobe-theme");
+    var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
   } catch (e) {}
 })();
 `;
@@ -25,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: modeInitScript }} />
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

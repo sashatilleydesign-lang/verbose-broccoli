@@ -31,7 +31,7 @@ export default async function CapturePage() {
           />
           <button
             type="submit"
-            className="min-h-12 rounded-md border border-accent px-5 text-[13px] font-bold tracking-wide text-accent uppercase hover:bg-accent hover:text-ground"
+            className="min-h-12 rounded-md bg-accent px-5 text-[13.5px] font-semibold text-ground hover:opacity-90"
           >
             Drop it
           </button>

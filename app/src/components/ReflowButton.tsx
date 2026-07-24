@@ -21,7 +21,7 @@ export function ReflowButton() {
             setMessage(bits.join(" · "));
           });
         }}
-        className="min-h-10 rounded-md border border-accent px-4 text-[12.5px] font-bold tracking-wide text-accent uppercase hover:bg-accent hover:text-ground disabled:opacity-60"
+        className="min-h-10 rounded-md bg-accent px-4 text-[13px] font-semibold text-ground hover:opacity-90 disabled:opacity-60"
       >
         {pending ? "Reflowing…" : "Reflow schedule"}
       </button>

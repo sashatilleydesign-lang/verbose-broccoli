@@ -9,7 +9,7 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-ground px-5">
       <form action={formAction} className="w-full max-w-sm rounded-md border border-line bg-panel p-7 shadow-panel">
-        <p className="condensed text-xl">
+        <p className="text-xl font-bold">
           Strobe<span className="text-accent">.</span>
         </p>
         <p className="mt-2 mb-6 text-sm text-ink-dim">Sign in to your console.</p>
@@ -42,7 +42,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={pending}
-          className="min-h-11 w-full rounded-md border border-accent font-bold uppercase tracking-wide text-accent transition hover:bg-accent hover:text-ground disabled:opacity-60"
+          className="min-h-11 w-full rounded-md bg-accent font-semibold text-ground transition hover:opacity-90 disabled:opacity-60"
         >
           {pending ? "Signing in…" : "Sign in"}
         </button>
