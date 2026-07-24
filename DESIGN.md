@@ -99,23 +99,28 @@ tabs.
   than a hard date — not every extracted task has a real deadline, and
   fabricating one to fill the field is worse than leaving it blank),
   `startedAt` (nullable — set only if the user taps "start" on the task in
-  Focus; see §11.3 for why `actualDuration` is opt-in rather than forced).
+  Focus; see §11.3 for why `actualDuration` is opt-in rather than forced),
+  `targetDate` (nullable — an optional self-imposed date distinct from
+  `dueDate`, never used in at-risk logic; see §11.14).
 - **ProjectTemplate / TemplateTask** — a reusable shape for repeatable
   project structures (e.g. the Lumen "10 ads" batch), see §11.5. Stores
   task titles, order, energy/context tags, and estimated durations with no
   dates attached — dates are never templated, only structure is, per the
   "due date if real, not invented" rule above.
-- **ScheduledBlock** — a specific instance of a Task placed on the
-  calendar (`task_id`, `start`, `end`). Kept separate from the Task itself
-  so a task can be rescheduled repeatedly without losing its identity or
-  history.
+- **ScheduledBlock** — a specific instance of (part of) a Task placed on
+  the calendar (`task_id`, `start`, `end`). A task can have more than one
+  block if its duration had to be split across multiple sessions (§11.16)
+  — either way, blocks are kept separate from the Task itself so a task
+  can be rescheduled repeatedly without losing its identity or history.
 - **CalendarEvent** — read-only synced copy of existing calendar
   commitments (meetings, personal events) from an external calendar, used
   as fixed obstacles the scheduler must route around.
-- **UserScheduleProfile** — working hours, energy windows (e.g. "deep work
-  9-11am", "low-energy after 3pm"), and default transition/buffer time
-  between blocks — the personal constraints the auto-scheduler plans
-  around.
+- **UserScheduleProfile** — a recurring weekly template of multiple
+  labeled working windows per day (not one start/end range), each
+  optionally tagged with a preferred `context`, plus per-date exceptions
+  (a day off, or extra hours on an otherwise-off day) for anything that
+  doesn't fit the recurring pattern, and a default transition/buffer time
+  between blocks — see §11.15 for why one range wasn't enough.
 
 ## 4. Email client architecture (custom domain)
 
@@ -263,19 +268,25 @@ calibration).
 **Inputs the scheduler needs:**
 - Task `estimatedDuration`, `deadlineType` (hard/soft), and existing
   energy/context tags (§5) — context maps to preferred time-of-day windows
-  (e.g. `@deep-work` prefers morning blocks).
+  (e.g. `@deep-work` prefers morning blocks) as a **soft** preference, via
+  the labeled-window mechanism in §11.15.
 - `CalendarEvent`s synced read-only from an external calendar (Google
   Calendar/CalDAV) — real meetings and commitments are fixed obstacles, not
   something the scheduler can move.
-- `UserScheduleProfile` — working hours, personal energy windows, and a
-  default transition buffer between blocks (task-switching has a real cost
-  for ADHD; back-to-back blocks with zero gap invite burnout and slippage).
+- `UserScheduleProfile` — multiple working windows per day (§11.15, not
+  one start/end range), personal energy/context preferences per window,
+  per-date exceptions, and a default transition buffer between blocks
+  (task-switching has a real cost for ADHD; back-to-back blocks with zero
+  gap invite burnout and slippage).
 
 **Scheduling algorithm:**
 - A greedy constraint scheduler (sufficient at single-person scale — no
   need for a heavy solver): sort unscheduled tasks by deadline urgency,
   then place each into the next open slot that matches its duration,
   energy/context window, and required buffer, working forward from now.
+  If no single open window is long enough for a task's whole duration, it
+  gets split across successive windows instead of failing outright
+  (§11.16).
 - Re-runs automatically on triggers: a task is added or edited, a deadline
   changes, a new `CalendarEvent` conflicts with an existing block, or a
   scheduled block passes without being marked done.
@@ -443,7 +454,7 @@ core loop. But measured against Monday/Motion/Asana as daily drivers, a
 few real gaps remain — surfaced by asking "what would make this feel
 unfinished after a month of actual use," not by chasing feature parity.
 Most of what those tools have would actively work against §1's
-minimalism (see §11.14); the following is the subset worth building, in
+minimalism (see §11.17); the following is the subset worth building, in
 priority order, plus the reasoning for each.
 
 **11.1 Direct create — no more database GUI.** Clients, Projects, and
@@ -470,19 +481,29 @@ around. If you want to add something fast, that's what Capture is for;
 the palette is for finding and jumping, not typing structured data under
 time pressure.
 
-**11.3 Time tracking — opt-in and passive-by-default.** `actualDuration`
+**11.3 Session timer — opt-in, and doing double duty.** `actualDuration`
 exists in the schema (§3) but nothing populates it yet, and freelance
-invoicing genuinely needs it — this is the one gap here that's specific
-to freelance work rather than generic PM-tool parity. The design
-tension: prompting "how long did that take?" right after finishing a
-task punishes the exact moment ADHD brains want a dopamine hit, not a
-form. Resolution: tracking is **optional per task**, driven by an
-explicit "start" tap in Focus that sets `startedAt`; `actualDuration` is
-only computed (as `completedAt − startedAt`) if a timer was actually
-running, and stays `null` otherwise — no guilt, no forced field, no
-retroactive "how long did this actually take" interrogation. The §7
-duration-calibration loop simply skips tasks with a `null`
-`actualDuration` rather than treating them as zero. A **Time report**
+invoicing genuinely needs it. Originally scoped as a bare "start" tap
+that silently logs elapsed time; evaluating the app against
+`adhd-productivity-research.md` (see `WORKING-NOTES.md` for provenance)
+found that a *visible* countdown does the invoicing job **and** supplies
+the externalized-urgency/time-blindness mechanism the research treats as
+central — without needing gamification. Streaks/points were the more
+obvious way to inject urgency and were explicitly ruled out: a streak is
+a shame machine the moment it breaks, directly against "no shame states"
+(§1). So: one "start a focus session" action in Focus, a visible
+countdown (defaulting to the task's `estimatedDuration`) on a
+decluttered session view — sidebar/nav hidden, just the pinned task and
+the timer — loosely inspired by focus-companion apps like Flocus, minus
+Flocus's ambient sound/video, which stays out of scope (a deliberate cut,
+not an oversight — it's the part of that app that's pure vibe rather
+than function, and would drag in real asset/licensing cost for a
+single-user tool). On completion: a gentle, dismissible nudge, never a
+forced break — enforcing a stop risks punishing hyperfocus. `actualDuration`
+is only computed (as `completedAt − startedAt`) if a session actually
+ran, and stays `null` otherwise — no guilt, no retroactive "how long did
+this actually take" interrogation. The §7 duration-calibration loop
+simply skips tasks with a `null` `actualDuration`. A **Time report**
 surface (§8.6) sums logged duration per client per week/month — the
 actual invoicing payoff.
 
@@ -599,7 +620,58 @@ sit thumb-reachable (bottom-right is the convention, matching the
 `Add`/`+` affordances already used in Schedule) rather than fighting the
 top hamburger for the same corner.
 
-**11.14 Deliberately excluded.** Comments/activity feeds, file
+**11.14 Personal target date — self-imposed urgency without
+gamification.** Also surfaced by the ADHD-research evaluation: importance
+alone often doesn't generate enough activation for an ADHD brain, and a
+self-imposed ("fake") earlier deadline is one of the better-evidenced
+ways to manufacture urgency artificially. As with §11.3, streaks/points
+were considered and ruled out first. Instead: an optional personal
+target date on a soft task (§3's `targetDate`), distinct from a real
+`dueDate` and rendered visibly differently ("your target: Wed" vs. "due:
+Fri") — and explicitly excluded from the scheduler's at-risk logic (§7)
+so it can never trigger a false alarm. Only a real deadline does that.
+
+**11.15 Multiple working windows, not one working-hours range.**
+`scheduler.ts`'s `WORK_START_HOUR`/`WORK_END_HOUR` are a single
+contiguous range — a simplification the code's own comments already
+flagged as provisional ("hardcoded... rather than a `UserScheduleProfile`
+table"). Two things make that insufficient: some adults with ADHD have a
+measurably delayed circadian rhythm and self-advocate for working with a
+shifted or split schedule rather than a standard block (per the same
+research evaluation), and a day's genuinely open time often isn't one
+contiguous stretch anyway — a few hours in the morning, a few more in the
+evening. The fix generalizes `UserScheduleProfile` (§3) into two layers: a
+**recurring weekly template** — multiple labeled windows per day-of-week,
+not one range — plus **per-date exceptions** ("no work today," or extra
+hours on an otherwise-off day) for anything that doesn't fit the
+recurring pattern, like working some weekends but not all. Each recurring
+window can optionally carry a preferred `context` tag (§5's existing
+`TaskContext` enum), finally giving the "`@deep-work` prefers morning
+blocks" idea from §7 an actual place to live — but only as a **soft**
+preference: a task tries its labeled window first and falls back to any
+open window rather than becoming unschedulable over a label mismatch,
+the same "never silently drop, flag instead" principle the hard-deadline
+logic already follows.
+
+**11.16 Splitting a task across multiple slots or days.** Today
+`ScheduledBlock.taskId` is unique — one task, one block — and the
+slot-finder only ever looks for a single contiguous stretch of open time
+long enough for a task's *entire* estimated duration. A task longer than
+any one available window, or than a day's remaining open time, simply
+fails to schedule, with no fallback. The fix: let a task's duration be
+filled across successive open windows — same day or spanning several —
+each chunk becoming its own `ScheduledBlock` against the same task (§3),
+shown in the Schedule UI as visibly one task ("Part 1 of 3"), not
+unrelated duplicates. Needs a sensible minimum chunk size so it doesn't
+fragment into useless slivers — task-switching has a real cost, which is
+exactly why the buffer-time concept (§7) exists in the first place. A
+hard deadline's "at risk" check moves to the *last* chunk's end time
+rather than the first. Heavy fragmentation into many small chunks is
+itself worth a quiet flag — usually a sign the estimate was too big for
+one sitting, or that the task should have been broken into real subtasks
+instead.
+
+**11.17 Deliberately excluded.** Comments/activity feeds, file
 attachments, task dependencies/blocking-chains, multi-user permissions,
 and a general-purpose automation-rule builder — the parts of
 Monday/Asana that make them fit for teams — are left out on purpose.
@@ -681,13 +753,16 @@ a rules engine the user has to go build.
    deeper platform integration is wanted, simple automations (e.g.
    auto-tag emails from known clients into their Project).
 10. **Daily-driver completeness (§11):** direct create UI for
-    Client/Project/Task, the quick-jump palette, opt-in time tracking +
-    the Time report surface, resizable schedule blocks, project
-    templates, v0 (in-tab) reminders, click-to-create on the calendar,
-    a notes/brief click-through on tasks, a dedicated client view (scope
-    TBD), live at-risk feedback while dragging a hard-deadline task,
-    lightweight undo (a reversible toast) on complete/discard/delete/drag,
-    and pulling quick-capture out of the nav into a global floating button.
+    Client/Project/Task, the quick-jump palette, the session timer + Time
+    report surface, resizable schedule blocks, project templates, v0
+    (in-tab) reminders, click-to-create on the calendar, a notes/brief
+    click-through on tasks, a dedicated client view (scope TBD), live
+    at-risk feedback while dragging a hard-deadline task, lightweight
+    undo (a reversible toast) on complete/discard/delete/drag, pulling
+    quick-capture out of the nav into a global floating button, a
+    personal target date distinct from a real deadline, multiple working
+    windows per day-of-week with per-date exceptions and deep-work
+    preferences, and splitting a task across multiple slots or days.
 
 Start at Phase 1 with the smallest possible slice: one EmailAccount synced
 read-only, and manual tasks — prove the unified per-client timeline feels
