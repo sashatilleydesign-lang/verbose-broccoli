@@ -87,7 +87,14 @@ tabs.
   (optional short free-text label like "Pre-launch" or "Month 3," used
   instead of a `dueDate` when the source organizes work by milestone rather
   than a hard date — not every extracted task has a real deadline, and
-  fabricating one to fill the field is worse than leaving it blank).
+  fabricating one to fill the field is worse than leaving it blank),
+  `startedAt` (nullable — set only if the user taps "start" on the task in
+  Focus; see §11.3 for why `actualDuration` is opt-in rather than forced).
+- **ProjectTemplate / TemplateTask** — a reusable shape for repeatable
+  project structures (e.g. the Lumen "10 ads" batch), see §11.5. Stores
+  task titles, order, energy/context tags, and estimated durations with no
+  dates attached — dates are never templated, only structure is, per the
+  "due date if real, not invented" rule above.
 - **ScheduledBlock** — a specific instance of a Task placed on the
   calendar (`task_id`, `start`, `end`). Kept separate from the Task itself
   so a task can be rescheduled repeatedly without losing its identity or
@@ -302,6 +309,8 @@ calibration).
 5. **Weekly Review** — a single guided screen surfacing `stuck` tasks,
    stale `waiting` items, and projects with no `next` action set, prompting
    (not demanding) a decision on each.
+6. **Time report** — a per-client rollup of logged `actualDuration`, by
+   week/month, for invoicing. See §11.3.
 
 ## 9. Visual design language — "acid maximalism, calm structure"
 
@@ -410,7 +419,115 @@ Waiting-On resurfacing pings, with no native push infrastructure required.
 If wrapped via Capacitor/Tauri later, swap in native push (FCM for
 Android, APNs for Mac) for more reliable delivery.
 
-## 11. Suggested tech stack
+## 11. Closing the gap to daily-driver parity
+
+Phases 1–7 (built so far: Foundation through auto-scheduling) prove the
+core loop. But measured against Monday/Motion/Asana as daily drivers, a
+few real gaps remain — surfaced by asking "what would make this feel
+unfinished after a month of actual use," not by chasing feature parity.
+Most of what those tools have would actively work against §1's
+minimalism (see §11.8); the following is the subset worth building, in
+priority order, plus the reasoning for each.
+
+**11.1 Direct create — no more database GUI.** Clients, Projects, and
+Tasks currently only get created via the seed script or a database admin
+tool — there's no in-app "+ New client" anywhere. This is the most basic
+gap: nothing else in the app matters if adding a new client requires
+leaving it. The fix mirrors Quick Capture's philosophy applied to
+structured entities instead of raw text: a lightweight inline "+ New"
+affordance on the Workspace index (client), on a client page (project),
+and on a project (task) — each asking for **only a name/title**, with
+every other field (dates, energy, context, deadline type) optional and
+editable later. Forcing a full form up front at creation time is the same
+friction Quick Capture already exists to avoid; the fix shouldn't
+reintroduce it through a different door.
+
+**11.2 Quick-jump, not a data-entry palette.** A Cmd+K-style palette,
+but scoped narrowly: fuzzy search/jump across Clients, Projects, Tasks,
+and email threads, plus a short list of navigation actions (open today's
+Schedule, open Capture, mark the pinned next-action done). Deliberately
+**not** a general quick-add-anything form — Monday/Linear-style palettes
+often double as data entry, but that reintroduces exactly the
+"decide-while-capturing" friction §1 and §5's Quick Capture are designed
+around. If you want to add something fast, that's what Capture is for;
+the palette is for finding and jumping, not typing structured data under
+time pressure.
+
+**11.3 Time tracking — opt-in and passive-by-default.** `actualDuration`
+exists in the schema (§3) but nothing populates it yet, and freelance
+invoicing genuinely needs it — this is the one gap here that's specific
+to freelance work rather than generic PM-tool parity. The design
+tension: prompting "how long did that take?" right after finishing a
+task punishes the exact moment ADHD brains want a dopamine hit, not a
+form. Resolution: tracking is **optional per task**, driven by an
+explicit "start" tap in Focus that sets `startedAt`; `actualDuration` is
+only computed (as `completedAt − startedAt`) if a timer was actually
+running, and stays `null` otherwise — no guilt, no forced field, no
+retroactive "how long did this actually take" interrogation. The §7
+duration-calibration loop simply skips tasks with a `null`
+`actualDuration` rather than treating them as zero. A **Time report**
+surface (§8.6) sums logged duration per client per week/month — the
+actual invoicing payoff.
+
+**11.4 Resizable schedule blocks — and why they don't behave like a
+drag-move.** The Schedule view (§7/§8) currently supports dragging a
+block to a new time (a same-session nudge that the next Reflow can
+freely undo — see the app's README for the implementation notes).
+Resizing a block's *duration* by dragging its
+edge is a different kind of edit and should behave differently: a
+drag-move corrects *when* something happens, which Reflow is allowed to
+re-decide; a resize corrects *how long the task actually takes* — a
+property of the task's `estimatedDuration` itself, not just this one
+placement. So a resize should **persist through the next Reflow** by
+writing back to the task's `estimatedDuration`, not just the one
+`ScheduledBlock` instance. Conflating the two would mean every resize
+gets silently discarded on the next reflow, defeating the point of
+correcting a bad estimate.
+
+**11.5 Project templates — reusable structure, not auto-recurrence.**
+The Lumen "10 ads" batch is exactly the kind of repeatable shape
+freelancers rebuild constantly. The fix is a manually-invoked "Save as
+template" / "New from template" pair (§3's `ProjectTemplate`/
+`TemplateTask`), not automatic recurrence (a project regenerating itself
+on a schedule). Auto-recurrence means tasks appear on their own without
+the user initiating anything — the opposite of "reduce decisions, not
+autopilot around them," and a specific bad fit for ADHD object
+permanence: things you didn't consciously add are easy to not register
+as real. A template still requires the user to explicitly say "start a
+new one of these," same as any other project creation, just pre-filled.
+No dates ever come from a template, per §3's existing "due date if real,
+not invented" rule — only the task structure, order, and tags carry over.
+
+**11.6 Reminders — closing a loop §10 already opened.** §10 already
+specs Web Push for a daily digest and Waiting-On resurfacing, but that's
+gated on a real deployed HTTPS domain (service workers don't work
+against localhost) and hasn't shipped. Two tiers, so the first doesn't
+wait on the second: **v0**, shippable now — an in-tab toast when a
+`ScheduledBlock`'s start time arrives while the app happens to be open,
+and when a hard-deadline task crosses into "at risk" (§7), zero
+infrastructure required. **v1** — the actual Web Push from §10, once
+real deployment exists.
+
+**11.7 Client color tags — execution debt, not a new decision.**
+`Client.colorTag` has existed in the schema since §3's first draft
+("color-coding reduces re-reading names") but nothing in the UI renders
+it — Focus, Workspace, and Schedule all show client names as plain text.
+This isn't a new design question, just a gap between what §3 already
+decided and what got built.
+
+**11.8 Deliberately excluded.** Comments/activity feeds, file
+attachments, task dependencies/blocking-chains, multi-user permissions,
+and a general-purpose automation-rule builder — the parts of
+Monday/Asana that make them fit for teams — are left out on purpose.
+There's no "who said what" audit trail need or blocked-by chain to
+manage for solo work at this scale, and a user-configurable automation
+builder is itself another system to learn and maintain, which is its own
+kind of ADHD-hostile complexity. If a specific automation is worth having
+later (Phase 9 already lists "auto-tag emails from known clients into
+their Project"), it should be hardcoded behavior the app just does, not
+a rules engine the user has to go build.
+
+## 12. Suggested tech stack
 
 - **Frontend:** Next.js (React) + Tailwind, single-user session (no
   multi-tenant complexity needed for a freelancer's own tool).
@@ -452,7 +569,7 @@ Android, APNs for Mac) for more reliable delivery.
   Framer Motion for the bounce/squish micro-interactions, respecting
   `prefers-reduced-motion` at the animation-library level.
 
-## 12. Phased build plan
+## 13. Phased build plan
 
 1. **Foundation:** schema (Client/Project/Task/EmailAccount/EmailThread/
    EmailMessage/TaskEmailLink/CaptureItem), auth, manual task CRUD, IMAP
@@ -479,7 +596,18 @@ Android, APNs for Mac) for more reliable delivery.
 9. **Polish:** duration calibration loop, native Capacitor/Tauri wrap if
    deeper platform integration is wanted, simple automations (e.g.
    auto-tag emails from known clients into their Project).
+10. **Daily-driver completeness (§11):** direct create UI for
+    Client/Project/Task, the quick-jump palette, opt-in time tracking +
+    the Time report surface, resizable schedule blocks, project
+    templates, and v0 (in-tab) reminders.
 
 Start at Phase 1 with the smallest possible slice: one EmailAccount synced
 read-only, and manual tasks — prove the unified per-client timeline feels
 better than separate Gmail + Notion tabs before building anything else.
+
+**Where the actual build has gotten to:** Phases 1, 2 (partial — bridge
+mechanics exist, but real IMAP/SMTP is still mocked pending a real
+mailbox/API credential), 3, and 6 are built and running against a real
+Postgres database. Phase 5 (brief extraction) is designed (§6) but not
+built — it needs a Claude API credential the project doesn't have yet.
+Phases 4, 7, 8, and 9 remain unbuilt. Phase 10 is next up.
