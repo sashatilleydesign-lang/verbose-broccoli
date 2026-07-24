@@ -90,6 +90,7 @@ model Task {
   project          Project?        @relation("ProjectTasks", fields: [projectId], references: [id], onDelete: Cascade)
   asNextActionOf   Project?        @relation("ProjectNextAction")
   emailLinks       TaskEmailLink[]
+  scheduledBlock   ScheduledBlock?
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
   completedAt      DateTime?
@@ -133,4 +134,25 @@ model CaptureItem {
   text      String
   triaged   Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+// A task's current placement on the calendar, computed by the reflow
+// scheduler (src/lib/scheduler.ts). Kept separate from Task so a task can
+// be rescheduled repeatedly without losing its identity or history — see
+// DESIGN.md §3/§7.
+model ScheduledBlock {
+  id     String   @id @default(cuid())
+  taskId String   @unique
+  task   Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  start  DateTime
+  end    DateTime
+}
+
+// A fixed commitment the scheduler routes around — manually entered for
+// now (no external calendar sync yet, see DESIGN.md §7's phased plan).
+model CalendarEvent {
+  id    String   @id @default(cuid())
+  title String
+  start DateTime
+  end   DateTime
 }

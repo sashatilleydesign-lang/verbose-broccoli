@@ -10,6 +10,8 @@ const daysFromNow = (n: number) => new Date(Date.now() + n * 24 * 60 * 60 * 1000
 
 async function main() {
   // Wipe existing data (dev-only seed, safe to re-run).
+  await prisma.scheduledBlock.deleteMany();
+  await prisma.calendarEvent.deleteMany();
   await prisma.taskEmailLink.deleteMany();
   await prisma.emailMessage.deleteMany();
   await prisma.emailThread.deleteMany();
@@ -165,6 +167,7 @@ async function main() {
       state: "next",
       deadlineType: "hard",
       dueDate: daysFromNow(1),
+      estimatedMinutes: 15,
     },
   });
   await prisma.project.update({
@@ -182,6 +185,7 @@ async function main() {
       projectId: websiteRefresh.id,
       state: "later",
       energy: "medium",
+      estimatedMinutes: 90,
     },
   });
 
@@ -208,6 +212,17 @@ async function main() {
     data: { title: "Update portfolio site", projectId: personalProject.id, state: "stuck" },
   });
   await prisma.task.update({ where: { id: portfolioTask.id }, data: { updatedAt: daysAgo(21) } });
+
+  // --- A fixed meeting the scheduler has to route around ---
+  // Hardcoded to a sensible working-hours time rather than "now + 2h" —
+  // that drifts to absurd hours (2am) depending on when the seed runs.
+  const meetingStart = new Date();
+  meetingStart.setHours(14, 0, 0, 0);
+  const meetingEnd = new Date();
+  meetingEnd.setHours(14, 30, 0, 0);
+  await prisma.calendarEvent.create({
+    data: { title: "Call — Bramble & Co.", start: meetingStart, end: meetingEnd },
+  });
 
   // --- Capture inbox: raw, untriaged ---
   await prisma.captureItem.createMany({

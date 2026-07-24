@@ -1,12 +1,15 @@
-# Strobe — Phase 1–3
+# Strobe — Phase 1–3 + 6
 
-The foundation and ADHD layer of the freelance console described in
-[`/DESIGN.md`](../DESIGN.md): schema, single-user auth, manual task/project
-CRUD, Focus (with energy-tag filtering), a per-client Workspace timeline,
-Capture, and Weekly Review (stuck / waiting / no-next-action) — all wired
-to a real Postgres database. Email is seeded mock data for now (see
-DESIGN.md §4 for the real IMAP/Migadu plan); no brief extraction,
-scheduling, or send-mail yet — those are later phases.
+The foundation, ADHD layer, and auto-scheduler of the freelance console
+described in [`/DESIGN.md`](../DESIGN.md): schema, single-user auth, manual
+task/project CRUD, Focus (with energy-tag filtering), a per-client Workspace
+timeline, Capture, Weekly Review (stuck / waiting / no-next-action), and a
+real reflow scheduler (greedy slot-finder, fixed events, hard-deadline
+priority, multi-day rollover) — all wired to a real Postgres database.
+Email is seeded mock data for now (see DESIGN.md §4 for the real
+IMAP/Migadu plan); brief extraction (Phase 5) is the one remaining piece
+that genuinely needs an external connector (the Claude API), so it's not
+built yet — everything else connector-free is done.
 
 ## Setup
 
@@ -51,6 +54,26 @@ directory for the actual dev values used locally.
   optional energy filter)
 - `src/lib/weekly.ts` — Weekly Review queries (stuck / waiting / projects
   with no next action)
+- `src/lib/scheduler.ts` — the reflow algorithm: working-hours-aware slot
+  finder, hard-deadline-first priority ordering, buffer time, at-risk
+  flagging (computed at render time, not stored)
+- `src/lib/schedule.ts` — Schedule screen queries (today's hour-grid +
+  upcoming days)
 - `src/app/actions/*` — Server Actions (complete task w/ batch auto-advance,
   `markAsNext` w/ single-pinned-next-action enforcement, `touchTask` for
-  snooze/still-waiting, archive/convert email, capture CRUD)
+  snooze/still-waiting, archive/convert email, capture CRUD, `reflowSchedule`,
+  fixed-event CRUD)
+
+## Scheduler notes
+
+- Working hours (8am–6pm), 15-minute buffer between blocks, and the
+  10-day scheduling horizon are hardcoded constants in `scheduler.ts`
+  rather than a `UserScheduleProfile` table — single user, no settings UI
+  yet to edit them. Straightforward to promote to a DB-backed profile later
+  without touching the algorithm.
+- Reflow is a full recompute triggered by an explicit "Reflow schedule"
+  button, not an automatic trigger wired into every task/event mutation
+  site. Simpler and safer for a first pass; revisit if the manual trigger
+  ever feels like friction.
+- `CalendarEvent`s are manually entered for now (no external calendar
+  sync) — see DESIGN.md §7 for the phased plan to add that later.
