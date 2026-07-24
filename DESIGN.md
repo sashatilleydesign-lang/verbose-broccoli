@@ -592,7 +592,9 @@ load. The actual gap is *live* feedback: right now you only find out a
 drag pushed a hard deadline into danger after dropping the block and the
 page reloads. The dragged block should flip to the "at risk" visual
 treatment (see the app's README) the moment its live drag position would
-land past the deadline, not after the fact.
+land past the deadline, not after the fact. (Confirmed: dragging across
+days is fine and expected, same as today — nothing here restricts a
+hard-deadline task to same-day moves only.)
 
 **Search** was also requested — it isn't a new item here, it converges
 with the quick-jump palette already planned in §11.2.
