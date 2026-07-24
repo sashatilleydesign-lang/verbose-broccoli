@@ -485,7 +485,7 @@ time pressure.
 exists in the schema (§3) but nothing populates it yet, and freelance
 invoicing genuinely needs it. Originally scoped as a bare "start" tap
 that silently logs elapsed time; evaluating the app against
-`adhd-productivity-research.md` (see `WORKING-NOTES.md` for provenance)
+`adhd-productivity-research.md` (on branch `claude/add-productivity-research-fjjpt9`)
 found that a *visible* countdown does the invoicing job **and** supplies
 the externalized-urgency/time-blindness mechanism the research treats as
 central — without needing gamification. Streaks/points were the more
@@ -495,10 +495,17 @@ a shame machine the moment it breaks, directly against "no shame states"
 countdown (defaulting to the task's `estimatedDuration`) on a
 decluttered session view — sidebar/nav hidden, just the pinned task and
 the timer — loosely inspired by focus-companion apps like Flocus, minus
-Flocus's ambient sound/video, which stays out of scope (a deliberate cut,
-not an oversight — it's the part of that app that's pure vibe rather
-than function, and would drag in real asset/licensing cost for a
-single-user tool). On completion: a gentle, dismissible nudge, never a
+Flocus's ambient sound/video, which stays out of scope. Worth being
+honest about the reasoning here rather than tidying it up after the
+fact: an earlier pass on this same question argued the ambient
+scene/soundscape wasn't just decoration — it pitched it as a genuine
+task-initiation aid, functioning like solo body-doubling, which the
+ADHD research (`adhd-productivity-research.md`) separately backs as a real if
+thinly-evidenced strategy. That argument hasn't been disproven; the cut
+is a deliberate scope call (real asset/licensing cost for a single-user
+tool, and one more thing to get right visually) made anyway, not a claim
+that ambient sound has no function. On completion: a gentle, dismissible
+nudge, never a
 forced break — enforcing a stop risks punishing hyperfocus. `actualDuration`
 is only computed (as `completedAt − startedAt`) if a session actually
 ran, and stays `null` otherwise — no guilt, no retroactive "how long did
