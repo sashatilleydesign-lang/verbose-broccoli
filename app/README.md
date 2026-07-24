@@ -98,3 +98,12 @@ Worth knowing about since they touch cross-cutting behavior:
   `useSyncExternalStore`, which is the actual idiomatic fix for "read
   external state without a hydration mismatch," not just a lint
   workaround.
+
+## `npm audit`
+
+Shows 6 high-severity advisories, all transitive (inside Prisma's dev
+tooling and Next's build pipeline — `find-my-way`, `postcss`, `sharp` —
+nothing in `src/`). `npm audit fix --force` "fixes" them by downgrading to
+`prisma@7.8.0` and `next@9.3.3` — i.e. actively breaking the app, not
+fixing it. Left alone on purpose; revisit when upstream ships a real fix
+at the current major versions.
