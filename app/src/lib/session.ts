@@ -14,7 +14,6 @@ const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
 
 type SessionPayload = {
   isAuth: true;
-  expiresAt: string;
 };
 
 export async function encrypt(payload: SessionPayload) {
@@ -39,7 +38,7 @@ export async function decrypt(token: string | undefined) {
 
 export async function createSession() {
   const expiresAt = new Date(Date.now() + SESSION_DURATION_MS);
-  const session = await encrypt({ isAuth: true, expiresAt: expiresAt.toISOString() });
+  const session = await encrypt({ isAuth: true });
   const cookieStore = await cookies();
 
   cookieStore.set(COOKIE_NAME, session, {

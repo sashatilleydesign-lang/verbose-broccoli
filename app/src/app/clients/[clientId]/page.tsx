@@ -45,8 +45,11 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
         entries.push({ kind: "done", date: task.completedAt, title: task.title });
       } else if (task.state === "next") {
         entries.push({ kind: "next", date: task.createdAt, title: task.title });
-      } else if (task.state === "later") {
-        laterTasks.push({ id: task.id, title: task.title });
+      } else if (task.state === "later" || task.state === "stuck" || task.state === "waiting") {
+        // Every task shows up somewhere in the workspace — a stuck or
+        // waiting task doesn't just silently disappear from view.
+        const suffix = task.state === "later" ? "" : ` (${task.state})`;
+        laterTasks.push({ id: task.id, title: `${task.title}${suffix}` });
       }
     }
   }

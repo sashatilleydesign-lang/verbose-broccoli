@@ -77,3 +77,24 @@ directory for the actual dev values used locally.
   ever feels like friction.
 - `CalendarEvent`s are manually entered for now (no external calendar
   sync) — see DESIGN.md §7 for the phased plan to add that later.
+
+## Known bugs fixed in the last review pass
+
+Worth knowing about since they touch cross-cutting behavior:
+
+- Completing a task didn't clear its `ScheduledBlock` — a done task kept
+  showing up on the Schedule page until the next Reflow. `completeTask`
+  now deletes the block immediately.
+- The client Workspace timeline silently dropped `stuck` and `waiting`
+  tasks (only `done`/`next`/`later` were handled) — they now show up in
+  the collapsed "not next yet" list with a state suffix.
+- Several actions only revalidated the `/clients` index, not the specific
+  `/clients/[clientId]` page — could show stale data if that workspace was
+  already open. Actions that touch a task's client now revalidate that
+  path directly.
+- `ModeToggle` used a `setState`-in-`useEffect` pattern that reads external
+  DOM/localStorage state — flagged by `eslint-config-next`'s stricter
+  `react-hooks/set-state-in-effect` rule. Rewrote with
+  `useSyncExternalStore`, which is the actual idiomatic fix for "read
+  external state without a hydration mismatch," not just a lint
+  workaround.

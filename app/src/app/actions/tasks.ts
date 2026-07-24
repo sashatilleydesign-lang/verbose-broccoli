@@ -17,6 +17,10 @@ export async function completeTask(taskId: string) {
     data: { state: "done", completedAt: new Date() },
   });
 
+  // A done task shouldn't keep occupying a slot on the calendar until the
+  // next reflow happens to clear it out.
+  await prisma.scheduledBlock.deleteMany({ where: { taskId } });
+
   // If this was its project's pinned next action, auto-advance the batch:
   // promote the next "later" task in line rather than leaving the project
   // with no next action set.
@@ -42,4 +46,7 @@ export async function completeTask(taskId: string) {
 
   revalidatePath("/focus");
   revalidatePath("/clients");
+  revalidatePath("/weekly");
+  revalidatePath("/schedule");
+  if (task.project?.clientId) revalidatePath(`/clients/${task.project.clientId}`);
 }

@@ -29,4 +29,6 @@ export async function convertThreadToTask(threadId: string) {
   await prisma.emailThread.update({ where: { id: threadId }, data: { status: "triaged" } });
 
   revalidatePath("/focus");
+  revalidatePath("/clients");
+  if (thread.clientId) revalidatePath(`/clients/${thread.clientId}`);
 }

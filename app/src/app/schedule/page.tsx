@@ -10,6 +10,11 @@ function fmtTime(d: Date) {
   return d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
 }
 
+function todayInputValue() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 function kindClasses(kind: string) {
   if (kind === "atRisk") return "bg-accent border-accent";
   if (kind === "fixed") {
@@ -44,7 +49,7 @@ export default async function SchedulePage() {
 
       <div className="shadow-panel mb-8 rounded-md border border-line bg-panel">
         <div className="flex items-center justify-between border-b border-line p-4">
-          <h1 className="text-[15px] font-bold">Today's schedule</h1>
+          <h1 className="text-[15px] font-bold">Today&apos;s schedule</h1>
           <span className="text-[12px] text-ink-dim">
             {new Date().toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}
           </span>
@@ -63,7 +68,7 @@ export default async function SchedulePage() {
           ))}
           <div className="absolute top-4 right-4 bottom-4 left-[60px]">
             {today.length === 0 ? (
-              <p className="text-[13px] text-ink-dim">No blocks yet — hit Reflow to place today's work.</p>
+              <p className="text-[13px] text-ink-dim">No blocks yet — hit Reflow to place today&apos;s work.</p>
             ) : null}
             {today.map((item) => {
               const top = ((item.start.getTime() - gridStart.getTime()) / 3_600_000) * ROW_H;
@@ -74,12 +79,25 @@ export default async function SchedulePage() {
                   className={`absolute right-1 left-1 overflow-hidden rounded-md border px-3 py-1.5 ${kindClasses(item.kind)}`}
                   style={{ top, height }}
                 >
-                  <p
-                    className={`text-[12.5px] font-bold ${item.kind === "atRisk" ? "text-ground" : "text-ink"}`}
-                  >
-                    {item.kind === "fixed" ? "🔒 " : item.kind === "atRisk" ? "⚠ " : ""}
-                    {item.title}
-                  </p>
+                  <div className="flex items-start justify-between gap-2">
+                    <p
+                      className={`text-[12.5px] font-bold ${item.kind === "atRisk" ? "text-ground" : "text-ink"}`}
+                    >
+                      {item.kind === "fixed" ? "🔒 " : item.kind === "atRisk" ? "⚠ " : ""}
+                      {item.title}
+                    </p>
+                    {item.kind === "fixed" ? (
+                      <form action={deleteCalendarEvent.bind(null, item.id)}>
+                        <button
+                          type="submit"
+                          aria-label={`Remove ${item.title}`}
+                          className="text-[11px] font-bold text-ink-dim hover:text-accent"
+                        >
+                          ✕
+                        </button>
+                      </form>
+                    ) : null}
+                  </div>
                   <p className={`text-[10.5px] font-semibold ${item.kind === "atRisk" ? "text-ground/80" : "text-ink-dim"}`}>
                     {fmtTime(item.start)}–{fmtTime(item.end)}
                     {item.clientName ? ` · ${item.clientName}` : ""}
@@ -111,7 +129,7 @@ export default async function SchedulePage() {
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-[11px] font-bold text-ink-dim uppercase" htmlFor="date">Date</label>
-            <input id="date" name="date" type="date" required className="min-h-10 rounded-md border border-line bg-ground px-3 py-2 text-[14px] text-ink" />
+            <input id="date" name="date" type="date" required defaultValue={todayInputValue()} className="min-h-10 rounded-md border border-line bg-ground px-3 py-2 text-[14px] text-ink" />
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-[11px] font-bold text-ink-dim uppercase" htmlFor="startTime">Start</label>

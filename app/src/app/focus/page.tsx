@@ -26,17 +26,20 @@ export default async function FocusPage({
 
   const itemCount = [nextTask, deadlineTask, emailThread].filter(Boolean).length;
 
+  let subtitle: string;
+  if (energyFilter && !nextTask) {
+    subtitle = "Nothing pinned at that energy level right now.";
+  } else if (itemCount > 0) {
+    subtitle = "Three things, at most. Everything else exists — just not on this screen.";
+  } else {
+    subtitle = "Nothing pinned right now. Capture something, or check Workspace for what's open.";
+  }
+
   return (
     <AppShell>
       <div className="mb-6">
         <p className="mb-2 text-[11.5px] font-bold tracking-wide text-accent uppercase">Right now</p>
-        <p className="mb-4 max-w-[64ch] text-[15.5px] leading-relaxed text-ink-dim">
-          {itemCount > 0
-            ? "Three things, at most. Everything else exists — just not on this screen."
-            : energyFilter
-              ? "Nothing pinned at that energy level right now."
-              : "Nothing pinned right now. Capture something, or check Workspace for what's open."}
-        </p>
+        <p className="mb-4 max-w-[64ch] text-[15.5px] leading-relaxed text-ink-dim">{subtitle}</p>
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-[11px] font-bold tracking-wide text-ink-dim uppercase">Energy today:</span>
           {ENERGY_OPTIONS.map((opt) => {
@@ -62,7 +65,7 @@ export default async function FocusPage({
 
       {nextTask ? (
         <div className="shadow-panel mb-8 flex gap-4 rounded-md border border-line border-l-3 border-l-accent bg-panel p-5">
-          <CompleteTaskButton key={nextTask.id} taskId={nextTask.id} size="big" />
+          <CompleteTaskButton key={nextTask.id} taskId={nextTask.id} />
           <div className="min-w-0 flex-1">
             <div className="mb-1.5 flex flex-wrap items-center gap-2">
               {nextTask.project?.client ? (

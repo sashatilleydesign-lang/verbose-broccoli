@@ -3,11 +3,9 @@
 import { useState, useTransition } from "react";
 import { completeTask } from "@/app/actions/tasks";
 
-export function CompleteTaskButton({ taskId, size = "big" }: { taskId: string; size?: "big" | "small" }) {
+export function CompleteTaskButton({ taskId }: { taskId: string }) {
   const [done, setDone] = useState(false);
   const [pending, startTransition] = useTransition();
-
-  const dims = size === "big" ? "h-8.5 w-8.5" : "h-7 w-7";
 
   return (
     <button
@@ -21,7 +19,7 @@ export function CompleteTaskButton({ taskId, size = "big" }: { taskId: string; s
         });
       }}
       className={
-        `${dims} flex flex-none items-center justify-center rounded-md border-2 transition ` +
+        "h-8.5 w-8.5 flex flex-none items-center justify-center rounded-md border-2 transition " +
         (done ? "border-accent bg-accent" : "border-accent bg-transparent hover:bg-accent/10")
       }
     >

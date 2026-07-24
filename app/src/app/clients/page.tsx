@@ -23,20 +23,24 @@ export default async function ClientsPage() {
         </p>
       </div>
 
-      <div className="shadow-panel divide-y divide-line rounded-md border border-line bg-panel">
-        {clients.map((client) => (
-          <Link
-            key={client.id}
-            href={`/clients/${client.id}`}
-            className="flex items-center justify-between gap-4 p-4 hover:bg-ground/40"
-          >
-            <span className="text-[15px] font-semibold">{client.name}</span>
-            <span className="font-mono-strobe text-[12px] text-ink-dim">
-              {client.projects.length} active · {client.threads.length} unprocessed
-            </span>
-          </Link>
-        ))}
-      </div>
+      {clients.length === 0 ? (
+        <p className="text-[13.5px] text-ink-dim">No clients yet.</p>
+      ) : (
+        <div className="shadow-panel divide-y divide-line rounded-md border border-line bg-panel">
+          {clients.map((client) => (
+            <Link
+              key={client.id}
+              href={`/clients/${client.id}`}
+              className="flex items-center justify-between gap-4 p-4 hover:bg-ground/40"
+            >
+              <span className="text-[15px] font-semibold">{client.name}</span>
+              <span className="font-mono-strobe text-[12px] text-ink-dim">
+                {client.projects.length} active · {client.threads.length} unprocessed
+              </span>
+            </Link>
+          ))}
+        </div>
+      )}
     </AppShell>
   );
 }

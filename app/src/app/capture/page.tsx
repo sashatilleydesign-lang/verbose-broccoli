@@ -41,27 +41,17 @@ export default async function CapturePage() {
           <p className="text-[13.5px] text-ink-dim">Nothing waiting for a decision.</p>
         ) : (
           <>
-            <div className="mb-4 flex flex-wrap gap-2.5">
+            <p className="mb-4 text-[13.5px] text-ink-dim">
+              {items.length} thing{items.length === 1 ? "" : "s"} waiting for a decision — no rush.
+            </p>
+
+            <ul className="space-y-2.5">
               {items.map((item) => (
-                <span
+                <li
                   key={item.id}
-                  className="rounded-md border border-dashed border-line bg-ground px-3.5 py-2.5 text-[14px] text-ink-dim"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-dashed border-line bg-ground px-3.5 py-2.5"
                 >
-                  {item.text}
-                </span>
-              ))}
-            </div>
-
-            <div className="flex flex-wrap items-center justify-between gap-4 border-t border-line pt-4">
-              <p className="text-[13.5px] text-ink-dim">
-                {items.length} thing{items.length === 1 ? "" : "s"} waiting for a decision — no rush.
-              </p>
-            </div>
-
-            <ul className="mt-4 space-y-3">
-              {items.map((item) => (
-                <li key={item.id} className="flex items-center justify-between gap-4 border-t border-line pt-3">
-                  <span className="text-[14px]">{item.text}</span>
+                  <span className="text-[14px] text-ink-dim">{item.text}</span>
                   <span className="flex gap-4">
                     <form action={convertCaptureToTask.bind(null, item.id)}>
                       <button type="submit" className="border-b border-line pb-0.5 text-[12.5px] font-bold text-ink-dim hover:border-accent hover:text-accent">

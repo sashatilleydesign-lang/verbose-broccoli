@@ -15,7 +15,11 @@ export async function getWeeklyReviewData() {
     }),
     prisma.project.findMany({
       where: { status: "active", nextActionId: null },
-      include: { client: true, tasks: { where: { state: "later" }, orderBy: { createdAt: "asc" } } },
+      include: {
+        client: true,
+        // Only the row rendered ("Set next action" targets the first one).
+        tasks: { where: { state: "later" }, orderBy: { createdAt: "asc" }, take: 1 },
+      },
     }),
   ]);
 

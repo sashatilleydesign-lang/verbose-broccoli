@@ -27,6 +27,7 @@ export async function markAsNext(taskId: string) {
   revalidatePath("/weekly");
   revalidatePath("/focus");
   revalidatePath("/clients");
+  if (task.project?.clientId) revalidatePath(`/clients/${task.project.clientId}`);
 }
 
 // A quiet acknowledgement — resets the "flagged/waiting N days" clock

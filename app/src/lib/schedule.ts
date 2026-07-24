@@ -17,7 +17,7 @@ export type ScheduleItem = {
   title: string;
   start: Date;
   end: Date;
-  kind: "movable" | "fixed" | "atRisk" | "open";
+  kind: "movable" | "fixed" | "atRisk";
   clientName?: string;
   deadlineType?: string | null;
 };
