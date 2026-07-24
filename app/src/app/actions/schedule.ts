@@ -35,3 +35,21 @@ export async function deleteCalendarEvent(eventId: string) {
   await prisma.calendarEvent.delete({ where: { id: eventId } });
   revalidatePath("/schedule");
 }
+
+// Manual drag-and-drop move. Deliberately doesn't "pin" the block against
+// future reflows — the next "Reflow schedule" click still recomputes
+// every block from scratch (see scheduler.ts), so a manual move is a
+// same-session nudge, not a permanent override.
+export async function moveScheduledBlock(blockId: string, newStartMs: number) {
+  await verifySession();
+
+  const block = await prisma.scheduledBlock.findUnique({ where: { id: blockId } });
+  if (!block) return;
+
+  const durationMs = block.end.getTime() - block.start.getTime();
+  const start = new Date(newStartMs);
+  const end = new Date(newStartMs + durationMs);
+
+  await prisma.scheduledBlock.update({ where: { id: blockId }, data: { start, end } });
+  revalidatePath("/schedule");
+}

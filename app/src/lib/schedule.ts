@@ -1,5 +1,8 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import { dateKey } from "@/lib/scheduleFormat";
+
+export { dateKey };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -12,9 +15,6 @@ function addDays(d: Date, n: number): Date {
   const nd = new Date(d);
   nd.setDate(nd.getDate() + n);
   return nd;
-}
-export function dateKey(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 export type ScheduleItem = {

@@ -7,18 +7,15 @@ import {
   getMonthGrid,
   startOfWeek,
   dateKey,
-  type ScheduleItem,
 } from "@/lib/schedule";
+import { fmtTime, kindClasses, hourBounds } from "@/lib/scheduleFormat";
 import { AppShell } from "@/components/AppShell";
 import { ReflowButton } from "@/components/ReflowButton";
+import { DayDragItems, WeekDragGrid } from "@/components/ScheduleDrag";
 import { createCalendarEvent, deleteCalendarEvent } from "@/app/actions/schedule";
 
 const ROW_H = 56;
 const WEEK_ROW_H = 44;
-
-function fmtTime(d: Date) {
-  return d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
-}
 
 function parseDateParam(s: string | undefined): Date {
   const m = s ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(s) : null;
@@ -37,19 +34,6 @@ function addDays(d: Date, n: number): Date {
   const nd = new Date(d);
   nd.setDate(nd.getDate() + n);
   return nd;
-}
-
-function kindClasses(kind: string) {
-  if (kind === "atRisk") return "bg-accent border-accent";
-  if (kind === "fixed") return "border-line";
-  return "border-line bg-[color-mix(in_srgb,var(--accent)_16%,var(--panel))]";
-}
-
-function hourBounds(items: ScheduleItem[]) {
-  const hours = items.map((i) => [i.start.getHours(), i.end.getHours() + (i.end.getMinutes() > 0 ? 1 : 0)]).flat();
-  const startHour = Math.max(6, Math.min(7, ...(hours.length ? hours : [7])));
-  const endHour = Math.min(22, Math.max(19, ...(hours.length ? hours : [19])));
-  return { startHour, endHour };
 }
 
 function ViewTabs({ view, anchor }: { view: string; anchor: Date }) {
@@ -167,46 +151,7 @@ async function DayView({ anchor, todayKey }: { anchor: Date; todayKey: string })
               </span>
             </div>
           ))}
-          <div className="absolute top-4 right-4 bottom-4 left-[60px]">
-            {today.length === 0 ? (
-              <p className="text-[13px] text-ink-dim">Nothing scheduled — hit Reflow to place today&apos;s work.</p>
-            ) : null}
-            {today.map((item) => {
-              const top = ((item.start.getTime() - gridStart.getTime()) / 3_600_000) * ROW_H;
-              const height = Math.max(((item.end.getTime() - item.start.getTime()) / 3_600_000) * ROW_H - 4, 20);
-              return (
-                <div
-                  key={item.id}
-                  className={`absolute right-1 left-1 overflow-hidden rounded-md border px-3 py-1.5 ${kindClasses(item.kind)}`}
-                  style={{ top, height }}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <p className={`text-[12.5px] font-bold ${item.kind === "atRisk" ? "text-ground" : "text-ink"}`}>
-                      {item.kind === "fixed" ? "🔒 " : item.kind === "atRisk" ? "⚠ " : ""}
-                      {item.title}
-                    </p>
-                    {item.kind === "fixed" ? (
-                      <form action={deleteCalendarEvent.bind(null, item.id)}>
-                        <button
-                          type="submit"
-                          aria-label={`Remove ${item.title}`}
-                          className="text-[11px] font-bold text-ink-dim hover:text-accent"
-                        >
-                          ✕
-                        </button>
-                      </form>
-                    ) : null}
-                  </div>
-                  <p className={`text-[10.5px] font-semibold ${item.kind === "atRisk" ? "text-ground/80" : "text-ink-dim"}`}>
-                    {fmtTime(item.start)}–{fmtTime(item.end)}
-                    {item.clientName ? ` · ${item.clientName}` : ""}
-                    {item.kind === "atRisk" ? " · AT RISK" : ""}
-                    {item.kind === "fixed" ? " · FIXED" : ""}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
+          <DayDragItems items={today} gridStart={gridStart} rowH={ROW_H} />
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-4 border-t border-line p-4">
@@ -305,46 +250,7 @@ async function WeekView({ anchor, todayKey }: { anchor: Date; todayKey: string }
           </div>
         ))}
 
-        <div className="relative" style={{ height: totalHours * WEEK_ROW_H }}>
-          {Array.from({ length: totalHours }, (_, i) => (
-            <span
-              key={i}
-              className="font-mono-strobe absolute right-1.5 text-[10px] font-semibold text-ink-dim"
-              style={{ top: i * WEEK_ROW_H - 6 }}
-            >
-              {String(gridStartHour + i).padStart(2, "0")}:00
-            </span>
-          ))}
-        </div>
-
-        {week.map((d) => {
-          const dayGridStart = new Date(d.date);
-          dayGridStart.setHours(gridStartHour, 0, 0, 0);
-          return (
-            <div key={`b-${d.key}`} className={`relative border-l border-line ${d.key === todayKey ? "bg-[color-mix(in_srgb,var(--accent)_6%,transparent)]" : ""}`} style={{ height: totalHours * WEEK_ROW_H }}>
-              {Array.from({ length: totalHours }, (_, i) => (
-                <div key={i} className="absolute inset-x-0 border-t border-line first:border-t-0" style={{ top: i * WEEK_ROW_H }} />
-              ))}
-              {d.items.map((item) => {
-                const top = ((item.start.getTime() - dayGridStart.getTime()) / 3_600_000) * WEEK_ROW_H;
-                const height = Math.max(((item.end.getTime() - item.start.getTime()) / 3_600_000) * WEEK_ROW_H - 2, 16);
-                return (
-                  <div
-                    key={item.id}
-                    title={`${item.title} · ${fmtTime(item.start)}–${fmtTime(item.end)}`}
-                    className={`absolute right-0.5 left-0.5 overflow-hidden rounded-sm border px-1 py-0.5 ${kindClasses(item.kind)}`}
-                    style={{ top, height }}
-                  >
-                    <p className={`truncate text-[10.5px] font-bold ${item.kind === "atRisk" ? "text-ground" : "text-ink"}`}>
-                      {item.kind === "fixed" ? "🔒 " : ""}
-                      {item.title}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })}
+        <WeekDragGrid days={week} gridStartHour={gridStartHour} totalHours={totalHours} rowH={WEEK_ROW_H} todayKey={todayKey} />
       </div>
     </div>
   );

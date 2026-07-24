@@ -81,6 +81,22 @@ directory for the actual dev values used locally.
 - The Schedule page has Day / Week / Month tabs (`?view=` + `?date=` in the
   URL). Month cells link into that day's Day view instead of opening any
   kind of modal — keeps the day-detail rendering logic in one place.
+- Task blocks in Day and Week view are drag-to-reschedule (pointer events,
+  not native HTML5 drag-and-drop, so it works on touch too), snapping to
+  15-minute increments. This is a same-session nudge, not a pin: the next
+  "Reflow schedule" click still recomputes every block from scratch and
+  will happily move it again. Fixed events aren't draggable — their time
+  is edited by deleting and re-adding.
+- `src/components/ScheduleDrag.tsx` renders every item in Week view as a
+  flat, absolutely-positioned layer (not nested inside each day's column
+  div) even though it's visually a 7-column grid. Nesting items inside
+  per-day column divs seems more natural, but a cross-day drag would then
+  move the dragged item's DOM node into a different column's React
+  subtree mid-gesture — an unmount/remount that silently drops the
+  browser's pointer capture partway through the drag. Keeping items in one
+  flat layer, positioned with `calc()` against the column count, means the
+  same DOM node handles pointerdown/move/up for the whole gesture no
+  matter which day it visually lands over.
 
 ## Known bugs fixed in the last review pass
 
