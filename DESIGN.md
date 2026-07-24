@@ -439,7 +439,7 @@ core loop. But measured against Monday/Motion/Asana as daily drivers, a
 few real gaps remain — surfaced by asking "what would make this feel
 unfinished after a month of actual use," not by chasing feature parity.
 Most of what those tools have would actively work against §1's
-minimalism (see §11.12); the following is the subset worth building, in
+minimalism (see §11.13); the following is the subset worth building, in
 priority order, plus the reasoning for each.
 
 **11.1 Direct create — no more database GUI.** Clients, Projects, and
@@ -565,7 +565,19 @@ land past the deadline, not after the fact.
 **Search** was also requested — it isn't a new item here, it converges
 with the quick-jump palette already planned in §11.2.
 
-**11.12 Deliberately excluded.** Comments/activity feeds, file
+**11.12 Undo.** Surfaced by auditing interaction modes against the built
+app, not by a specific ask: nothing anywhere can be undone. Completing a
+task by accident, discarding the wrong Capture item, or dropping a
+dragged schedule block on the wrong slot all currently require manually
+redoing the correct action from scratch — there's no way back. Given the
+single-user, low-blast-radius nature of this app, this doesn't need a
+full undo/redo history stack — a short-lived "Undone" toast with a
+reverse action after any of the handful of destructive-feeling moments
+(complete, discard, delete fixed event, block drag) covers the realistic
+case ("wrong button") without building general-purpose undo
+infrastructure.
+
+**11.13 Deliberately excluded.** Comments/activity feeds, file
 attachments, task dependencies/blocking-chains, multi-user permissions,
 and a general-purpose automation-rule builder — the parts of
 Monday/Asana that make them fit for teams — are left out on purpose.
@@ -651,7 +663,8 @@ a rules engine the user has to go build.
     the Time report surface, resizable schedule blocks, project
     templates, v0 (in-tab) reminders, click-to-create on the calendar,
     a notes/brief click-through on tasks, a dedicated client view (scope
-    TBD), and live at-risk feedback while dragging a hard-deadline task.
+    TBD), live at-risk feedback while dragging a hard-deadline task, and
+    lightweight undo (a reversible toast) on complete/discard/delete/drag.
 
 Start at Phase 1 with the smallest possible slice: one EmailAccount synced
 read-only, and manual tasks — prove the unified per-client timeline feels
