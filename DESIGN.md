@@ -9,6 +9,10 @@ productivity conventions.
 > maps the five screens, a normal day's workflow, and the same "why it
 > works this way" reasoning as this doc. Kept in sync with this file —
 > update both when either changes.
+>
+> Anything agreed but not yet written up properly here lives in
+> [WORKING-NOTES.md](WORKING-NOTES.md) in the meantime — check there for
+> in-flight decisions this doc hasn't caught up to yet.
 
 ## 1. Design philosophy
 
