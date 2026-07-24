@@ -4,6 +4,12 @@ A unified project-management + email client for running freelance work on a
 custom domain, designed around ADHD cognition rather than neurotypical
 productivity conventions.
 
+> Companion visual reference: the [Strobe — How It Works
+> mindmap](https://claude.ai/code/artifact/b7e205e3-9ebf-4eeb-9883-96c10875e6bb)
+> maps the five screens, a normal day's workflow, and the same "why it
+> works this way" reasoning as this doc. Kept in sync with this file —
+> update both when either changes.
+
 ## 1. Design philosophy
 
 Most PM tools and email clients fight ADHD brains: infinite lists, red badge
@@ -433,7 +439,7 @@ core loop. But measured against Monday/Motion/Asana as daily drivers, a
 few real gaps remain — surfaced by asking "what would make this feel
 unfinished after a month of actual use," not by chasing feature parity.
 Most of what those tools have would actively work against §1's
-minimalism (see §11.8); the following is the subset worth building, in
+minimalism (see §11.12); the following is the subset worth building, in
 priority order, plus the reasoning for each.
 
 **11.1 Direct create — no more database GUI.** Clients, Projects, and
@@ -522,7 +528,44 @@ it — Focus, Workspace, and Schedule all show client names as plain text.
 This isn't a new design question, just a gap between what §3 already
 decided and what got built.
 
-**11.8 Deliberately excluded.** Comments/activity feeds, file
+**11.8 Click-to-create on the calendar.** Schedule (§7/§8) currently only
+gains a fixed event through the separate "Add a fixed event" form below
+the grid — there's no click-an-empty-slot affordance the way Google
+Calendar or Monday's calendar view both work. Clicking an open slot in
+Day/Week view should open the same minimal "just a name" quick-add from
+§11.1, pre-filled with the clicked time, rather than requiring a scroll
+down to a separate form every time.
+
+**11.9 Notes/brief on click — a UI gap, not a schema gap.**
+`Task.note` (§3) has existed since the very first schema draft and is
+exactly what a bulk-extracted batch task (§6) stores its spec in ("each
+carrying its own spec as a note") — but no screen actually surfaces it.
+Clicking a task anywhere it appears (Focus, Workspace, Schedule) should
+open that task's note for reading and editing, not just show its title.
+The data's always been there; the click-through to it isn't.
+
+**11.10 A dedicated client view.** Logged as requested, but needs scope
+clarified before it's built: Workspace (§8.2) already gives each client a
+merged timeline of their projects/tasks/email, so this likely means
+something adjacent to that — a client "profile" surface (contact info,
+rate, relationship notes) distinct from the task/email timeline — rather
+than a duplicate of what Workspace already does. Worth a quick scoping
+pass before starting, not assuming.
+
+**11.11 Live at-risk warning while dragging a hard-deadline task.**
+Hard-deadline tasks are already draggable today — only fixed
+`CalendarEvent`s are locked from dragging — and "at risk" (§7) already
+gets recomputed from wherever a block currently sits, on every page
+load. The actual gap is *live* feedback: right now you only find out a
+drag pushed a hard deadline into danger after dropping the block and the
+page reloads. The dragged block should flip to the "at risk" visual
+treatment (see the app's README) the moment its live drag position would
+land past the deadline, not after the fact.
+
+**Search** was also requested — it isn't a new item here, it converges
+with the quick-jump palette already planned in §11.2.
+
+**11.12 Deliberately excluded.** Comments/activity feeds, file
 attachments, task dependencies/blocking-chains, multi-user permissions,
 and a general-purpose automation-rule builder — the parts of
 Monday/Asana that make them fit for teams — are left out on purpose.
@@ -606,7 +649,9 @@ a rules engine the user has to go build.
 10. **Daily-driver completeness (§11):** direct create UI for
     Client/Project/Task, the quick-jump palette, opt-in time tracking +
     the Time report surface, resizable schedule blocks, project
-    templates, and v0 (in-tab) reminders.
+    templates, v0 (in-tab) reminders, click-to-create on the calendar,
+    a notes/brief click-through on tasks, a dedicated client view (scope
+    TBD), and live at-risk feedback while dragging a hard-deadline task.
 
 Start at Phase 1 with the smallest possible slice: one EmailAccount synced
 read-only, and manual tasks — prove the unified per-client timeline feels
