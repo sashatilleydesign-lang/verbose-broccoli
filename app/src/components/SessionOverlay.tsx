@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { startSession, endSession, completeTask } from "@/app/actions/tasks";
+import { startSession, endSession, completeTask, undoCompleteTask } from "@/app/actions/tasks";
+import { showUndo } from "@/components/undoStore";
 
 const DEFAULT_MINUTES = 25;
 
@@ -69,7 +70,12 @@ export function SessionOverlay({ task }: { task: Task }) {
       <div className="flex gap-3">
         <button
           type="button"
-          onClick={() => startTransition(() => completeTask(task.id))}
+          onClick={() =>
+            startTransition(async () => {
+              const undo = await completeTask(task.id);
+              showUndo({ message: "Task completed.", onUndo: () => undoCompleteTask(task.id, undo) });
+            })
+          }
           className="min-h-11 rounded-md bg-accent px-5 text-[13.5px] font-semibold text-ground hover:opacity-90"
         >
           Done

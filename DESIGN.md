@@ -819,7 +819,11 @@ title anywhere it appears (Focus, Weekly, Workspace, Schedule) opens
 warning while dragging) is also built — a dragged hard-deadline block
 now flips to the at-risk visual treatment the instant its live position
 would land past the deadline, rather than only being found out after
-the drop and the next page load. §11.10 (a dedicated client view) is
-logged but explicitly needs a scoping conversation before it's built —
-skipped for now per that note rather than assumed. The rest of §11
-(§11.12 onward) is still queued.
+the drop and the next page load. §11.12 (undo) is also built — a
+short-lived "Undone" toast with a reverse action after the four
+destructive-feeling moments this app actually has (complete a task,
+discard a Capture item, delete a fixed event, drag a schedule block onto
+the wrong slot), not general-purpose undo/redo history. §11.10 (a
+dedicated client view) is logged but explicitly needs a scoping
+conversation before it's built — skipped for now per that note rather
+than assumed. The rest of §11 (§11.13 onward) is still queued.

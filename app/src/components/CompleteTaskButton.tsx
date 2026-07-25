@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { completeTask } from "@/app/actions/tasks";
+import { completeTask, undoCompleteTask } from "@/app/actions/tasks";
+import { showUndo } from "@/components/undoStore";
 
 export function CompleteTaskButton({ taskId }: { taskId: string }) {
   const [done, setDone] = useState(false);
@@ -14,8 +15,12 @@ export function CompleteTaskButton({ taskId }: { taskId: string }) {
       disabled={pending || done}
       onClick={() => {
         setDone(true);
-        startTransition(() => {
-          completeTask(taskId);
+        startTransition(async () => {
+          const undo = await completeTask(taskId);
+          showUndo({
+            message: "Task completed.",
+            onUndo: () => undoCompleteTask(taskId, undo),
+          });
         });
       }}
       className={

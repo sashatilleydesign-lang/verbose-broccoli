@@ -4,7 +4,8 @@ import { useEffect, useRef, useState, useSyncExternalStore, useTransition } from
 import Link from "next/link";
 import { subscribe, getSnapshot, getServerSnapshot, closeQuickJump, toggleQuickJump } from "@/components/quickJumpStore";
 import { searchAll, getCurrentNextTask, type SearchResults } from "@/app/actions/search";
-import { completeTask } from "@/app/actions/tasks";
+import { completeTask, undoCompleteTask } from "@/app/actions/tasks";
+import { showUndo } from "@/components/undoStore";
 
 const EMPTY_RESULTS: SearchResults = { clients: [], projects: [], tasks: [], threads: [] };
 
@@ -134,7 +135,11 @@ export function QuickJump() {
                 <button
                   type="button"
                   onClick={() => {
-                    startTransition(() => completeTask(nextTask.id));
+                    const taskId = nextTask.id;
+                    startTransition(async () => {
+                      const undo = await completeTask(taskId);
+                      showUndo({ message: "Task completed.", onUndo: () => undoCompleteTask(taskId, undo) });
+                    });
                     handleClose();
                   }}
                   className="block w-full rounded-md px-2.5 py-2 text-left text-[14px] font-medium text-ink hover:bg-ground"

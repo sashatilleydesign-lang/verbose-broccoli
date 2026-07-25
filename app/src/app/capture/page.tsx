@@ -1,7 +1,8 @@
 import { verifySession } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/AppShell";
-import { createCaptureItem, convertCaptureToTask, discardCaptureItem } from "@/app/actions/captures";
+import { createCaptureItem, convertCaptureToTask } from "@/app/actions/captures";
+import { DiscardCaptureButton } from "@/components/DiscardCaptureButton";
 
 export default async function CapturePage() {
   await verifySession();
@@ -58,11 +59,7 @@ export default async function CapturePage() {
                         Turn into task
                       </button>
                     </form>
-                    <form action={discardCaptureItem.bind(null, item.id)}>
-                      <button type="submit" className="border-b border-line pb-0.5 text-[12.5px] font-bold text-ink-dim hover:border-accent hover:text-accent">
-                        Discard
-                      </button>
-                    </form>
+                    <DiscardCaptureButton item={item} />
                   </span>
                 </li>
               ))}

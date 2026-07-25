@@ -7,10 +7,12 @@ import {
   moveScheduledBlock,
   resizeScheduledBlock,
   deleteCalendarEvent,
+  restoreCalendarEvent,
   createCalendarEventQuick,
 } from "@/app/actions/schedule";
 import { ClientDot } from "@/components/ClientBadge";
 import { openTaskNote } from "@/components/taskNoteStore";
+import { showUndo } from "@/components/undoStore";
 
 const SNAP_MINUTES = 15;
 const MIN_MOVE_MS = 60_000;
@@ -21,7 +23,12 @@ const MIN_DURATION_MS = 15 * 60_000;
 const QUICK_ADD_DURATION_MS = 30 * 60_000;
 
 type Override = { start: Date; end: Date };
-type DragInfo = { grabOffsetY: number; durationMs: number };
+// originalStart is captured once at drag-start (onDown), not read back
+// off `item.start` in onUp — during a fast drag, React may not have
+// re-rendered between the last onMove and the final onUp, so the `item`
+// closed over there isn't reliably the pre-drag value. Recording it
+// explicitly up front is what makes the §11.12 undo revert accurate.
+type DragInfo = { grabOffsetY: number; durationMs: number; originalStart: Date };
 type ResizeInfo = { startY: number; startDurationMs: number };
 
 function snapDurationMs(ms: number): number {
@@ -186,11 +193,21 @@ function ScheduleItemTitle({
 function RemoveFixedButton({ item }: { item: ScheduleItem }) {
   if (item.kind !== "fixed") return null;
   return (
-    <form action={deleteCalendarEvent.bind(null, item.id)} onPointerDown={(e) => e.stopPropagation()}>
-      <button type="submit" aria-label={`Remove ${item.title}`} className="text-[11px] font-bold text-ink-dim hover:text-accent">
-        ✕
-      </button>
-    </form>
+    <button
+      type="button"
+      onPointerDown={(e) => e.stopPropagation()}
+      onClick={() => {
+        deleteCalendarEvent(item.id);
+        showUndo({
+          message: "Removed.",
+          onUndo: () => restoreCalendarEvent(item.title, item.start.getTime(), item.end.getTime()),
+        });
+      }}
+      aria-label={`Remove ${item.title}`}
+      className="text-[11px] font-bold text-ink-dim hover:text-accent"
+    >
+      ✕
+    </button>
   );
 }
 
@@ -214,6 +231,7 @@ export function DayDragItems({ items, gridStart, rowH }: { items: ScheduleItem[]
     dragInfo.current = {
       grabOffsetY: e.clientY - e.currentTarget.getBoundingClientRect().top,
       durationMs: item.end.getTime() - item.start.getTime(),
+      originalStart: item.start,
     };
     setDragId(item.id);
   }
@@ -229,7 +247,7 @@ export function DayDragItems({ items, gridStart, rowH }: { items: ScheduleItem[]
 
   function onUp(item: ScheduleItem) {
     if (dragId !== item.id || !dragInfo.current) return;
-    const durationMs = dragInfo.current.durationMs;
+    const { durationMs, originalStart } = dragInfo.current;
     const current = overrides[item.id];
     setDragId(null);
     dragInfo.current = null;
@@ -239,9 +257,13 @@ export function DayDragItems({ items, gridStart, rowH }: { items: ScheduleItem[]
     const snappedEnd = new Date(snappedStart.getTime() + durationMs);
     setOverrides((prev) => ({ ...prev, [item.id]: { start: snappedStart, end: snappedEnd } }));
 
-    if (Math.abs(snappedStart.getTime() - item.start.getTime()) >= MIN_MOVE_MS) {
+    if (Math.abs(snappedStart.getTime() - originalStart.getTime()) >= MIN_MOVE_MS) {
       startTransition(() => {
         moveScheduledBlock(item.id, snappedStart.getTime());
+      });
+      showUndo({
+        message: "Moved.",
+        onUndo: () => moveScheduledBlock(item.id, originalStart.getTime()),
       });
     }
   }
@@ -422,6 +444,7 @@ export function WeekDragGrid({
     dragInfo.current = {
       grabOffsetY: e.clientY - e.currentTarget.getBoundingClientRect().top,
       durationMs: item.end.getTime() - item.start.getTime(),
+      originalStart: item.start,
     };
     const colIndex = colIndexFor(item);
     const dayTop = dayGridStartFor(days[colIndex].date);
@@ -446,7 +469,7 @@ export function WeekDragGrid({
 
   function onUp(item: ScheduleItem) {
     if (dragId !== item.id || !dragInfo.current) return;
-    const durationMs = dragInfo.current.durationMs;
+    const { durationMs, originalStart } = dragInfo.current;
     const pos = dragPosRef.current;
     setDragId(null);
     setDragPos(null);
@@ -460,9 +483,13 @@ export function WeekDragGrid({
     const snappedEnd = new Date(snappedStart.getTime() + durationMs);
     setOverrides((prev) => ({ ...prev, [item.id]: { start: snappedStart, end: snappedEnd } }));
 
-    if (Math.abs(snappedStart.getTime() - item.start.getTime()) >= MIN_MOVE_MS) {
+    if (Math.abs(snappedStart.getTime() - originalStart.getTime()) >= MIN_MOVE_MS) {
       startTransition(() => {
         moveScheduledBlock(item.id, snappedStart.getTime());
+      });
+      showUndo({
+        message: "Moved.",
+        onUndo: () => moveScheduledBlock(item.id, originalStart.getTime()),
       });
     }
   }

@@ -148,6 +148,20 @@ directory for the actual dev values used locally.
   order, so a very short (15-min-floor) block's title and its handle's
   bottom 8px would otherwise visually overlap with the handle always
   winning the click.
+- `src/components/UndoToast.tsx` / `undoStore.ts` — a short-lived
+  "Undone" toast after the handful of destructive-feeling moments
+  (§11.12: complete task, discard a Capture item, delete a fixed event,
+  drag a schedule block onto the wrong slot), not general-purpose
+  undo/redo history — matches this app's single-user, low-blast-radius
+  scope. `moveScheduledBlock`'s undo target is captured once at
+  drag-start (`DragInfo.originalStart`) rather than read back off the
+  item's `start` in `onUp` — during a fast drag, React may not have
+  re-rendered between the last pointer move and the final pointer up, so
+  the `item` closed over there isn't reliably the pre-drag value.
+  `completeTask` now returns enough to reverse itself (prior state, plus
+  which task — if any — got auto-promoted by the batch advance), and all
+  three of its call sites (Focus, the quick-jump palette, the session
+  overlay) wire that into the toast for consistency.
 
 ## Scheduler notes
 

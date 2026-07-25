@@ -56,6 +56,15 @@ export async function deleteCalendarEvent(eventId: string) {
   revalidatePath("/schedule");
 }
 
+// Reverses deleteCalendarEvent (§11.12) — a fresh row with the same
+// title/start/end, not a resurrection of the deleted id; nothing else
+// references a CalendarEvent's id.
+export async function restoreCalendarEvent(title: string, startMs: number, endMs: number) {
+  await verifySession();
+  await prisma.calendarEvent.create({ data: { title, start: new Date(startMs), end: new Date(endMs) } });
+  revalidatePath("/schedule");
+}
+
 // Manual drag-and-drop move. Deliberately doesn't "pin" the block against
 // future reflows — the next "Reflow schedule" click still recomputes
 // every block from scratch (see scheduler.ts), so a manual move is a

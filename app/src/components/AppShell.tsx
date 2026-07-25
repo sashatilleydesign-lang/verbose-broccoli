@@ -3,6 +3,7 @@ import { MobileNav } from "@/components/MobileNav";
 import { QuickJump } from "@/components/QuickJump";
 import { ReminderWatcher } from "@/components/ReminderWatcher";
 import { TaskNoteModal } from "@/components/TaskNoteModal";
+import { UndoToast } from "@/components/UndoToast";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -15,6 +16,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <QuickJump />
       <ReminderWatcher />
       <TaskNoteModal />
+      <UndoToast />
     </div>
   );
 }
