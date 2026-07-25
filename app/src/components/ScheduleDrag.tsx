@@ -3,13 +3,40 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import type { ScheduleItem } from "@/lib/schedule";
 import { fmtTime, kindClasses, dateKey } from "@/lib/scheduleFormat";
-import { moveScheduledBlock, deleteCalendarEvent } from "@/app/actions/schedule";
+import { moveScheduledBlock, resizeScheduledBlock, deleteCalendarEvent } from "@/app/actions/schedule";
 
 const SNAP_MINUTES = 15;
 const MIN_MOVE_MS = 60_000;
+const MIN_DURATION_MS = 15 * 60_000;
 
 type Override = { start: Date; end: Date };
 type DragInfo = { grabOffsetY: number; durationMs: number };
+type ResizeInfo = { startY: number; startDurationMs: number };
+
+function snapDurationMs(ms: number): number {
+  const minutes = Math.round(ms / 60_000 / SNAP_MINUTES) * SNAP_MINUTES;
+  return Math.max(MIN_DURATION_MS, minutes * 60_000);
+}
+
+function ResizeHandle({
+  onPointerDown,
+  onPointerMove,
+  onPointerUp,
+}: {
+  onPointerDown: (e: React.PointerEvent<HTMLDivElement>) => void;
+  onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => void;
+  onPointerUp: (e: React.PointerEvent<HTMLDivElement>) => void;
+}) {
+  return (
+    <div
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      className="absolute inset-x-0 bottom-0 h-2 cursor-ns-resize touch-none"
+      aria-hidden="true"
+    />
+  );
+}
 
 function useOverrideSync(items: ScheduleItem[], setOverrides: React.Dispatch<React.SetStateAction<Record<string, Override>>>) {
   useEffect(() => {
@@ -18,7 +45,13 @@ function useOverrideSync(items: ScheduleItem[], setOverrides: React.Dispatch<Rea
       const next = { ...prev };
       for (const it of items) {
         const ov = next[it.id];
-        if (ov && ov.start.getTime() === it.start.getTime()) {
+        // Both start and end must match the server value before dropping the
+        // override — checking start alone was fine for a move (which always
+        // changes start), but a resize deliberately holds start constant, so
+        // that check alone would clear a resize override before its own
+        // action even committed, on every render that reconstructs `items`
+        // (as WeekDragGrid's flatMap-derived array does).
+        if (ov && ov.start.getTime() === it.start.getTime() && ov.end.getTime() === it.end.getTime()) {
           delete next[it.id];
           changed = true;
         }
@@ -56,6 +89,8 @@ export function DayDragItems({ items, gridStart, rowH }: { items: ScheduleItem[]
   const [overrides, setOverrides] = useState<Record<string, Override>>({});
   const [dragId, setDragId] = useState<string | null>(null);
   const dragInfo = useRef<DragInfo | null>(null);
+  const [resizeId, setResizeId] = useState<string | null>(null);
+  const resizeInfo = useRef<ResizeInfo | null>(null);
   const [, startTransition] = useTransition();
 
   useOverrideSync(items, setOverrides);
@@ -100,6 +135,38 @@ export function DayDragItems({ items, gridStart, rowH }: { items: ScheduleItem[]
     }
   }
 
+  function onResizeDown(e: React.PointerEvent<HTMLDivElement>, item: ScheduleItem) {
+    if (item.kind === "fixed") return;
+    e.stopPropagation();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    resizeInfo.current = { startY: e.clientY, startDurationMs: item.end.getTime() - item.start.getTime() };
+    setResizeId(item.id);
+  }
+
+  function onResizeMove(e: React.PointerEvent<HTMLDivElement>, item: ScheduleItem) {
+    if (resizeId !== item.id || !resizeInfo.current) return;
+    e.stopPropagation();
+    const deltaMs = ((e.clientY - resizeInfo.current.startY) / rowH) * 3_600_000;
+    const newDurationMs = Math.max(MIN_DURATION_MS, resizeInfo.current.startDurationMs + deltaMs);
+    setOverrides((prev) => ({ ...prev, [item.id]: { start: item.start, end: new Date(item.start.getTime() + newDurationMs) } }));
+  }
+
+  function onResizeUp(item: ScheduleItem) {
+    if (resizeId !== item.id || !resizeInfo.current) return;
+    const current = overrides[item.id];
+    setResizeId(null);
+    resizeInfo.current = null;
+    if (!current) return;
+
+    const snappedMs = snapDurationMs(current.end.getTime() - current.start.getTime());
+    const snappedEnd = new Date(current.start.getTime() + snappedMs);
+    setOverrides((prev) => ({ ...prev, [item.id]: { start: item.start, end: snappedEnd } }));
+
+    startTransition(() => {
+      resizeScheduledBlock(item.id, snappedMs / 60_000);
+    });
+  }
+
   return (
     <div ref={containerRef} className="absolute top-4 right-4 bottom-4 left-[60px]">
       {display.length === 0 ? (
@@ -109,6 +176,7 @@ export function DayDragItems({ items, gridStart, rowH }: { items: ScheduleItem[]
         const top = ((item.start.getTime() - gridStart.getTime()) / 3_600_000) * rowH;
         const height = Math.max(((item.end.getTime() - item.start.getTime()) / 3_600_000) * rowH - 4, 20);
         const dragging = dragId === item.id;
+        const resizing = resizeId === item.id;
         return (
           <div
             key={item.id}
@@ -117,7 +185,7 @@ export function DayDragItems({ items, gridStart, rowH }: { items: ScheduleItem[]
             onPointerUp={() => onUp(item)}
             className={`absolute right-1 left-1 overflow-hidden rounded-md border px-3 py-1.5 select-none ${kindClasses(item.kind)} ${
               item.kind !== "fixed" ? "cursor-grab touch-none active:cursor-grabbing" : ""
-            } ${dragging ? "z-10 opacity-90 shadow-lg" : ""}`}
+            } ${dragging || resizing ? "z-10 opacity-90 shadow-lg" : ""}`}
             style={{ top, height }}
           >
             <div className="flex items-start justify-between gap-2">
@@ -133,6 +201,13 @@ export function DayDragItems({ items, gridStart, rowH }: { items: ScheduleItem[]
               {item.kind === "atRisk" ? " · AT RISK" : ""}
               {item.kind === "fixed" ? " · FIXED" : ""}
             </p>
+            {item.kind !== "fixed" ? (
+              <ResizeHandle
+                onPointerDown={(e) => onResizeDown(e, item)}
+                onPointerMove={(e) => onResizeMove(e, item)}
+                onPointerUp={() => onResizeUp(item)}
+              />
+            ) : null}
           </div>
         );
       })}
@@ -159,6 +234,8 @@ export function WeekDragGrid({
   const [dragPos, setDragPos] = useState<{ colIndex: number; top: number } | null>(null);
   const dragInfo = useRef<DragInfo | null>(null);
   const dragPosRef = useRef<{ colIndex: number; top: number } | null>(null);
+  const [resizeId, setResizeId] = useState<string | null>(null);
+  const resizeInfo = useRef<ResizeInfo | null>(null);
   const [, startTransition] = useTransition();
 
   const allItems = days.flatMap((d) => d.items);
@@ -231,6 +308,38 @@ export function WeekDragGrid({
     }
   }
 
+  function onResizeDown(e: React.PointerEvent<HTMLDivElement>, item: ScheduleItem) {
+    if (item.kind === "fixed") return;
+    e.stopPropagation();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    resizeInfo.current = { startY: e.clientY, startDurationMs: item.end.getTime() - item.start.getTime() };
+    setResizeId(item.id);
+  }
+
+  function onResizeMove(e: React.PointerEvent<HTMLDivElement>, item: ScheduleItem) {
+    if (resizeId !== item.id || !resizeInfo.current) return;
+    e.stopPropagation();
+    const deltaMs = ((e.clientY - resizeInfo.current.startY) / rowH) * 3_600_000;
+    const newDurationMs = Math.max(MIN_DURATION_MS, resizeInfo.current.startDurationMs + deltaMs);
+    setOverrides((prev) => ({ ...prev, [item.id]: { start: item.start, end: new Date(item.start.getTime() + newDurationMs) } }));
+  }
+
+  function onResizeUp(item: ScheduleItem) {
+    if (resizeId !== item.id || !resizeInfo.current) return;
+    const current = overrides[item.id];
+    setResizeId(null);
+    resizeInfo.current = null;
+    if (!current) return;
+
+    const snappedMs = snapDurationMs(current.end.getTime() - current.start.getTime());
+    const snappedEnd = new Date(current.start.getTime() + snappedMs);
+    setOverrides((prev) => ({ ...prev, [item.id]: { start: item.start, end: snappedEnd } }));
+
+    startTransition(() => {
+      resizeScheduledBlock(item.id, snappedMs / 60_000);
+    });
+  }
+
   const display = allItems.map((it) => (overrides[it.id] ? { ...it, ...overrides[it.id] } : it));
 
   return (
@@ -267,6 +376,7 @@ export function WeekDragGrid({
             ? dragPos.top
             : ((item.start.getTime() - dayGridStartFor(days[colIndex].date).getTime()) / 3_600_000) * rowH;
         const height = Math.max(((item.end.getTime() - item.start.getTime()) / 3_600_000) * rowH - 2, 16);
+        const resizing = resizeId === item.id;
         return (
           <div
             key={item.id}
@@ -276,7 +386,7 @@ export function WeekDragGrid({
             title={`${item.title} · ${fmtTime(item.start)}–${fmtTime(item.end)}`}
             className={`absolute overflow-hidden rounded-sm border px-1 py-0.5 select-none ${kindClasses(item.kind)} ${
               item.kind !== "fixed" ? "cursor-grab touch-none active:cursor-grabbing" : ""
-            } ${dragging ? "z-20 opacity-90 shadow-lg" : ""}`}
+            } ${dragging || resizing ? "z-20 opacity-90 shadow-lg" : ""}`}
             style={{
               top,
               height,
@@ -288,6 +398,13 @@ export function WeekDragGrid({
               {item.kind === "fixed" ? "🔒 " : ""}
               {item.title}
             </p>
+            {item.kind !== "fixed" ? (
+              <ResizeHandle
+                onPointerDown={(e) => onResizeDown(e, item)}
+                onPointerMove={(e) => onResizeMove(e, item)}
+                onPointerUp={() => onResizeUp(item)}
+              />
+            ) : null}
           </div>
         );
       })}

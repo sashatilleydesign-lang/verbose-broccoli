@@ -792,5 +792,8 @@ Tasks/email threads, plus fixed nav shortcuts and a "mark next action
 done" quick action. §11.3 (the session timer) is also built — an opt-in
 full-screen countdown (`SessionOverlay.tsx`) started from the next-action
 card on Focus, backed by `Task.startedAt`/`actualMinutes`, counting up
-past zero with a dismissible nudge instead of a hard stop. The rest of
-§11 (§11.4 onward) is still queued.
+past zero with a dismissible nudge instead of a hard stop. §11.4
+(resizable schedule blocks) is also built — a drag handle on each block's
+bottom edge in both Day and Week views, writing the new duration back to
+`Task.estimatedMinutes` so it survives the next Reflow rather than being
+silently discarded. The rest of §11 (§11.5 onward) is still queued.

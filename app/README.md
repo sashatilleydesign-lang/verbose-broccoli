@@ -84,6 +84,20 @@ directory for the actual dev values used locally.
   nudge rather than a hard stop. Ending a session just clears `startedAt`
   with no partial-credit bookkeeping; completing one from inside the
   overlay records `Task.actualMinutes` from the elapsed time.
+- `src/components/ScheduleDrag.tsx` — also home to the resize handle
+  (§11.4): a thin `cursor-ns-resize` strip on the bottom edge of each
+  movable/at-risk block (not on fixed events), wired through
+  `resizeScheduledBlock` in `actions/schedule.ts`. Deliberately writes
+  back to `Task.estimatedMinutes`, not just the one `ScheduledBlock` —
+  a resize is correcting how long the task actually takes, so it needs
+  to survive the next Reflow, unlike a plain drag-move. Floors at 15
+  minutes. `useOverrideSync`'s stale-override cleanup had to compare
+  both `start` and `end` against the server value (not `start` alone) —
+  a resize deliberately holds `start` constant, so the old start-only
+  check would clear a resize's optimistic override before its own
+  action even committed, on every re-render that reconstructs the
+  `items` array by reference (as `WeekDragGrid`'s `flatMap`-derived list
+  does on every render, unlike `DayDragItems`' stable prop reference).
 
 ## Scheduler notes
 

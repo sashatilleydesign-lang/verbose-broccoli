@@ -53,3 +53,26 @@ export async function moveScheduledBlock(blockId: string, newStartMs: number) {
   await prisma.scheduledBlock.update({ where: { id: blockId }, data: { start, end } });
   revalidatePath("/schedule");
 }
+
+// Dragging a block's edge (§11.4) is a different edit than moving it: it's
+// correcting how long the task actually takes, not just when it happens.
+// So — unlike moveScheduledBlock — this writes back to the task's
+// estimatedMinutes, which is what the next Reflow reads to size the block.
+// Skipping that write would mean every resize gets silently discarded on
+// the next reflow.
+export async function resizeScheduledBlock(blockId: string, newDurationMinutes: number) {
+  await verifySession();
+
+  const block = await prisma.scheduledBlock.findUnique({ where: { id: blockId } });
+  if (!block) return;
+
+  const clampedMinutes = Math.max(5, Math.round(newDurationMinutes));
+  const end = new Date(block.start.getTime() + clampedMinutes * 60_000);
+
+  await prisma.$transaction([
+    prisma.scheduledBlock.update({ where: { id: blockId }, data: { end } }),
+    prisma.task.update({ where: { id: block.taskId }, data: { estimatedMinutes: clampedMinutes } }),
+  ]);
+  revalidatePath("/schedule");
+  revalidatePath("/focus");
+}
