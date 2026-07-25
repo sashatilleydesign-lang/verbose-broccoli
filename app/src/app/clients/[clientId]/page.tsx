@@ -6,6 +6,7 @@ import { ExpandableLater } from "@/components/ExpandableLater";
 import { createProject, createTask } from "@/app/actions/entities";
 import { saveProjectAsTemplate, createProjectFromTemplate } from "@/app/actions/templates";
 import { ClientDot } from "@/components/ClientBadge";
+import { ClientProfileCard } from "@/components/ClientProfileCard";
 
 type TimelineEntry = {
   kind: "email" | "done" | "next";
@@ -76,6 +77,15 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
             {client.name}
           </h1>
         </div>
+        <ClientProfileCard
+          clientId={client.id}
+          profile={{
+            contactEmail: client.contactEmail,
+            contactPhone: client.contactPhone,
+            rate: client.rate,
+            notes: client.notes,
+          }}
+        />
         {pinnedNext ? (
           <p className="mb-6 text-[14px] text-ink-dim">
             Pinned next action: <strong className="text-ink">{pinnedNext.title}</strong>

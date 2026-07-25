@@ -193,6 +193,16 @@ directory for the actual dev values used locally.
   plain `startTime`/`endTime` ids — a real duplicate-id bug caught during
   QA (Playwright's `page.fill`/`page.click` silently resolved to the
   first DOM match, not a thrown ambiguity error).
+- `src/components/ClientProfileCard.tsx` — the client profile (§11.10):
+  contact email/phone, rate, and free-form relationship notes, merged
+  directly into the top of the Workspace page rather than a separate
+  surface (Workspace already gave each client a merged task/email
+  timeline — a second page duplicating that would just be two places to
+  check instead of one). Starts collapsed to a compact read line since
+  it's a CRM-lite record you check occasionally, not something you edit
+  every visit; toggling to the edit form is local client state
+  (`useState`), not a route or modal, so it never competes with the
+  timeline below it for a URL.
 
 ## Scheduler notes
 

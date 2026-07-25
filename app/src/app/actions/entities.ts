@@ -17,6 +17,27 @@ export async function createClient(formData: FormData) {
   revalidatePath("/clients");
 }
 
+// Client profile (§11.10) — contact info, rate, and relationship notes,
+// edited inline on the Workspace page rather than through a separate
+// surface. Everything here is optional, same as direct-create.
+export async function updateClientProfile(clientId: string, formData: FormData) {
+  await verifySession();
+  const contactEmail = String(formData.get("contactEmail") ?? "").trim();
+  const contactPhone = String(formData.get("contactPhone") ?? "").trim();
+  const rate = String(formData.get("rate") ?? "").trim();
+  const notes = String(formData.get("notes") ?? "").trim();
+  await prisma.client.update({
+    where: { id: clientId },
+    data: {
+      contactEmail: contactEmail || null,
+      contactPhone: contactPhone || null,
+      rate: rate || null,
+      notes: notes || null,
+    },
+  });
+  revalidatePath(`/clients/${clientId}`);
+}
+
 export async function createProject(clientId: string, formData: FormData) {
   await verifySession();
   const name = String(formData.get("name") ?? "").trim();

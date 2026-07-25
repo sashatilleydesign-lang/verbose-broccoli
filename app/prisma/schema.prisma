@@ -51,12 +51,20 @@ enum EmailThreadStatus {
 }
 
 model Client {
-  id        String        @id @default(cuid())
-  name      String
-  colorTag  String        @default("#ff4b1f")
-  createdAt DateTime      @default(now())
-  projects  Project[]
-  threads   EmailThread[]
+  id           String        @id @default(cuid())
+  name         String
+  colorTag     String        @default("#ff4b1f")
+  // Client profile (§11.10) — a CRM-lite record (contact info, rate,
+  // relationship notes) merged into the existing Workspace timeline
+  // rather than a separate client-facing portal, which would need
+  // client accounts/auth this single-user app doesn't have.
+  contactEmail String?
+  contactPhone String?
+  rate         String?
+  notes        String?
+  createdAt    DateTime      @default(now())
+  projects     Project[]
+  threads      EmailThread[]
 }
 
 model Project {

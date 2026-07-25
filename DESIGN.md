@@ -576,13 +576,17 @@ Clicking a task anywhere it appears (Focus, Workspace, Schedule) should
 open that task's note for reading and editing, not just show its title.
 The data's always been there; the click-through to it isn't.
 
-**11.10 A dedicated client view.** Logged as requested, but needs scope
-clarified before it's built: Workspace (§8.2) already gives each client a
-merged timeline of their projects/tasks/email, so this likely means
-something adjacent to that — a client "profile" surface (contact info,
-rate, relationship notes) distinct from the task/email timeline — rather
-than a duplicate of what Workspace already does. Worth a quick scoping
-pass before starting, not assuming.
+**11.10 A dedicated client view.** Scoped: not a separate surface —
+Workspace (§8.2) already gives each client a merged timeline of their
+projects/tasks/email, and a second page duplicating that would just be
+two places to look instead of one. The gap is a client "profile" (contact
+info, rate, relationship notes) merged directly into the existing
+Workspace page, above the timeline, not a distinct tab/route. Mirrors the
+CRM-lite "client profile" pattern from freelance tools like Dubsado/
+HoneyBook/Bonsai — contact + rate + notes as a static-ish record you
+check occasionally — explicitly not their other pattern, a client-facing
+portal, which needs client accounts/auth that don't exist anywhere in
+this single-user design and are out of scope.
 
 **11.11 Live at-risk warning while dragging a hard-deadline task.**
 Hard-deadline tasks are already draggable today — only fixed
@@ -834,8 +838,10 @@ real `dueDate` and rendered separately ("your target: Wed" vs "due:
 Fri") on Focus, Weekly, and Workspace, set from the same modal as
 §11.9's note; deliberately never read by the scheduler's at-risk logic,
 so it can never trigger a false alarm. §11.10 (a dedicated client view)
-is logged but explicitly needs a scoping conversation before it's built
-— skipped for now per that note rather than assumed. §11.15 (multiple
+is also built, once scoped: not a separate page, but a client profile
+(contact email/phone, rate, relationship notes) merged into the top of
+the existing Workspace page, editable inline without leaving that
+timeline. §11.15 (multiple
 working windows) is also built — `UserScheduleProfile` is now two real
 tables, `WorkWindow` (recurring rows keyed by `dayOfWeek`, or one-off rows
 keyed by a specific `date` for "extra hours on an otherwise-off day") and
@@ -856,5 +862,4 @@ unnecessarily; a hard deadline's at-risk check compares its *last*
 chunk's end against the due date; and a task split into more than a
 handful of chunks is quietly flagged rather than silently accepted,
 since that's usually a sign the estimate was too big for one sitting.
-§11.17 is a deliberate no-build (§11 is otherwise complete, aside from
-§11.10 pending its scoping conversation).
+§11 is now complete except §11.17, a deliberate no-build.
