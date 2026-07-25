@@ -3,6 +3,7 @@
 import { useEffect, useState, useSyncExternalStore, useTransition } from "react";
 import { subscribe, getSnapshot, getServerSnapshot, closeTaskNote, type NoteTarget } from "@/components/taskNoteStore";
 import { updateTaskNote } from "@/app/actions/tasks";
+import { dateKey } from "@/lib/scheduleFormat";
 
 export function TaskNoteModal() {
   const active = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
@@ -33,11 +34,13 @@ export function TaskNoteModal() {
 
 function NoteEditor({ target }: { target: NoteTarget }) {
   const [draft, setDraft] = useState(() => target.note ?? "");
+  const [targetDate, setTargetDate] = useState(() => (target.targetDate ? dateKey(target.targetDate) : ""));
   const [, startTransition] = useTransition();
 
   function handleSave() {
+    const targetDateMs = targetDate ? new Date(`${targetDate}T00:00:00`).getTime() : null;
     startTransition(() => {
-      updateTaskNote(target.id, draft);
+      updateTaskNote(target.id, draft, targetDateMs);
     });
     closeTaskNote();
   }
@@ -57,7 +60,33 @@ function NoteEditor({ target }: { target: NoteTarget }) {
         rows={8}
         className="min-h-32 w-full resize-y rounded-md border border-line bg-ground p-3 text-[14px] leading-relaxed text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
       />
-      <div className="mt-3 flex justify-end gap-3">
+
+      <div className="mt-3 flex items-center gap-2.5">
+        <label htmlFor="target-date" className="text-[11px] font-bold tracking-wide text-ink-dim uppercase">
+          🎯 Your target
+        </label>
+        <input
+          id="target-date"
+          type="date"
+          value={targetDate}
+          onChange={(e) => setTargetDate(e.target.value)}
+          // Self-imposed only — never used for at-risk logic (§7), so
+          // there's no reason to restrict it to future dates the way a
+          // real deadline picker might.
+          className="min-h-9 rounded-md border border-line bg-ground px-2.5 py-1.5 text-[13px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        />
+        {targetDate ? (
+          <button
+            type="button"
+            onClick={() => setTargetDate("")}
+            className="text-[12px] font-bold text-ink-dim hover:text-ink"
+          >
+            Clear
+          </button>
+        ) : null}
+      </div>
+
+      <div className="mt-4 flex justify-end gap-3">
         <button
           type="button"
           onClick={closeTaskNote}

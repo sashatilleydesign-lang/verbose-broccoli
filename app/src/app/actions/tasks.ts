@@ -120,12 +120,15 @@ export async function endSession(taskId: string) {
 }
 
 // Task.note (§11.9) has existed since the schema's first draft, but
-// nothing in the UI opened it for reading or editing until now.
-export async function updateTaskNote(taskId: string, note: string) {
+// nothing in the UI opened it for reading or editing until now. Also
+// saves Task.targetDate (§11.14) from the same modal — self-imposed
+// urgency, distinct from a real dueDate, and never read by the
+// scheduler's at-risk logic (see scheduler.ts).
+export async function updateTaskNote(taskId: string, note: string, targetDateMs: number | null) {
   await verifySession();
   const task = await prisma.task.update({
     where: { id: taskId },
-    data: { note: note.trim() || null },
+    data: { note: note.trim() || null, targetDate: targetDateMs === null ? null : new Date(targetDateMs) },
     include: { project: true },
   });
   revalidatePath("/focus");

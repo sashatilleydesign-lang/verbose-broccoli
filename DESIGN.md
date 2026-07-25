@@ -828,7 +828,12 @@ quick-capture) is also built — a floating "+" button on every screen
 opens the same one-field-no-picker flyout Capture always had, so dropping
 a thought no longer requires navigating away first; the Capture page
 itself keeps its review/triage list, since that's a deliberate scheduled
-pass, not something needed mid-task. §11.10 (a dedicated client view) is
-logged but explicitly needs a scoping conversation before it's built —
-skipped for now per that note rather than assumed. The rest of §11
-(§11.14 onward) is still queued.
+pass, not something needed mid-task. §11.14 (personal target date) is
+also built — an optional self-imposed date on any task, distinct from a
+real `dueDate` and rendered separately ("your target: Wed" vs "due:
+Fri") on Focus, Weekly, and Workspace, set from the same modal as
+§11.9's note; deliberately never read by the scheduler's at-risk logic,
+so it can never trigger a false alarm. §11.10 (a dedicated client view)
+is logged but explicitly needs a scoping conversation before it's built
+— skipped for now per that note rather than assumed. The rest of §11
+(§11.15 onward) is still queued.

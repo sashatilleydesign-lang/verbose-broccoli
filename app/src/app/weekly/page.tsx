@@ -2,7 +2,7 @@ import { verifySession } from "@/lib/dal";
 import { getWeeklyReviewData } from "@/lib/weekly";
 import { AppShell } from "@/components/AppShell";
 import { markAsNext, touchTask } from "@/app/actions/weekly";
-import { daysSince } from "@/lib/format";
+import { daysSince, relativeTarget } from "@/lib/format";
 import { ClientBadge } from "@/components/ClientBadge";
 import { TaskTitleButton } from "@/components/TaskTitleButton";
 
@@ -37,6 +37,9 @@ export default async function WeeklyReviewPage() {
                   <TaskTitleButton task={task} className="font-semibold" />
                   <span className="mt-0.5 block text-[12.5px] text-ink-dim">
                     flagged {daysSince(task.updatedAt)} day{daysSince(task.updatedAt) === 1 ? "" : "s"} ago
+                    {task.targetDate ? (
+                      <span className="text-accent"> · 🎯 your target: {relativeTarget(task.targetDate)}</span>
+                    ) : null}
                   </span>
                 </div>
                 <div className="flex gap-4">
@@ -72,6 +75,9 @@ export default async function WeeklyReviewPage() {
                   <TaskTitleButton task={task} className="font-semibold" />
                   <span className="mt-0.5 block text-[12.5px] text-ink-dim">
                     waiting {daysSince(task.updatedAt)} day{daysSince(task.updatedAt) === 1 ? "" : "s"}
+                    {task.targetDate ? (
+                      <span className="text-accent"> · 🎯 your target: {relativeTarget(task.targetDate)}</span>
+                    ) : null}
                   </span>
                 </div>
                 <div className="flex gap-4">

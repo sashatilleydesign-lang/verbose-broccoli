@@ -5,7 +5,7 @@
 // trigger (a task title, clicked from Focus/Weekly/Workspace/Schedule)
 // and the modal itself are unrelated components scattered across pages.
 
-export type NoteTarget = { id: string; title: string; note: string | null };
+export type NoteTarget = { id: string; title: string; note: string | null; targetDate: Date | null };
 
 let active: NoteTarget | null = null;
 const listeners = new Set<() => void>();

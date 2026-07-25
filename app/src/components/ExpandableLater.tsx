@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { TaskTitleButton } from "@/components/TaskTitleButton";
+import { relativeTarget } from "@/lib/format";
 
-type LaterTask = { id: string; title: string; note: string | null };
+type LaterTask = { id: string; title: string; note: string | null; targetDate: Date | null };
 
 export function ExpandableLater({ tasks }: { tasks: LaterTask[] }) {
   const [open, setOpen] = useState(false);
@@ -23,6 +24,7 @@ export function ExpandableLater({ tasks }: { tasks: LaterTask[] }) {
           {tasks.map((t) => (
             <li key={t.id} className="text-[14px] text-ink-dim">
               <TaskTitleButton task={t} />
+              {t.targetDate ? <span className="text-accent"> · 🎯 {relativeTarget(t.targetDate)}</span> : null}
             </li>
           ))}
         </ul>

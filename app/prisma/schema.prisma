@@ -105,6 +105,12 @@ model Task {
   context          TaskContext?
   deadlineType     DeadlineType?
   dueDate          DateTime?
+  // Self-imposed urgency (DESIGN.md §11.14) — distinct from `dueDate`,
+  // rendered differently ("your target" vs "due"), and deliberately
+  // excluded from the scheduler's at-risk logic (scheduler.ts only ever
+  // reads dueDate/deadlineType) so a target can never trigger a false
+  // alarm. Only a real deadline does that.
+  targetDate       DateTime?
   phase            String?
   estimatedMinutes Int?
   actualMinutes    Int?

@@ -176,7 +176,9 @@ function ScheduleItemTitle({
     <button
       type="button"
       onPointerDown={(e) => e.stopPropagation()}
-      onClick={() => openTaskNote({ id: taskId, title: item.title, note: item.note ?? null })}
+      onClick={() =>
+        openTaskNote({ id: taskId, title: item.title, note: item.note ?? null, targetDate: item.targetDate ?? null })
+      }
       // relative + z-10: ResizeHandle is `position: absolute`, which
       // paints above normal-flow content regardless of DOM order — this
       // button has to become a positioned element with a higher z-index

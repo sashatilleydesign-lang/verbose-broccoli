@@ -209,7 +209,12 @@ async function DayView({ anchor, todayKey }: { anchor: Date; todayKey: string })
                         {item.kind === "fixed" ? "🔒 " : ""}
                         {item.taskId ? (
                           <TaskTitleButton
-                            task={{ id: item.taskId, title: item.title, note: item.note ?? null }}
+                            task={{
+                              id: item.taskId,
+                              title: item.title,
+                              note: item.note ?? null,
+                              targetDate: item.targetDate ?? null,
+                            }}
                             className="font-semibold"
                           />
                         ) : (

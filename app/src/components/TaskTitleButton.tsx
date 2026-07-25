@@ -11,7 +11,7 @@ export function TaskTitleButton({
   task,
   className = "",
 }: {
-  task: { id: string; title: string; note: string | null };
+  task: { id: string; title: string; note: string | null; targetDate: Date | null };
   className?: string;
 }) {
   return (

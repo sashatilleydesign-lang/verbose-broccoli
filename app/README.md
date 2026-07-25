@@ -147,7 +147,13 @@ directory for the actual dev values used locally.
   absolute`, which paints above normal-flow content regardless of DOM
   order, so a very short (15-min-floor) block's title and its handle's
   bottom 8px would otherwise visually overlap with the handle always
-  winning the click.
+  winning the click. The same modal also edits `Task.targetDate`
+  (§11.14) — self-imposed urgency, distinct from a real `dueDate` and
+  rendered separately ("your target: Wed" vs "due: Fri" via
+  `relativeTarget`/`relativeDeadline` in `lib/format.ts`), and never read
+  by the scheduler's at-risk logic. `updateTaskNote` now saves both
+  fields together from the one Save button, since they're edited from
+  the same form.
 - `src/components/UndoToast.tsx` / `undoStore.ts` — a short-lived
   "Undone" toast after the handful of destructive-feeling moments
   (§11.12: complete task, discard a Capture item, delete a fixed event,
