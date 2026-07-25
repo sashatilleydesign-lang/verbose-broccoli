@@ -3,6 +3,7 @@ import { verifySession } from "@/lib/dal";
 import { getFocusData } from "@/lib/focus";
 import { AppShell } from "@/components/AppShell";
 import { CompleteTaskButton } from "@/components/CompleteTaskButton";
+import { SessionOverlay } from "@/components/SessionOverlay";
 import { archiveThread, convertThreadToTask } from "@/app/actions/emails";
 import { relativePast, relativeDeadline } from "@/lib/format";
 
@@ -78,9 +79,17 @@ export default async function FocusPage({
               ) : null}
             </div>
             <p className="mb-1.5 text-[20px] leading-snug font-bold">{nextTask.title}</p>
-            <p className="text-[13.5px] text-ink-dim">
+            <p className="mb-2.5 text-[13.5px] text-ink-dim">
               {nextTask.estimatedMinutes ? `~${nextTask.estimatedMinutes} min estimated` : "No estimate yet"}
             </p>
+            <SessionOverlay
+              task={{
+                id: nextTask.id,
+                title: nextTask.title,
+                estimatedMinutes: nextTask.estimatedMinutes,
+                startedAt: nextTask.startedAt,
+              }}
+            />
             {batchProgress ? (
               <div className="mt-3 flex gap-1.5" aria-hidden="true">
                 {Array.from({ length: batchProgress.total }, (_, i) => {

@@ -84,6 +84,11 @@ model Task {
   phase            String?
   estimatedMinutes Int?
   actualMinutes    Int?
+  // Set when a focus session (DESIGN.md §11.3) starts, cleared on
+  // completion or "End session" — deliberately re-armed each time
+  // rather than accumulated, so a stale forgotten session can never
+  // silently produce a nonsense multi-day actualMinutes.
+  startedAt        DateTime?
   batchIndex       Int?
   batchTotal       Int?
   projectId        String?

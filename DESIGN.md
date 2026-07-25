@@ -789,4 +789,8 @@ project card (for tasks), all name/title-only with everything else
 editable later. §11.2 (the quick-jump palette) is also built — Cmd+K or
 a Search button opens fuzzy substring search across Clients/Projects/
 Tasks/email threads, plus fixed nav shortcuts and a "mark next action
-done" quick action. The rest of §11 (§11.3 onward) is still queued.
+done" quick action. §11.3 (the session timer) is also built — an opt-in
+full-screen countdown (`SessionOverlay.tsx`) started from the next-action
+card on Focus, backed by `Task.startedAt`/`actualMinutes`, counting up
+past zero with a dismissible nudge instead of a hard stop. The rest of
+§11 (§11.4 onward) is still queued.

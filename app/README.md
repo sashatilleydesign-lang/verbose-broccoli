@@ -65,7 +65,8 @@ directory for the actual dev values used locally.
   snooze/still-waiting, archive/convert email, capture CRUD, `reflowSchedule`,
   fixed-event CRUD, `entities.ts`'s direct-create for Client/Project/Task —
   name/title only, everything else optional and editable later, `search.ts`'s
-  `searchAll` for the quick-jump palette)
+  `searchAll` for the quick-jump palette, `tasks.ts`'s `startSession`/
+  `endSession` for the focus-session timer)
 - `src/components/QuickJump.tsx` — the Cmd+K palette (§11.2): fuzzy
   substring search across Clients/Projects/Tasks/email threads, plus fixed
   nav shortcuts and a "mark next action done" quick action. Open/close
@@ -75,6 +76,14 @@ directory for the actual dev values used locally.
   palette on a deferred tick (`setTimeout(fn, 0)`), not synchronously —
   closing immediately would unmount the very `<Link>` mid-click before
   Next's client-side navigation completes, silently aborting it.
+- `src/components/SessionOverlay.tsx` — the focus-session timer (§11.3):
+  idle state is a plain "Start focus session" button; active state is a
+  full-screen countdown driven off `Task.startedAt` (set/cleared by
+  `startSession`/`endSession`), counting up past zero once the estimate
+  (or a 25-minute default) is used up, with a dismissible "time's up"
+  nudge rather than a hard stop. Ending a session just clears `startedAt`
+  with no partial-credit bookkeeping; completing one from inside the
+  overlay records `Task.actualMinutes` from the elapsed time.
 
 ## Scheduler notes
 

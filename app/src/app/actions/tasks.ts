@@ -12,9 +12,17 @@ export async function completeTask(taskId: string) {
     include: { project: true },
   });
 
+  const completedAt = new Date();
+  // actualMinutes only gets a value if a focus session (§11.3) actually
+  // ran — opt-in, never a retroactive "how long did this really take"
+  // guess.
+  const actualMinutes = task.startedAt
+    ? Math.max(1, Math.round((completedAt.getTime() - task.startedAt.getTime()) / 60_000))
+    : undefined;
+
   await prisma.task.update({
     where: { id: taskId },
-    data: { state: "done", completedAt: new Date() },
+    data: { state: "done", completedAt, actualMinutes, startedAt: null },
   });
 
   // A done task shouldn't keep occupying a slot on the calendar until the
@@ -49,4 +57,23 @@ export async function completeTask(taskId: string) {
   revalidatePath("/weekly");
   revalidatePath("/schedule");
   if (task.project?.clientId) revalidatePath(`/clients/${task.project.clientId}`);
+}
+
+// Focus session (§11.3) — opt-in, visible countdown. Starting (re)arms
+// the clock from now; there's no partial-session accumulation, so a
+// forgotten session can never silently produce a nonsense multi-day
+// actualMinutes on eventual completion.
+export async function startSession(taskId: string) {
+  await verifySession();
+  await prisma.task.update({ where: { id: taskId }, data: { startedAt: new Date() } });
+  revalidatePath("/focus");
+}
+
+// Abandons the current session without completing the task — no
+// actualMinutes gets recorded for it. Always available as a quiet way
+// out, no "are you sure" friction.
+export async function endSession(taskId: string) {
+  await verifySession();
+  await prisma.task.update({ where: { id: taskId }, data: { startedAt: null } });
+  revalidatePath("/focus");
 }
