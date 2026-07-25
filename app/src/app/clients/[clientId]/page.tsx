@@ -5,6 +5,7 @@ import { AppShell } from "@/components/AppShell";
 import { ExpandableLater } from "@/components/ExpandableLater";
 import { createProject, createTask } from "@/app/actions/entities";
 import { saveProjectAsTemplate, createProjectFromTemplate } from "@/app/actions/templates";
+import { ClientDot } from "@/components/ClientBadge";
 
 type TimelineEntry = {
   kind: "email" | "done" | "next";
@@ -70,7 +71,10 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
 
       <div className="shadow-panel rounded-md border border-line bg-panel p-6">
         <div className="mb-1 flex flex-wrap items-center gap-3">
-          <h1 className="text-xl font-bold">{client.name}</h1>
+          <h1 className="flex items-center gap-2.5 text-xl font-bold">
+            <ClientDot colorTag={client.colorTag} />
+            {client.name}
+          </h1>
         </div>
         {pinnedNext ? (
           <p className="mb-6 text-[14px] text-ink-dim">

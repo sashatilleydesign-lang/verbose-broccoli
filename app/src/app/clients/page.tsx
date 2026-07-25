@@ -3,6 +3,7 @@ import { verifySession } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/AppShell";
 import { createClient } from "@/app/actions/entities";
+import { ClientDot } from "@/components/ClientBadge";
 
 export default async function ClientsPage() {
   await verifySession();
@@ -51,7 +52,10 @@ export default async function ClientsPage() {
               href={`/clients/${client.id}`}
               className="flex items-center justify-between gap-4 p-4 hover:bg-ground/40"
             >
-              <span className="text-[15px] font-semibold">{client.name}</span>
+              <span className="inline-flex items-center gap-2 text-[15px] font-semibold">
+                <ClientDot colorTag={client.colorTag} />
+                {client.name}
+              </span>
               <span className="font-mono-strobe text-[12px] text-ink-dim">
                 {client.projects.length} active · {client.threads.length} unprocessed
               </span>

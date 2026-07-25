@@ -24,6 +24,7 @@ export type ScheduleItem = {
   end: Date;
   kind: "movable" | "fixed" | "atRisk";
   clientName?: string;
+  clientColor?: string;
   deadlineType?: string | null;
 };
 
@@ -47,6 +48,7 @@ async function blocksAndEventsBetween(from: Date, to: Date): Promise<ScheduleIte
       end: b.end,
       kind: atRisk ? "atRisk" : "movable",
       clientName: b.task.project?.client?.name,
+      clientColor: b.task.project?.client?.colorTag,
       deadlineType: b.task.deadlineType,
     };
   });

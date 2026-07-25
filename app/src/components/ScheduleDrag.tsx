@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import type { ScheduleItem } from "@/lib/schedule";
 import { fmtTime, kindClasses, dateKey } from "@/lib/scheduleFormat";
 import { moveScheduledBlock, resizeScheduledBlock, deleteCalendarEvent } from "@/app/actions/schedule";
+import { ClientDot } from "@/components/ClientBadge";
 
 const SNAP_MINUTES = 15;
 const MIN_MOVE_MS = 60_000;
@@ -195,11 +196,19 @@ export function DayDragItems({ items, gridStart, rowH }: { items: ScheduleItem[]
               </p>
               <RemoveFixedButton item={item} />
             </div>
-            <p className={`text-[10.5px] font-semibold ${item.kind === "atRisk" ? "text-ground/80" : "text-ink-dim"}`}>
-              {fmtTime(item.start)}–{fmtTime(item.end)}
-              {item.clientName ? ` · ${item.clientName}` : ""}
-              {item.kind === "atRisk" ? " · AT RISK" : ""}
-              {item.kind === "fixed" ? " · FIXED" : ""}
+            <p
+              className={`inline-flex flex-wrap items-center gap-1 text-[10.5px] font-semibold ${item.kind === "atRisk" ? "text-ground/80" : "text-ink-dim"}`}
+            >
+              <span>
+                {fmtTime(item.start)}–{fmtTime(item.end)}
+              </span>
+              {item.clientName ? (
+                <span className="inline-flex items-center gap-1">
+                  · {item.clientColor ? <ClientDot colorTag={item.clientColor} /> : null} {item.clientName}
+                </span>
+              ) : null}
+              {item.kind === "atRisk" ? <span>· AT RISK</span> : null}
+              {item.kind === "fixed" ? <span>· FIXED</span> : null}
             </p>
             {item.kind !== "fixed" ? (
               <ResizeHandle

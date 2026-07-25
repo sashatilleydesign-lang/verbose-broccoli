@@ -804,5 +804,8 @@ dates are ever templated, and tasks created from a template start in
 creation. §11.6 (reminders v0) is also built — a dismissible in-tab
 toast, polled every 30s, for a `ScheduledBlock`'s start time arriving or
 a hard-deadline task crossing into overdue, with no push infrastructure
-(v1's real Web Push still waits on a deployed HTTPS domain per §10). The
-rest of §11 (§11.7 onward) is still queued.
+(v1's real Web Push still waits on a deployed HTTPS domain per §10).
+§11.7 (client color tags) is also built — `Client.colorTag` now renders
+as a small dot everywhere a client name appears (Focus, Weekly, Schedule,
+Workspace), closing a gap between what §3 already decided and what had
+actually been built. The rest of §11 (§11.8 onward) is still queued.

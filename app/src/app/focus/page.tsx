@@ -4,6 +4,7 @@ import { getFocusData } from "@/lib/focus";
 import { AppShell } from "@/components/AppShell";
 import { CompleteTaskButton } from "@/components/CompleteTaskButton";
 import { SessionOverlay } from "@/components/SessionOverlay";
+import { ClientBadge } from "@/components/ClientBadge";
 import { archiveThread, convertThreadToTask } from "@/app/actions/emails";
 import { relativePast, relativeDeadline } from "@/lib/format";
 
@@ -70,9 +71,7 @@ export default async function FocusPage({
           <div className="min-w-0 flex-1">
             <div className="mb-1.5 flex flex-wrap items-center gap-2">
               {nextTask.project?.client ? (
-                <span className="font-mono-strobe rounded border border-line px-2 py-1 text-[11px] text-ink-dim">
-                  [{nextTask.project.client.name}]
-                </span>
+                <ClientBadge name={nextTask.project.client.name} colorTag={nextTask.project.client.colorTag} />
               ) : null}
               {nextTask.energy ? (
                 <span className="text-[13.5px] text-ink-dim">{nextTask.energy} energy</span>
@@ -125,9 +124,7 @@ export default async function FocusPage({
             <div className="min-w-0 flex-1">
               <div className="mb-1.5 flex flex-wrap items-center gap-2">
                 {emailThread.client ? (
-                  <span className="font-mono-strobe rounded border border-line px-2 py-1 text-[11px] text-ink-dim">
-                    [{emailThread.client.name}]
-                  </span>
+                  <ClientBadge name={emailThread.client.name} colorTag={emailThread.client.colorTag} />
                 ) : null}
                 <span className="font-mono-strobe text-[13px] text-ink-dim">
                   unread · {relativePast(email.receivedAt)}
@@ -157,9 +154,7 @@ export default async function FocusPage({
             <div className="min-w-0 flex-1">
               <div className="mb-1.5 flex flex-wrap items-center gap-2">
                 {deadlineTask.project?.client ? (
-                  <span className="font-mono-strobe rounded border border-line px-2 py-1 text-[11px] text-ink-dim">
-                    [{deadlineTask.project.client.name}]
-                  </span>
+                  <ClientBadge name={deadlineTask.project.client.name} colorTag={deadlineTask.project.client.colorTag} />
                 ) : null}
                 {deadlineTask.deadlineType === "hard" ? (
                   <span className="rounded border border-ink-dim px-2 py-1 text-[11px] font-bold text-ink">

@@ -3,6 +3,7 @@ import { getWeeklyReviewData } from "@/lib/weekly";
 import { AppShell } from "@/components/AppShell";
 import { markAsNext, touchTask } from "@/app/actions/weekly";
 import { daysSince } from "@/lib/format";
+import { ClientBadge } from "@/components/ClientBadge";
 
 export default async function WeeklyReviewPage() {
   await verifySession();
@@ -30,9 +31,7 @@ export default async function WeeklyReviewPage() {
               <div key={task.id} className="flex flex-wrap items-center gap-4 p-4">
                 <div className="min-w-[220px] flex-1 text-[14.5px]">
                   {task.project?.client ? (
-                    <span className="font-mono-strobe mr-2 rounded border border-line px-2 py-1 text-[11px] text-ink-dim">
-                      [{task.project.client.name}]
-                    </span>
+                    <ClientBadge name={task.project.client.name} colorTag={task.project.client.colorTag} className="mr-2" />
                   ) : null}
                   <strong className="font-semibold">{task.title}</strong>
                   <span className="mt-0.5 block text-[12.5px] text-ink-dim">
@@ -67,9 +66,7 @@ export default async function WeeklyReviewPage() {
               <div key={task.id} className="flex flex-wrap items-center gap-4 p-4">
                 <div className="min-w-[220px] flex-1 text-[14.5px]">
                   {task.project?.client ? (
-                    <span className="font-mono-strobe mr-2 rounded border border-line px-2 py-1 text-[11px] text-ink-dim">
-                      [{task.project.client.name}]
-                    </span>
+                    <ClientBadge name={task.project.client.name} colorTag={task.project.client.colorTag} className="mr-2" />
                   ) : null}
                   <strong className="font-semibold">{task.title}</strong>
                   <span className="mt-0.5 block text-[12.5px] text-ink-dim">
@@ -104,9 +101,7 @@ export default async function WeeklyReviewPage() {
               <div key={project.id} className="flex flex-wrap items-center gap-4 p-4">
                 <div className="min-w-[220px] flex-1 text-[14.5px]">
                   {project.client ? (
-                    <span className="font-mono-strobe mr-2 rounded border border-line px-2 py-1 text-[11px] text-ink-dim">
-                      [{project.client.name}]
-                    </span>
+                    <ClientBadge name={project.client.name} colorTag={project.client.colorTag} className="mr-2" />
                   ) : null}
                   <strong className="font-semibold">{project.name}</strong>
                   <span className="mt-0.5 block text-[12.5px] text-ink-dim">no next action set</span>

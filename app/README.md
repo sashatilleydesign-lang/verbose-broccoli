@@ -114,6 +114,11 @@ directory for the actual dev values used locally.
   action even committed, on every re-render that reconstructs the
   `items` array by reference (as `WeekDragGrid`'s `flatMap`-derived list
   does on every render, unlike `DayDragItems`' stable prop reference).
+- `src/components/ClientBadge.tsx` — `ClientBadge` (the `[Client Name]`
+  pill used on Focus/Weekly) and `ClientDot` (a bare colored dot for
+  Workspace's client list, the client detail header, and Schedule) share
+  one place to render `Client.colorTag` (§11.7) — it existed in the
+  schema since day one but nothing in the UI drew it until now.
 
 ## Scheduler notes
 

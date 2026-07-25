@@ -12,6 +12,7 @@ import { fmtTime, kindClasses, hourBounds } from "@/lib/scheduleFormat";
 import { AppShell } from "@/components/AppShell";
 import { ReflowButton } from "@/components/ReflowButton";
 import { DayDragItems, WeekDragGrid } from "@/components/ScheduleDrag";
+import { ClientDot } from "@/components/ClientBadge";
 import { createCalendarEvent, deleteCalendarEvent } from "@/app/actions/schedule";
 
 const ROW_H = 56;
@@ -206,7 +207,12 @@ async function DayView({ anchor, todayKey }: { anchor: Date; todayKey: string })
                       <span>
                         {item.kind === "fixed" ? "🔒 " : ""}
                         <strong className="font-semibold">{item.title}</strong>
-                        {item.clientName ? <span className="text-ink-dim"> · {item.clientName}</span> : null}
+                        {item.clientName ? (
+                          <span className="inline-flex items-center gap-1 text-ink-dim">
+                            {" "}
+                            · {item.clientColor ? <ClientDot colorTag={item.clientColor} /> : null} {item.clientName}
+                          </span>
+                        ) : null}
                       </span>
                       <span className="font-mono-strobe flex items-center gap-3 text-[11.5px] text-ink-dim">
                         {fmtTime(item.start)}–{fmtTime(item.end)}
