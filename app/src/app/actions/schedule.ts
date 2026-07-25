@@ -88,7 +88,11 @@ export async function moveScheduledBlock(blockId: string, newStartMs: number) {
 // So — unlike moveScheduledBlock — this writes back to the task's
 // estimatedMinutes, which is what the next Reflow reads to size the block.
 // Skipping that write would mean every resize gets silently discarded on
-// the next reflow.
+// the next reflow. Exception: a task split across multiple slots (§11.16)
+// has no single block whose duration equals the task's total — resizing
+// one chunk there is just a same-session nudge to that chunk, same as a
+// plain move, since there's no way to infer the new *total* from one part
+// alone.
 export async function resizeScheduledBlock(blockId: string, newDurationMinutes: number) {
   await verifySession();
 
@@ -98,10 +102,14 @@ export async function resizeScheduledBlock(blockId: string, newDurationMinutes: 
   const clampedMinutes = Math.max(5, Math.round(newDurationMinutes));
   const end = new Date(block.start.getTime() + clampedMinutes * 60_000);
 
-  await prisma.$transaction([
-    prisma.scheduledBlock.update({ where: { id: blockId }, data: { end } }),
-    prisma.task.update({ where: { id: block.taskId }, data: { estimatedMinutes: clampedMinutes } }),
-  ]);
+  if (block.partTotal && block.partTotal > 1) {
+    await prisma.scheduledBlock.update({ where: { id: blockId }, data: { end } });
+  } else {
+    await prisma.$transaction([
+      prisma.scheduledBlock.update({ where: { id: blockId }, data: { end } }),
+      prisma.task.update({ where: { id: block.taskId }, data: { estimatedMinutes: clampedMinutes } }),
+    ]);
+  }
   revalidatePath("/schedule");
   revalidatePath("/focus");
 }

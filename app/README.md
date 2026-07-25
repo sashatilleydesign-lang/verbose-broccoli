@@ -211,6 +211,25 @@ directory for the actual dev values used locally.
   used for hard deadlines. The 15-minute buffer between blocks and the
   10-day scheduling horizon are still hardcoded constants in
   `scheduler.ts`.
+- Splitting a task across multiple slots/days (§11.16): `ScheduledBlock`
+  is no longer one-per-task (`taskId` lost its `@unique`) — a task whose
+  estimated duration doesn't fit in any single open window gets divided
+  across successive ones instead of going unscheduled, each chunk its own
+  `ScheduledBlock` with a shared `partIndex`/`partTotal` (both null for
+  the ordinary single-block case). `findSlot` (one contiguous run) is
+  still always tried first; `findSplitSlots`/`findLargestChunk` only run
+  once that fails, so a task is never fragmented unnecessarily. A chunk
+  below `MIN_CHUNK_MINUTES` (30) is skipped in favor of the next window
+  unless it's the task's last remaining bit, and a task split into more
+  than `FRAGMENTATION_THRESHOLD` (3) chunks is counted in
+  `ReflowResult.fragmented` and surfaced by `ReflowButton` — a quiet
+  signal the estimate was too big for one sitting rather than a silent
+  outcome. The hard-deadline at-risk check compares the *last* chunk's
+  end against the due date. `resizeScheduledBlock` skips its usual
+  writeback to `Task.estimatedMinutes` when resizing one chunk of a split
+  task, since one chunk's new duration can't stand in for the task's
+  total — it just becomes a same-session nudge to that one
+  `ScheduledBlock`, like a plain move.
 - Reflow is a full recompute triggered by an explicit "Reflow schedule"
   button, not an automatic trigger wired into every task/event mutation
   site. Simpler and safer for a first pass; revisit if the manual trigger

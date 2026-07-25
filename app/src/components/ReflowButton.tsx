@@ -17,6 +17,7 @@ export function ReflowButton() {
             const result = await reflowScheduleAction();
             const bits = [`${result.scheduled} scheduled`];
             if (result.atRisk > 0) bits.push(`${result.atRisk} at risk`);
+            if (result.fragmented > 0) bits.push(`${result.fragmented} split into many chunks`);
             if (result.unscheduled > 0) bits.push(`${result.unscheduled} couldn't fit`);
             setMessage(bits.join(" · "));
           });

@@ -33,6 +33,11 @@ export type ScheduleItem = {
   deadlineType?: string | null;
   dueDate?: Date | null;
   targetDate?: Date | null;
+  // Splitting a task across multiple slots/days (§11.16) — both set
+  // (1-based) when this block is one of several chunks for the same
+  // task, undefined for the common single-block case.
+  partIndex?: number;
+  partTotal?: number;
 };
 
 async function blocksAndEventsBetween(from: Date, to: Date): Promise<ScheduleItem[]> {
@@ -61,6 +66,8 @@ async function blocksAndEventsBetween(from: Date, to: Date): Promise<ScheduleIte
       deadlineType: b.task.deadlineType,
       dueDate: b.task.dueDate,
       targetDate: b.task.targetDate,
+      partIndex: b.partIndex ?? undefined,
+      partTotal: b.partTotal ?? undefined,
     };
   });
 

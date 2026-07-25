@@ -380,6 +380,11 @@ export function DayDragItems({ items, gridStart, rowH }: { items: ScheduleItem[]
                   · {item.clientColor ? <ClientDot colorTag={item.clientColor} /> : null} {item.clientName}
                 </span>
               ) : null}
+              {item.partTotal ? (
+                <span>
+                  · Part {item.partIndex} of {item.partTotal}
+                </span>
+              ) : null}
               {kind === "atRisk" ? <span>· AT RISK</span> : null}
               {kind === "fixed" ? <span>· FIXED</span> : null}
             </p>
@@ -592,7 +597,7 @@ export function WeekDragGrid({
             onPointerDown={(e) => onDown(e, item)}
             onPointerMove={(e) => onMove(e, item)}
             onPointerUp={() => onUp(item)}
-            title={`${item.title} · ${fmtTime(item.start)}–${fmtTime(item.end)}${kind === "atRisk" ? " · AT RISK" : ""}`}
+            title={`${item.title}${item.partTotal ? ` (Part ${item.partIndex} of ${item.partTotal})` : ""} · ${fmtTime(item.start)}–${fmtTime(item.end)}${kind === "atRisk" ? " · AT RISK" : ""}`}
             className={`absolute overflow-hidden rounded-sm border px-1 py-0.5 select-none ${kindClasses(kind)} ${
               item.kind !== "fixed" ? "cursor-grab touch-none active:cursor-grabbing" : ""
             } ${dragging || resizing ? "z-20 opacity-90 shadow-lg" : ""}`}

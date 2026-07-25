@@ -125,7 +125,7 @@ model Task {
   project          Project?        @relation("ProjectTasks", fields: [projectId], references: [id], onDelete: Cascade)
   asNextActionOf   Project?        @relation("ProjectNextAction")
   emailLinks       TaskEmailLink[]
-  scheduledBlock   ScheduledBlock?
+  scheduledBlocks  ScheduledBlock[]
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
   completedAt      DateTime?
@@ -177,10 +177,16 @@ model CaptureItem {
 // DESIGN.md §3/§7.
 model ScheduledBlock {
   id     String   @id @default(cuid())
-  taskId String   @unique
+  taskId String
   task   Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
   start  DateTime
   end    DateTime
+  // Splitting a task across multiple slots/days (§11.16) — set together
+  // (1-based) when a task's estimated duration didn't fit in one open
+  // window and got divided across several; both null for the common
+  // single-block case, which is still the vast majority of tasks.
+  partIndex Int?
+  partTotal Int?
 }
 
 // A fixed commitment the scheduler routes around — manually entered for

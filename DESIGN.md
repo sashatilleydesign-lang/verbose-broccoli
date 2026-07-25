@@ -846,5 +846,15 @@ this scheduler always used, so an unconfigured account never regresses.
 Each window can carry a preferred `context`, but only as a soft
 preference — `reflowSchedule` tries a context-matching window first and
 falls back to any open window, so a label mismatch never makes a task
-unschedulable on its own. The rest of §11 (§11.16 onward) is still
-queued.
+unschedulable on its own. §11.16 (splitting a task across multiple slots
+or days) is also built — `ScheduledBlock` is no longer one-per-task; a
+task whose estimated duration doesn't fit any single open window is
+divided across successive ones instead of going unscheduled, each chunk
+shown in the Schedule UI as visibly one task ("Part 2 of 3"). A single
+contiguous window is still always tried first, so a task is never split
+unnecessarily; a hard deadline's at-risk check compares its *last*
+chunk's end against the due date; and a task split into more than a
+handful of chunks is quietly flagged rather than silently accepted,
+since that's usually a sign the estimate was too big for one sitting.
+§11.17 is a deliberate no-build (§11 is otherwise complete, aside from
+§11.10 pending its scoping conversation).
