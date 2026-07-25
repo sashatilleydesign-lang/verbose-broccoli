@@ -70,7 +70,10 @@ export function ReminderWatcher() {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed right-4 bottom-4 z-40 flex flex-col gap-2">
+    // bottom-20, not bottom-4 — the quick-capture FAB (§11.13) now
+    // permanently occupies that corner's bottom-4 spot, so reminder
+    // toasts stack starting just above it instead of overlapping it.
+    <div className="fixed right-4 bottom-20 z-40 flex flex-col gap-2">
       {toasts.map((t) => (
         <div
           key={t.toastId}

@@ -1,7 +1,7 @@
 import { verifySession } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/AppShell";
-import { createCaptureItem, convertCaptureToTask } from "@/app/actions/captures";
+import { convertCaptureToTask } from "@/app/actions/captures";
 import { DiscardCaptureButton } from "@/components/DiscardCaptureButton";
 
 export default async function CapturePage() {
@@ -16,34 +16,18 @@ export default async function CapturePage() {
       <div className="mb-6">
         <p className="mb-2 text-[11.5px] font-bold tracking-wide text-accent uppercase">Capture</p>
         <p className="max-w-[64ch] text-[15.5px] leading-relaxed text-ink-dim">
-          Dump it here. No project picker, no required fields — deciding what it means happens later.
+          Everything waiting for a decision — no rush. Drop new things in from anywhere with the{" "}
+          <span className="font-bold text-ink">+</span> button, bottom-right.
         </p>
       </div>
 
       <div className="shadow-panel rounded-md border border-line bg-panel p-6">
-        <form action={createCaptureItem} className="mb-6 flex gap-2.5">
-          <input
-            name="text"
-            type="text"
-            required
-            placeholder="e.g. call Kite Studio about the renewal…"
-            aria-label="Quick capture"
-            className="min-h-12 flex-1 rounded-md border border-line bg-ground px-4 py-3.5 text-[15px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          />
-          <button
-            type="submit"
-            className="min-h-12 rounded-md bg-accent px-5 text-[13.5px] font-semibold text-ground hover:opacity-90"
-          >
-            Drop it
-          </button>
-        </form>
-
         {items.length === 0 ? (
           <p className="text-[13.5px] text-ink-dim">Nothing waiting for a decision.</p>
         ) : (
           <>
             <p className="mb-4 text-[13.5px] text-ink-dim">
-              {items.length} thing{items.length === 1 ? "" : "s"} waiting for a decision — no rush.
+              {items.length} thing{items.length === 1 ? "" : "s"} waiting.
             </p>
 
             <ul className="space-y-2.5">

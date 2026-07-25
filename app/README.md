@@ -162,6 +162,19 @@ directory for the actual dev values used locally.
   which task — if any — got auto-promoted by the batch advance), and all
   three of its call sites (Focus, the quick-jump palette, the session
   overlay) wire that into the toast for consistency.
+- `src/components/QuickCaptureButton.tsx` — global quick-capture (§11.13):
+  a floating "+" button present on every screen, opening the same
+  one-field-no-picker flyout as the Capture page always had, so dropping
+  a thought no longer means navigating away from whatever you're doing
+  first. The Capture page itself lost its inline creation form (now
+  redundant with the global FAB, including on that page) but keeps its
+  review/triage list exactly as before — triage stays a deliberate,
+  scheduled pass, not something needed mid-task. Bottom-right on both
+  desktop and mobile, matching the `+` convention already used in
+  Schedule rather than fighting the mobile hamburger for a corner.
+  `ReminderWatcher`'s toast stack was nudged from `bottom-4` to
+  `bottom-20` so it stacks above the now-permanent FAB instead of
+  overlapping it.
 
 ## Scheduler notes
 

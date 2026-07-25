@@ -823,7 +823,12 @@ the drop and the next page load. §11.12 (undo) is also built — a
 short-lived "Undone" toast with a reverse action after the four
 destructive-feeling moments this app actually has (complete a task,
 discard a Capture item, delete a fixed event, drag a schedule block onto
-the wrong slot), not general-purpose undo/redo history. §11.10 (a
-dedicated client view) is logged but explicitly needs a scoping
-conversation before it's built — skipped for now per that note rather
-than assumed. The rest of §11 (§11.13 onward) is still queued.
+the wrong slot), not general-purpose undo/redo history. §11.13 (global
+quick-capture) is also built — a floating "+" button on every screen
+opens the same one-field-no-picker flyout Capture always had, so dropping
+a thought no longer requires navigating away first; the Capture page
+itself keeps its review/triage list, since that's a deliberate scheduled
+pass, not something needed mid-task. §11.10 (a dedicated client view) is
+logged but explicitly needs a scoping conversation before it's built —
+skipped for now per that note rather than assumed. The rest of §11
+(§11.14 onward) is still queued.
