@@ -191,3 +191,29 @@ model CalendarEvent {
   start DateTime
   end   DateTime
 }
+
+// UserScheduleProfile (§3/§11.15) — multiple labeled working windows per
+// day, not one start/end range. Exactly one of dayOfWeek/date is set:
+// dayOfWeek is a recurring weekly template row (0=Sunday..6=Saturday);
+// date is a one-off window for a specific date, the "extra hours on an
+// otherwise-off day" exception (e.g. working one particular Saturday
+// with no recurring Saturday windows at all). `context` is a soft
+// preference only — see scheduler.ts's fallback-to-any-window logic;
+// a task never becomes unschedulable purely over a label mismatch.
+model WorkWindow {
+  id           String       @id @default(cuid())
+  dayOfWeek    Int?
+  date         DateTime?
+  startMinute  Int
+  endMinute    Int
+  context      TaskContext?
+  createdAt    DateTime     @default(now())
+}
+
+// The other half of a per-date exception (§11.15): a specific date with
+// no work at all, overriding every recurring window (and any one-off
+// WorkWindow) that would otherwise apply to it.
+model ScheduleDayOff {
+  id   String   @id @default(cuid())
+  date DateTime @unique
+}

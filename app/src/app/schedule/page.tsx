@@ -15,6 +15,7 @@ import { DayDragItems, WeekDragGrid } from "@/components/ScheduleDrag";
 import { ClientDot } from "@/components/ClientBadge";
 import { TaskTitleButton } from "@/components/TaskTitleButton";
 import { createCalendarEvent, deleteCalendarEvent } from "@/app/actions/schedule";
+import { WorkingHoursSettings } from "@/components/WorkingHoursSettings";
 
 const ROW_H = 56;
 const WEEK_ROW_H = 44;
@@ -119,6 +120,8 @@ export default async function SchedulePage({
       {view === "day" ? <DayView anchor={anchor} todayKey={todayKey} /> : null}
       {view === "week" ? <WeekView anchor={anchor} todayKey={todayKey} /> : null}
       {view === "month" ? <MonthView anchor={anchor} todayKey={todayKey} /> : null}
+
+      <WorkingHoursSettings />
     </AppShell>
   );
 }

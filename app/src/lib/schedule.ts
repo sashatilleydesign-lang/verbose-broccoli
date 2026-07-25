@@ -146,3 +146,17 @@ export async function getMonthGrid(monthAnchor: Date) {
 
   return { monthAnchor: firstOfMonth, days };
 }
+
+// UserScheduleProfile display data (§11.15) — recurring windows grouped
+// by day-of-week, plus upcoming exceptions. Reads the same tables
+// scheduler.ts's reflow does, just shaped for the settings UI rather
+// than the slot-finding algorithm.
+export async function getScheduleProfile() {
+  const now = startOfDay(new Date());
+  const [recurring, oneOff, daysOff] = await Promise.all([
+    prisma.workWindow.findMany({ where: { dayOfWeek: { not: null } }, orderBy: [{ dayOfWeek: "asc" }, { startMinute: "asc" }] }),
+    prisma.workWindow.findMany({ where: { date: { gte: now } }, orderBy: { date: "asc" } }),
+    prisma.scheduleDayOff.findMany({ where: { date: { gte: now } }, orderBy: { date: "asc" } }),
+  ]);
+  return { recurring, oneOff, daysOff };
+}

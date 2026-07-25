@@ -224,6 +224,13 @@ async function main() {
     data: { title: "Call — Bramble & Co.", start: meetingStart, end: meetingEnd },
   });
 
+  // --- Working hours (§11.15): Mon-Fri 8am-6pm, matching the previous
+  // hardcoded WORK_START_HOUR/WORK_END_HOUR default so behavior doesn't
+  // regress for anyone who hasn't customized their schedule yet. ---
+  await prisma.workWindow.createMany({
+    data: [1, 2, 3, 4, 5].map((dayOfWeek) => ({ dayOfWeek, startMinute: 8 * 60, endMinute: 18 * 60 })),
+  });
+
   // --- Capture inbox: raw, untriaged ---
   await prisma.captureItem.createMany({
     data: [

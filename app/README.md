@@ -181,14 +181,36 @@ directory for the actual dev values used locally.
   `ReminderWatcher`'s toast stack was nudged from `bottom-4` to
   `bottom-20` so it stacks above the now-permanent FAB instead of
   overlapping it.
+- `src/components/WorkingHoursSettings.tsx` — the working-hours settings
+  panel (§11.15): a collapsible `<details>` on the Schedule page listing
+  `WorkWindow` recurring rows grouped by day-of-week, with forms (backed
+  by `src/app/actions/scheduleProfile.ts`) to add/remove a recurring
+  window (optionally tagged with a preferred `context`), take a whole day
+  off (`ScheduleDayOff`), or open a one-off extra window on an otherwise-
+  off day — the same `WorkWindow` model with `date` set instead of
+  `dayOfWeek`. Its form ids are `ww`-prefixed (`ww-startTime`, etc.) since
+  the page already has an unrelated "Add a fixed event" form using the
+  plain `startTime`/`endTime` ids — a real duplicate-id bug caught during
+  QA (Playwright's `page.fill`/`page.click` silently resolved to the
+  first DOM match, not a thrown ambiguity error).
 
 ## Scheduler notes
 
-- Working hours (8am–6pm), 15-minute buffer between blocks, and the
-  10-day scheduling horizon are hardcoded constants in `scheduler.ts`
-  rather than a `UserScheduleProfile` table — single user, no settings UI
-  yet to edit them. Straightforward to promote to a DB-backed profile later
-  without touching the algorithm.
+- Working hours are read from `WorkWindow` (recurring, keyed by
+  `dayOfWeek`, or one-off, keyed by a specific `date`) and `ScheduleDayOff`
+  (a specific date fully blocked, overriding everything else) — see
+  `getScheduleProfile`/`WorkingHoursSettings.tsx` for the settings UI and
+  `scheduler.ts`'s `loadProfile`/`windowsForDay` for how reflow reads them.
+  A profile with zero `WorkWindow` rows at all (a fresh install before
+  anyone's touched schedule settings) falls back to the same Mon–Fri
+  8am–6pm default this scheduler always used, so nothing regresses for an
+  unconfigured account. A task's `context` is only a soft preference:
+  `reflowSchedule` tries a context-matching window first, then falls back
+  to any open window — a label mismatch never makes a task unschedulable
+  on its own, matching the existing "flag, don't silently drop" principle
+  used for hard deadlines. The 15-minute buffer between blocks and the
+  10-day scheduling horizon are still hardcoded constants in
+  `scheduler.ts`.
 - Reflow is a full recompute triggered by an explicit "Reflow schedule"
   button, not an automatic trigger wired into every task/event mutation
   site. Simpler and safer for a first pass; revisit if the manual trigger

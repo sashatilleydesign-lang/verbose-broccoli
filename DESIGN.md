@@ -835,5 +835,16 @@ Fri") on Focus, Weekly, and Workspace, set from the same modal as
 §11.9's note; deliberately never read by the scheduler's at-risk logic,
 so it can never trigger a false alarm. §11.10 (a dedicated client view)
 is logged but explicitly needs a scoping conversation before it's built
-— skipped for now per that note rather than assumed. The rest of §11
-(§11.15 onward) is still queued.
+— skipped for now per that note rather than assumed. §11.15 (multiple
+working windows) is also built — `UserScheduleProfile` is now two real
+tables, `WorkWindow` (recurring rows keyed by `dayOfWeek`, or one-off rows
+keyed by a specific `date` for "extra hours on an otherwise-off day") and
+`ScheduleDayOff` (a specific date fully blocked, overriding everything),
+editable from a "Working hours" settings panel on the Schedule page. A
+profile with zero rows falls back to the same Mon–Fri 8am–6pm default
+this scheduler always used, so an unconfigured account never regresses.
+Each window can carry a preferred `context`, but only as a soft
+preference — `reflowSchedule` tries a context-matching window first and
+falls back to any open window, so a label mismatch never makes a task
+unschedulable on its own. The rest of §11 (§11.16 onward) is still
+queued.
