@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/AppShell";
 import { ExpandableLater } from "@/components/ExpandableLater";
 import { createProject, createTask } from "@/app/actions/entities";
+import { saveProjectAsTemplate, createProjectFromTemplate } from "@/app/actions/templates";
 
 type TimelineEntry = {
   kind: "email" | "done" | "next";
@@ -25,6 +26,11 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
   });
 
   if (!client) notFound();
+
+  const templates = await prisma.projectTemplate.findMany({
+    include: { _count: { select: { tasks: true } } },
+    orderBy: { createdAt: "desc" },
+  });
 
   const entries: TimelineEntry[] = [];
 
@@ -101,7 +107,7 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
       <div className="mt-8">
         <p className="mb-3 text-[11.5px] font-bold tracking-wide text-ink-dim uppercase">Projects</p>
 
-        <form action={createProject.bind(null, client.id)} className="mb-4 flex gap-2.5">
+        <form action={createProject.bind(null, client.id)} className="mb-2.5 flex gap-2.5">
           <input
             name="name"
             type="text"
@@ -117,6 +123,41 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
             Add
           </button>
         </form>
+
+        {templates.length > 0 ? (
+          <form action={createProjectFromTemplate.bind(null, client.id)} className="mb-4 flex flex-wrap gap-2.5">
+            <select
+              name="templateId"
+              required
+              aria-label="Project template"
+              defaultValue=""
+              className="min-h-11 rounded-md border border-line bg-panel px-3 py-2.5 text-[13.5px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              <option value="" disabled>
+                From template…
+              </option>
+              {templates.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name} ({t._count.tasks} tasks)
+                </option>
+              ))}
+            </select>
+            <input
+              name="name"
+              type="text"
+              required
+              placeholder="New project name"
+              aria-label="New project name from template"
+              className="min-h-11 flex-1 rounded-md border border-line bg-panel px-3.5 py-2.5 text-[14px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            />
+            <button
+              type="submit"
+              className="min-h-11 rounded-md border border-line px-4 text-[13px] font-semibold text-ink-dim hover:text-ink"
+            >
+              Use template
+            </button>
+          </form>
+        ) : null}
 
         {client.projects.length === 0 ? (
           <p className="text-[13.5px] text-ink-dim">No projects yet.</p>
@@ -142,6 +183,30 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
                       </span>
                     ) : null}
                   </div>
+
+                  {project.tasks.length > 0 ? (
+                    <details className="mb-3">
+                      <summary className="cursor-pointer text-[12px] font-bold text-ink-dim hover:text-accent">
+                        Save as template
+                      </summary>
+                      <form action={saveProjectAsTemplate.bind(null, project.id)} className="mt-2 flex gap-2">
+                        <input
+                          name="name"
+                          type="text"
+                          required
+                          placeholder="Template name"
+                          aria-label={`Template name for ${project.name}`}
+                          className="min-h-9 flex-1 rounded-md border border-line bg-ground px-3 py-1.5 text-[13.5px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                        />
+                        <button
+                          type="submit"
+                          className="min-h-9 rounded-md border border-line px-3 text-[12px] font-semibold text-ink-dim hover:text-ink"
+                        >
+                          Save
+                        </button>
+                      </form>
+                    </details>
+                  ) : null}
 
                   {otherTasks.length === 0 ? (
                     <p className="mb-3 text-[13px] text-ink-dim">No tasks yet.</p>

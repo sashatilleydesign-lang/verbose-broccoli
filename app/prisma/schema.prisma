@@ -72,6 +72,30 @@ model Project {
   createdAt    DateTime      @default(now())
 }
 
+// A reusable project shape (§11.5) — saved manually, instantiated
+// manually. Deliberately not auto-recurring: tasks appearing on their own
+// without the user initiating anything is a bad fit for ADHD object
+// permanence (see DESIGN.md §11.5). No dates are ever stored here, per
+// the project's existing "due date if real, not invented" rule — only
+// structure carries over.
+model ProjectTemplate {
+  id        String         @id @default(cuid())
+  name      String
+  tasks     TemplateTask[]
+  createdAt DateTime       @default(now())
+}
+
+model TemplateTask {
+  id               String          @id @default(cuid())
+  templateId       String
+  template         ProjectTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  title            String
+  order            Int
+  energy           Energy?
+  context          TaskContext?
+  estimatedMinutes Int?
+}
+
 model Task {
   id               String          @id @default(cuid())
   title            String

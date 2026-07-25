@@ -66,7 +66,8 @@ directory for the actual dev values used locally.
   fixed-event CRUD, `entities.ts`'s direct-create for Client/Project/Task —
   name/title only, everything else optional and editable later, `search.ts`'s
   `searchAll` for the quick-jump palette, `tasks.ts`'s `startSession`/
-  `endSession` for the focus-session timer)
+  `endSession` for the focus-session timer, `templates.ts`'s
+  `saveProjectAsTemplate`/`createProjectFromTemplate`)
 - `src/components/QuickJump.tsx` — the Cmd+K palette (§11.2): fuzzy
   substring search across Clients/Projects/Tasks/email threads, plus fixed
   nav shortcuts and a "mark next action done" quick action. Open/close

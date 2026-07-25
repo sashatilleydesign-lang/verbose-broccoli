@@ -796,4 +796,9 @@ past zero with a dismissible nudge instead of a hard stop. §11.4
 (resizable schedule blocks) is also built — a drag handle on each block's
 bottom edge in both Day and Week views, writing the new duration back to
 `Task.estimatedMinutes` so it survives the next Reflow rather than being
-silently discarded. The rest of §11 (§11.5 onward) is still queued.
+silently discarded. §11.5 (project templates) is also built — a
+manually-invoked "Save as template" / "From template" pair on each
+client's project list, backed by `ProjectTemplate`/`TemplateTask`; no
+dates are ever templated, and tasks created from a template start in
+`"later"` with no next action auto-pinned, same as any other project
+creation. The rest of §11 (§11.6 onward) is still queued.
