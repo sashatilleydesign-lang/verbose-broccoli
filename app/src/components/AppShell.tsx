@@ -1,5 +1,6 @@
 import { Sidebar } from "@/components/Sidebar";
 import { MobileNav } from "@/components/MobileNav";
+import { QuickJump } from "@/components/QuickJump";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -9,6 +10,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <MobileNav />
         <main className="mx-auto w-full max-w-4xl flex-1 px-5 py-8">{children}</main>
       </div>
+      <QuickJump />
     </div>
   );
 }

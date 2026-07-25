@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NAV_ITEMS } from "@/components/navItems";
 import { ModeToggle } from "@/components/ModeToggle";
+import { openQuickJump } from "@/components/quickJumpStore";
 import { logout } from "@/app/actions/auth";
 
 export function Sidebar() {
@@ -15,6 +16,17 @@ export function Sidebar() {
         <p className="text-lg font-bold">
           Strobe<span className="text-accent">.</span>
         </p>
+      </div>
+
+      <div className="px-3 pb-3">
+        <button
+          type="button"
+          onClick={openQuickJump}
+          className="flex w-full items-center justify-between rounded-md border border-line px-3 py-2 text-[13px] font-medium text-ink-dim hover:text-ink"
+        >
+          Search
+          <span className="font-mono-strobe text-[11px] text-ink-dim">⌘K</span>
+        </button>
       </div>
 
       <nav className="flex-1 space-y-1 px-3" aria-label="Screens">

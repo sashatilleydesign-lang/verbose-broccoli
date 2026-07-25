@@ -64,7 +64,17 @@ directory for the actual dev values used locally.
   `markAsNext` w/ single-pinned-next-action enforcement, `touchTask` for
   snooze/still-waiting, archive/convert email, capture CRUD, `reflowSchedule`,
   fixed-event CRUD, `entities.ts`'s direct-create for Client/Project/Task —
-  name/title only, everything else optional and editable later)
+  name/title only, everything else optional and editable later, `search.ts`'s
+  `searchAll` for the quick-jump palette)
+- `src/components/QuickJump.tsx` — the Cmd+K palette (§11.2): fuzzy
+  substring search across Clients/Projects/Tasks/email threads, plus fixed
+  nav shortcuts and a "mark next action done" quick action. Open/close
+  state lives in `quickJumpStore.ts` (same `useSyncExternalStore` pattern
+  as `ModeToggle`) since the trigger buttons in `Sidebar`/`MobileNav` and
+  the palette itself are separate components. Link clicks close the
+  palette on a deferred tick (`setTimeout(fn, 0)`), not synchronously —
+  closing immediately would unmount the very `<Link>` mid-click before
+  Next's client-side navigation completes, silently aborting it.
 
 ## Scheduler notes
 

@@ -786,4 +786,7 @@ Phases 4, 7, and 9 remain unbuilt. Phase 10 (§11) is underway: §11.1
 (direct create for Client/Project/Task) is built — a "+ New" inline form
 on the Workspace index, on each client page (for projects), and on each
 project card (for tasks), all name/title-only with everything else
-editable later. The rest of §11 (§11.2 onward) is still queued.
+editable later. §11.2 (the quick-jump palette) is also built — Cmd+K or
+a Search button opens fuzzy substring search across Clients/Projects/
+Tasks/email threads, plus fixed nav shortcuts and a "mark next action
+done" quick action. The rest of §11 (§11.3 onward) is still queued.

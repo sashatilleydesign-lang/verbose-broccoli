@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NAV_ITEMS } from "@/components/navItems";
 import { ModeToggle } from "@/components/ModeToggle";
+import { openQuickJump } from "@/components/quickJumpStore";
 import { logout } from "@/app/actions/auth";
 
 export function MobileNav() {
@@ -27,7 +28,12 @@ export function MobileNav() {
         <p className="text-base font-bold">
           Strobe<span className="text-accent">.</span>
         </p>
-        <span className="w-6" aria-hidden="true" />
+        <button type="button" aria-label="Search" onClick={openQuickJump} className="rounded-md p-1.5 text-ink-dim hover:text-ink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="h-5 w-5">
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
+          </svg>
+        </button>
       </div>
 
       {open ? (
