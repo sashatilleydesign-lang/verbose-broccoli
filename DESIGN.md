@@ -812,4 +812,8 @@ actually been built. §11.8 (click-to-create on the calendar) is also
 built — clicking an empty slot in Day or Week view opens the same
 minimal "just a name" quick-add as §11.1, pre-filled with the clicked
 time, instead of requiring a scroll down to the full "Add a fixed event"
-form. The rest of §11 (§11.9 onward) is still queued.
+form. §11.9 (notes/brief on click) is also built — clicking a task's
+title anywhere it appears (Focus, Weekly, Workspace, Schedule) opens
+`Task.note` for reading and editing, closing another gap between what
+§3 already stored and what the UI ever surfaced. The rest of §11 (§11.10
+onward) is still queued.

@@ -126,6 +126,22 @@ directory for the actual dev values used locally.
   Workspace's client list, the client detail header, and Schedule) share
   one place to render `Client.colorTag` (§11.7) — it existed in the
   schema since day one but nothing in the UI drew it until now.
+- `src/components/TaskNoteModal.tsx` / `TaskTitleButton.tsx` /
+  `taskNoteStore.ts` — surfaces `Task.note` (§11.9), another field that's
+  existed since the schema's first draft with no UI ever reading it.
+  Same `useSyncExternalStore` open/close pattern as `QuickJump`, since
+  the trigger (a task title, clicked from Focus/Weekly/Workspace/
+  Schedule) and the modal are unrelated components. The modal's editor
+  is keyed on the task id (`<NoteEditor key={active.id} .../>`) so
+  switching between two tasks' notes remounts it with a fresh
+  lazy-initialized draft, rather than needing an effect to re-seed state
+  from a changing prop (the `set-state-in-effect` trap this project
+  keeps running into). On Schedule specifically, the clickable title has
+  to be `relative z-10` — the resize handle (§11.4) is `position:
+  absolute`, which paints above normal-flow content regardless of DOM
+  order, so a very short (15-min-floor) block's title and its handle's
+  bottom 8px would otherwise visually overlap with the handle always
+  winning the click.
 
 ## Scheduler notes
 

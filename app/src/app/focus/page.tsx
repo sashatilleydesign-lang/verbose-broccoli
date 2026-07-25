@@ -5,6 +5,7 @@ import { AppShell } from "@/components/AppShell";
 import { CompleteTaskButton } from "@/components/CompleteTaskButton";
 import { SessionOverlay } from "@/components/SessionOverlay";
 import { ClientBadge } from "@/components/ClientBadge";
+import { TaskTitleButton } from "@/components/TaskTitleButton";
 import { archiveThread, convertThreadToTask } from "@/app/actions/emails";
 import { relativePast, relativeDeadline } from "@/lib/format";
 
@@ -77,7 +78,7 @@ export default async function FocusPage({
                 <span className="text-[13.5px] text-ink-dim">{nextTask.energy} energy</span>
               ) : null}
             </div>
-            <p className="mb-1.5 text-[20px] leading-snug font-bold">{nextTask.title}</p>
+            <TaskTitleButton task={nextTask} className="mb-1.5 block text-[20px] leading-snug font-bold" />
             <p className="mb-2.5 text-[13.5px] text-ink-dim">
               {nextTask.estimatedMinutes ? `~${nextTask.estimatedMinutes} min estimated` : "No estimate yet"}
             </p>
@@ -162,7 +163,7 @@ export default async function FocusPage({
                   </span>
                 ) : null}
               </div>
-              <p className="mb-1 text-[15px] font-semibold">{deadlineTask.title}</p>
+              <TaskTitleButton task={deadlineTask} className="mb-1 block text-[15px] font-semibold" />
               <p className="text-[13.5px] text-ink-dim capitalize">
                 {deadlineTask.dueDate ? relativeDeadline(deadlineTask.dueDate) : null}
               </p>

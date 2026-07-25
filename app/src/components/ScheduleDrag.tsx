@@ -10,6 +10,7 @@ import {
   createCalendarEventQuick,
 } from "@/app/actions/schedule";
 import { ClientDot } from "@/components/ClientBadge";
+import { openTaskNote } from "@/components/taskNoteStore";
 
 const SNAP_MINUTES = 15;
 const MIN_MOVE_MS = 60_000;
@@ -125,6 +126,46 @@ function QuickAddPopover({
         onBlur={onCancel}
       />
     </div>
+  );
+}
+
+// Clicking a scheduled task's title opens its note (§11.9) — fixed
+// items are CalendarEvents, not Tasks, so they have no note to open and
+// render as plain text. stopPropagation on pointerdown keeps a click
+// here from also being read as the start of a drag by the parent block.
+function ScheduleItemTitle({
+  item,
+  className,
+  icon,
+}: {
+  item: ScheduleItem;
+  className: string;
+  icon?: string;
+}) {
+  if (item.kind === "fixed" || !item.taskId) {
+    return (
+      <span className={className}>
+        {icon}
+        {item.title}
+      </span>
+    );
+  }
+  const taskId = item.taskId;
+  return (
+    <button
+      type="button"
+      onPointerDown={(e) => e.stopPropagation()}
+      onClick={() => openTaskNote({ id: taskId, title: item.title, note: item.note ?? null })}
+      // relative + z-10: ResizeHandle is `position: absolute`, which
+      // paints above normal-flow content regardless of DOM order — this
+      // button has to become a positioned element with a higher z-index
+      // itself to win the shared pixels on a very short block, where the
+      // 8px handle and a single line of title text don't both fit.
+      className={`relative z-10 text-left hover:underline ${className}`}
+    >
+      {icon}
+      {item.title}
+    </button>
   );
 }
 
@@ -269,11 +310,24 @@ export function DayDragItems({ items, gridStart, rowH }: { items: ScheduleItem[]
             } ${dragging || resizing ? "z-10 opacity-90 shadow-lg" : ""}`}
             style={{ top, height }}
           >
-            <div className="flex items-start justify-between gap-2">
-              <p className={`text-[12.5px] font-bold ${item.kind === "atRisk" ? "text-ground" : "text-ink"}`}>
-                {item.kind === "fixed" ? "🔒 " : item.kind === "atRisk" ? "⚠ " : ""}
-                {item.title}
-              </p>
+            {/* Rendered before the title/detail content (not after), so
+                where the two visually overlap on a very short block —
+                the resize floor leaves no room for both a text line and
+                an 8px handle — the title wins the click. The rest of the
+                bottom edge stays freely resizable. */}
+            {item.kind !== "fixed" ? (
+              <ResizeHandle
+                onPointerDown={(e) => onResizeDown(e, item)}
+                onPointerMove={(e) => onResizeMove(e, item)}
+                onPointerUp={() => onResizeUp(item)}
+              />
+            ) : null}
+            <div className="flex min-w-0 items-start justify-between gap-2">
+              <ScheduleItemTitle
+                item={item}
+                icon={item.kind === "fixed" ? "🔒 " : item.kind === "atRisk" ? "⚠ " : ""}
+                className={`min-w-0 truncate text-[12.5px] font-bold ${item.kind === "atRisk" ? "text-ground" : "text-ink"}`}
+              />
               <RemoveFixedButton item={item} />
             </div>
             <p
@@ -290,13 +344,6 @@ export function DayDragItems({ items, gridStart, rowH }: { items: ScheduleItem[]
               {item.kind === "atRisk" ? <span>· AT RISK</span> : null}
               {item.kind === "fixed" ? <span>· FIXED</span> : null}
             </p>
-            {item.kind !== "fixed" ? (
-              <ResizeHandle
-                onPointerDown={(e) => onResizeDown(e, item)}
-                onPointerMove={(e) => onResizeMove(e, item)}
-                onPointerUp={() => onResizeUp(item)}
-              />
-            ) : null}
           </div>
         );
       })}
@@ -511,10 +558,10 @@ export function WeekDragGrid({
               width: `calc((100% - 56px) / 7 - 4px)`,
             }}
           >
-            <p className={`truncate text-[10.5px] font-bold ${item.kind === "atRisk" ? "text-ground" : "text-ink"}`}>
-              {item.kind === "fixed" ? "🔒 " : ""}
-              {item.title}
-            </p>
+            {/* Rendered before the title (not after) so a narrow block
+                where the two would visually overlap gives the click to
+                the title, not the resize handle — see the matching
+                comment in DayDragItems above. */}
             {item.kind !== "fixed" ? (
               <ResizeHandle
                 onPointerDown={(e) => onResizeDown(e, item)}
@@ -522,6 +569,11 @@ export function WeekDragGrid({
                 onPointerUp={() => onResizeUp(item)}
               />
             ) : null}
+            <ScheduleItemTitle
+              item={item}
+              icon={item.kind === "fixed" ? "🔒 " : ""}
+              className={`block w-full truncate text-[10.5px] font-bold ${item.kind === "atRisk" ? "text-ground" : "text-ink"}`}
+            />
           </div>
         );
       })}

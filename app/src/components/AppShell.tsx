@@ -2,6 +2,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { MobileNav } from "@/components/MobileNav";
 import { QuickJump } from "@/components/QuickJump";
 import { ReminderWatcher } from "@/components/ReminderWatcher";
+import { TaskNoteModal } from "@/components/TaskNoteModal";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -13,6 +14,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </div>
       <QuickJump />
       <ReminderWatcher />
+      <TaskNoteModal />
     </div>
   );
 }

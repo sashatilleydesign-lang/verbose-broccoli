@@ -175,6 +175,7 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
                   // Every task shows up somewhere in the workspace — a
                   // stuck or waiting task doesn't just silently disappear.
                   title: t.state === "later" ? t.title : `${t.title} (${t.state})`,
+                  note: t.note,
                 }));
 
               return (

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { TaskTitleButton } from "@/components/TaskTitleButton";
 
-type LaterTask = { id: string; title: string };
+type LaterTask = { id: string; title: string; note: string | null };
 
 export function ExpandableLater({ tasks }: { tasks: LaterTask[] }) {
   const [open, setOpen] = useState(false);
@@ -21,7 +22,7 @@ export function ExpandableLater({ tasks }: { tasks: LaterTask[] }) {
         <ul className="mt-3 space-y-2">
           {tasks.map((t) => (
             <li key={t.id} className="text-[14px] text-ink-dim">
-              {t.title}
+              <TaskTitleButton task={t} />
             </li>
           ))}
         </ul>

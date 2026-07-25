@@ -4,6 +4,7 @@ import { AppShell } from "@/components/AppShell";
 import { markAsNext, touchTask } from "@/app/actions/weekly";
 import { daysSince } from "@/lib/format";
 import { ClientBadge } from "@/components/ClientBadge";
+import { TaskTitleButton } from "@/components/TaskTitleButton";
 
 export default async function WeeklyReviewPage() {
   await verifySession();
@@ -33,7 +34,7 @@ export default async function WeeklyReviewPage() {
                   {task.project?.client ? (
                     <ClientBadge name={task.project.client.name} colorTag={task.project.client.colorTag} className="mr-2" />
                   ) : null}
-                  <strong className="font-semibold">{task.title}</strong>
+                  <TaskTitleButton task={task} className="font-semibold" />
                   <span className="mt-0.5 block text-[12.5px] text-ink-dim">
                     flagged {daysSince(task.updatedAt)} day{daysSince(task.updatedAt) === 1 ? "" : "s"} ago
                   </span>
@@ -68,7 +69,7 @@ export default async function WeeklyReviewPage() {
                   {task.project?.client ? (
                     <ClientBadge name={task.project.client.name} colorTag={task.project.client.colorTag} className="mr-2" />
                   ) : null}
-                  <strong className="font-semibold">{task.title}</strong>
+                  <TaskTitleButton task={task} className="font-semibold" />
                   <span className="mt-0.5 block text-[12.5px] text-ink-dim">
                     waiting {daysSince(task.updatedAt)} day{daysSince(task.updatedAt) === 1 ? "" : "s"}
                   </span>

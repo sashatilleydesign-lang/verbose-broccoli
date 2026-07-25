@@ -13,6 +13,7 @@ import { AppShell } from "@/components/AppShell";
 import { ReflowButton } from "@/components/ReflowButton";
 import { DayDragItems, WeekDragGrid } from "@/components/ScheduleDrag";
 import { ClientDot } from "@/components/ClientBadge";
+import { TaskTitleButton } from "@/components/TaskTitleButton";
 import { createCalendarEvent, deleteCalendarEvent } from "@/app/actions/schedule";
 
 const ROW_H = 56;
@@ -206,7 +207,14 @@ async function DayView({ anchor, todayKey }: { anchor: Date; todayKey: string })
                     <li key={item.id} className="flex flex-wrap items-center justify-between gap-2 text-[13.5px]">
                       <span>
                         {item.kind === "fixed" ? "🔒 " : ""}
-                        <strong className="font-semibold">{item.title}</strong>
+                        {item.taskId ? (
+                          <TaskTitleButton
+                            task={{ id: item.taskId, title: item.title, note: item.note ?? null }}
+                            className="font-semibold"
+                          />
+                        ) : (
+                          <strong className="font-semibold">{item.title}</strong>
+                        )}
                         {item.clientName ? (
                           <span className="inline-flex items-center gap-1 text-ink-dim">
                             {" "}

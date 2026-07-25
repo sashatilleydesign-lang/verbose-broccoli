@@ -77,3 +77,19 @@ export async function endSession(taskId: string) {
   await prisma.task.update({ where: { id: taskId }, data: { startedAt: null } });
   revalidatePath("/focus");
 }
+
+// Task.note (§11.9) has existed since the schema's first draft, but
+// nothing in the UI opened it for reading or editing until now.
+export async function updateTaskNote(taskId: string, note: string) {
+  await verifySession();
+  const task = await prisma.task.update({
+    where: { id: taskId },
+    data: { note: note.trim() || null },
+    include: { project: true },
+  });
+  revalidatePath("/focus");
+  revalidatePath("/weekly");
+  revalidatePath("/clients");
+  revalidatePath("/schedule");
+  if (task.project?.clientId) revalidatePath(`/clients/${task.project.clientId}`);
+}

@@ -19,12 +19,17 @@ function addDays(d: Date, n: number): Date {
 
 export type ScheduleItem = {
   id: string;
+  // Set only for movable/atRisk items — they're backed by a Task, whose
+  // id differs from the ScheduledBlock's own `id` above. Undefined for
+  // fixed items, which are CalendarEvents with no Task/note to open.
+  taskId?: string;
   title: string;
   start: Date;
   end: Date;
   kind: "movable" | "fixed" | "atRisk";
   clientName?: string;
   clientColor?: string;
+  note?: string | null;
   deadlineType?: string | null;
 };
 
@@ -43,12 +48,14 @@ async function blocksAndEventsBetween(from: Date, to: Date): Promise<ScheduleIte
     const atRisk = b.task.deadlineType === "hard" && b.task.dueDate ? b.end > b.task.dueDate : false;
     return {
       id: b.id,
+      taskId: b.taskId,
       title: b.task.title,
       start: b.start,
       end: b.end,
       kind: atRisk ? "atRisk" : "movable",
       clientName: b.task.project?.client?.name,
       clientColor: b.task.project?.client?.colorTag,
+      note: b.task.note,
       deadlineType: b.task.deadlineType,
     };
   });
