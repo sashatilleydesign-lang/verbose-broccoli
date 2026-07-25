@@ -3,12 +3,21 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import type { ScheduleItem } from "@/lib/schedule";
 import { fmtTime, kindClasses, dateKey } from "@/lib/scheduleFormat";
-import { moveScheduledBlock, resizeScheduledBlock, deleteCalendarEvent } from "@/app/actions/schedule";
+import {
+  moveScheduledBlock,
+  resizeScheduledBlock,
+  deleteCalendarEvent,
+  createCalendarEventQuick,
+} from "@/app/actions/schedule";
 import { ClientDot } from "@/components/ClientBadge";
 
 const SNAP_MINUTES = 15;
 const MIN_MOVE_MS = 60_000;
 const MIN_DURATION_MS = 15 * 60_000;
+// Visual-only mirror of the server's QUICK_ADD_DURATION_MS (§11.8) — used
+// just to clamp the popover's implied end time within the day when
+// deciding where to snap a click near the very end of the grid.
+const QUICK_ADD_DURATION_MS = 30 * 60_000;
 
 type Override = { start: Date; end: Date };
 type DragInfo = { grabOffsetY: number; durationMs: number };
@@ -74,6 +83,51 @@ function snapWithinDay(start: Date, durationMs: number): Date {
   return snapped;
 }
 
+// Click-to-create (§11.8): the same "just a name" minimal quick-add as
+// §11.1. Enter commits it; Escape or clicking/tabbing away discards it —
+// no half-created lingering state to clean up later.
+function QuickAddPopover({
+  style,
+  onSubmit,
+  onCancel,
+}: {
+  style: React.CSSProperties;
+  onSubmit: (title: string) => void;
+  onCancel: () => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  return (
+    <div
+      className="shadow-panel absolute z-30 rounded-md border border-accent bg-panel p-1.5"
+      style={style}
+      onPointerDown={(e) => e.stopPropagation()}
+    >
+      <input
+        ref={inputRef}
+        type="text"
+        placeholder="Event name…"
+        className="min-h-8 w-40 rounded border border-line bg-ground px-2 text-[12.5px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            const value = e.currentTarget.value.trim();
+            if (value) onSubmit(value);
+            else onCancel();
+          } else if (e.key === "Escape") {
+            onCancel();
+          }
+        }}
+        onBlur={onCancel}
+      />
+    </div>
+  );
+}
+
 function RemoveFixedButton({ item }: { item: ScheduleItem }) {
   if (item.kind !== "fixed") return null;
   return (
@@ -92,6 +146,7 @@ export function DayDragItems({ items, gridStart, rowH }: { items: ScheduleItem[]
   const dragInfo = useRef<DragInfo | null>(null);
   const [resizeId, setResizeId] = useState<string | null>(null);
   const resizeInfo = useRef<ResizeInfo | null>(null);
+  const [quickAdd, setQuickAdd] = useState<{ start: Date } | null>(null);
   const [, startTransition] = useTransition();
 
   useOverrideSync(items, setOverrides);
@@ -168,10 +223,35 @@ export function DayDragItems({ items, gridStart, rowH }: { items: ScheduleItem[]
     });
   }
 
+  function onBackgroundClick(e: React.MouseEvent<HTMLDivElement>) {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const rawTop = e.clientY - rect.top;
+    const rawStart = new Date(gridStart.getTime() + (rawTop / rowH) * 3_600_000);
+    const start = snapWithinDay(rawStart, QUICK_ADD_DURATION_MS);
+    setQuickAdd({ start });
+  }
+
+  function submitQuickAdd(title: string) {
+    if (!quickAdd) return;
+    const formData = new FormData();
+    formData.set("title", title);
+    startTransition(() => {
+      createCalendarEventQuick(quickAdd.start.getTime(), formData);
+    });
+    setQuickAdd(null);
+  }
+
   return (
     <div ref={containerRef} className="absolute top-4 right-4 bottom-4 left-[60px]">
+      {/* Sibling of (not ancestor of) the item layer below, so a click that
+          lands on an item never bubbles here — only a genuine click on
+          empty grid space does. */}
+      <div className="absolute inset-0" onClick={onBackgroundClick} aria-hidden="true" />
       {display.length === 0 ? (
-        <p className="text-[13px] text-ink-dim">Nothing scheduled — hit Reflow to place today&apos;s work.</p>
+        <p className="pointer-events-none text-[13px] text-ink-dim">
+          Nothing scheduled — hit Reflow to place today&apos;s work.
+        </p>
       ) : null}
       {display.map((item) => {
         const top = ((item.start.getTime() - gridStart.getTime()) / 3_600_000) * rowH;
@@ -220,6 +300,13 @@ export function DayDragItems({ items, gridStart, rowH }: { items: ScheduleItem[]
           </div>
         );
       })}
+      {quickAdd ? (
+        <QuickAddPopover
+          style={{ top: ((quickAdd.start.getTime() - gridStart.getTime()) / 3_600_000) * rowH, left: 4 }}
+          onSubmit={submitQuickAdd}
+          onCancel={() => setQuickAdd(null)}
+        />
+      ) : null}
     </div>
   );
 }
@@ -245,6 +332,7 @@ export function WeekDragGrid({
   const dragPosRef = useRef<{ colIndex: number; top: number } | null>(null);
   const [resizeId, setResizeId] = useState<string | null>(null);
   const resizeInfo = useRef<ResizeInfo | null>(null);
+  const [quickAdd, setQuickAdd] = useState<{ start: Date; colIndex: number } | null>(null);
   const [, startTransition] = useTransition();
 
   const allItems = days.flatMap((d) => d.items);
@@ -349,6 +437,25 @@ export function WeekDragGrid({
     });
   }
 
+  function onBackgroundClick(e: React.MouseEvent<HTMLDivElement>, colIndex: number, date: Date) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const rawTop = e.clientY - rect.top;
+    const dayTop = dayGridStartFor(date);
+    const rawStart = new Date(dayTop.getTime() + (rawTop / rowH) * 3_600_000);
+    const start = snapWithinDay(rawStart, QUICK_ADD_DURATION_MS);
+    setQuickAdd({ start, colIndex });
+  }
+
+  function submitQuickAdd(title: string) {
+    if (!quickAdd) return;
+    const formData = new FormData();
+    formData.set("title", title);
+    startTransition(() => {
+      createCalendarEventQuick(quickAdd.start.getTime(), formData);
+    });
+    setQuickAdd(null);
+  }
+
   const display = allItems.map((it) => (overrides[it.id] ? { ...it, ...overrides[it.id] } : it));
 
   return (
@@ -365,14 +472,15 @@ export function WeekDragGrid({
         ))}
       </div>
 
-      {days.map((d) => (
+      {days.map((d, colIndex) => (
         <div
           key={`bg-${d.key}`}
+          onClick={(e) => onBackgroundClick(e, colIndex, d.date)}
           className={`relative border-l border-line ${d.key === todayKey ? "bg-[color-mix(in_srgb,var(--accent)_6%,transparent)]" : ""}`}
           style={{ height: totalHours * rowH }}
         >
           {Array.from({ length: totalHours }, (_, i) => (
-            <div key={i} className="absolute inset-x-0 border-t border-line first:border-t-0" style={{ top: i * rowH }} />
+            <div key={i} className="pointer-events-none absolute inset-x-0 border-t border-line first:border-t-0" style={{ top: i * rowH }} />
           ))}
         </div>
       ))}
@@ -417,6 +525,16 @@ export function WeekDragGrid({
           </div>
         );
       })}
+      {quickAdd ? (
+        <QuickAddPopover
+          style={{
+            top: ((quickAdd.start.getTime() - dayGridStartFor(days[quickAdd.colIndex].date).getTime()) / 3_600_000) * rowH,
+            left: `calc(56px + (100% - 56px) * ${quickAdd.colIndex} / 7 + 2px)`,
+          }}
+          onSubmit={submitQuickAdd}
+          onCancel={() => setQuickAdd(null)}
+        />
+      ) : null}
     </div>
   );
 }

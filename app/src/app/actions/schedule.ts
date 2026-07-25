@@ -30,6 +30,26 @@ export async function createCalendarEvent(formData: FormData) {
   revalidatePath("/schedule");
 }
 
+// Click-to-create (§11.8) — the same "just a name" minimal quick-add as
+// §11.1, applied to the calendar: everything but the title is inferred
+// from where the user clicked, rather than requiring a scroll down to
+// the full "Add a fixed event" form every time. 30 minutes is a
+// placeholder duration, editable later same as any other quick-created
+// entity — there's no edit UI for CalendarEvent yet, so for now that
+// means deleting and re-adding if the guess is wrong.
+const QUICK_ADD_DURATION_MS = 30 * 60_000;
+
+export async function createCalendarEventQuick(startMs: number, formData: FormData) {
+  await verifySession();
+  const title = String(formData.get("title") ?? "").trim();
+  if (!title) return;
+
+  const start = new Date(startMs);
+  const end = new Date(startMs + QUICK_ADD_DURATION_MS);
+  await prisma.calendarEvent.create({ data: { title, start, end } });
+  revalidatePath("/schedule");
+}
+
 export async function deleteCalendarEvent(eventId: string) {
   await verifySession();
   await prisma.calendarEvent.delete({ where: { id: eventId } });

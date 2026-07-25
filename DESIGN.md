@@ -808,4 +808,8 @@ a hard-deadline task crossing into overdue, with no push infrastructure
 §11.7 (client color tags) is also built — `Client.colorTag` now renders
 as a small dot everywhere a client name appears (Focus, Weekly, Schedule,
 Workspace), closing a gap between what §3 already decided and what had
-actually been built. The rest of §11 (§11.8 onward) is still queued.
+actually been built. §11.8 (click-to-create on the calendar) is also
+built — clicking an empty slot in Day or Week view opens the same
+minimal "just a name" quick-add as §11.1, pre-filled with the clicked
+time, instead of requiring a scroll down to the full "Add a fixed event"
+form. The rest of §11 (§11.9 onward) is still queued.

@@ -114,6 +114,13 @@ directory for the actual dev values used locally.
   action even committed, on every re-render that reconstructs the
   `items` array by reference (as `WeekDragGrid`'s `flatMap`-derived list
   does on every render, unlike `DayDragItems`' stable prop reference).
+  Also home to click-to-create (§11.8): a background click-surface layer
+  sits as a *sibling* of the item layer (not its ancestor), so a click
+  landing on an item never bubbles into it — only a genuine click on
+  empty grid space opens the "just a name" `QuickAddPopover`, wired
+  through `createCalendarEventQuick` in `actions/schedule.ts`. Enter
+  commits it; Escape or blurring away discards it, no half-created state
+  left behind.
 - `src/components/ClientBadge.tsx` — `ClientBadge` (the `[Client Name]`
   pill used on Focus/Weekly) and `ClientDot` (a bare colored dot for
   Workspace's client list, the client detail header, and Schedule) share
