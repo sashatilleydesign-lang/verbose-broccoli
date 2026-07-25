@@ -815,5 +815,11 @@ time, instead of requiring a scroll down to the full "Add a fixed event"
 form. §11.9 (notes/brief on click) is also built — clicking a task's
 title anywhere it appears (Focus, Weekly, Workspace, Schedule) opens
 `Task.note` for reading and editing, closing another gap between what
-§3 already stored and what the UI ever surfaced. The rest of §11 (§11.10
-onward) is still queued.
+§3 already stored and what the UI ever surfaced. §11.11 (live at-risk
+warning while dragging) is also built — a dragged hard-deadline block
+now flips to the at-risk visual treatment the instant its live position
+would land past the deadline, rather than only being found out after
+the drop and the next page load. §11.10 (a dedicated client view) is
+logged but explicitly needs a scoping conversation before it's built —
+skipped for now per that note rather than assumed. The rest of §11
+(§11.12 onward) is still queued.

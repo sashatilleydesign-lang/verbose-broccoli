@@ -29,6 +29,20 @@ function snapDurationMs(ms: number): number {
   return Math.max(MIN_DURATION_MS, minutes * 60_000);
 }
 
+// Live at-risk (§11.11): item.end already reflects the current drag/
+// resize override (see `display` below), so recomputing this fresh on
+// every render — rather than trusting the server-computed `item.kind`
+// from before the drag started — is what makes the warning flip the
+// instant a live position would land past the deadline, not just after
+// the drop and the next page load.
+function effectiveKind(item: ScheduleItem): "movable" | "fixed" | "atRisk" {
+  if (item.kind === "fixed") return "fixed";
+  if (item.deadlineType === "hard" && item.dueDate) {
+    return item.end.getTime() > item.dueDate.getTime() ? "atRisk" : "movable";
+  }
+  return item.kind;
+}
+
 function ResizeHandle({
   onPointerDown,
   onPointerMove,
@@ -299,13 +313,14 @@ export function DayDragItems({ items, gridStart, rowH }: { items: ScheduleItem[]
         const height = Math.max(((item.end.getTime() - item.start.getTime()) / 3_600_000) * rowH - 4, 20);
         const dragging = dragId === item.id;
         const resizing = resizeId === item.id;
+        const kind = effectiveKind(item);
         return (
           <div
             key={item.id}
             onPointerDown={(e) => onDown(e, item)}
             onPointerMove={(e) => onMove(e, item)}
             onPointerUp={() => onUp(item)}
-            className={`absolute right-1 left-1 overflow-hidden rounded-md border px-3 py-1.5 select-none ${kindClasses(item.kind)} ${
+            className={`absolute right-1 left-1 overflow-hidden rounded-md border px-3 py-1.5 select-none ${kindClasses(kind)} ${
               item.kind !== "fixed" ? "cursor-grab touch-none active:cursor-grabbing" : ""
             } ${dragging || resizing ? "z-10 opacity-90 shadow-lg" : ""}`}
             style={{ top, height }}
@@ -325,13 +340,13 @@ export function DayDragItems({ items, gridStart, rowH }: { items: ScheduleItem[]
             <div className="flex min-w-0 items-start justify-between gap-2">
               <ScheduleItemTitle
                 item={item}
-                icon={item.kind === "fixed" ? "🔒 " : item.kind === "atRisk" ? "⚠ " : ""}
-                className={`min-w-0 truncate text-[12.5px] font-bold ${item.kind === "atRisk" ? "text-ground" : "text-ink"}`}
+                icon={kind === "fixed" ? "🔒 " : kind === "atRisk" ? "⚠ " : ""}
+                className={`min-w-0 truncate text-[12.5px] font-bold ${kind === "atRisk" ? "text-ground" : "text-ink"}`}
               />
               <RemoveFixedButton item={item} />
             </div>
             <p
-              className={`inline-flex flex-wrap items-center gap-1 text-[10.5px] font-semibold ${item.kind === "atRisk" ? "text-ground/80" : "text-ink-dim"}`}
+              className={`inline-flex flex-wrap items-center gap-1 text-[10.5px] font-semibold ${kind === "atRisk" ? "text-ground/80" : "text-ink-dim"}`}
             >
               <span>
                 {fmtTime(item.start)}–{fmtTime(item.end)}
@@ -341,8 +356,8 @@ export function DayDragItems({ items, gridStart, rowH }: { items: ScheduleItem[]
                   · {item.clientColor ? <ClientDot colorTag={item.clientColor} /> : null} {item.clientName}
                 </span>
               ) : null}
-              {item.kind === "atRisk" ? <span>· AT RISK</span> : null}
-              {item.kind === "fixed" ? <span>· FIXED</span> : null}
+              {kind === "atRisk" ? <span>· AT RISK</span> : null}
+              {kind === "fixed" ? <span>· FIXED</span> : null}
             </p>
           </div>
         );
@@ -541,14 +556,15 @@ export function WeekDragGrid({
             : ((item.start.getTime() - dayGridStartFor(days[colIndex].date).getTime()) / 3_600_000) * rowH;
         const height = Math.max(((item.end.getTime() - item.start.getTime()) / 3_600_000) * rowH - 2, 16);
         const resizing = resizeId === item.id;
+        const kind = effectiveKind(item);
         return (
           <div
             key={item.id}
             onPointerDown={(e) => onDown(e, item)}
             onPointerMove={(e) => onMove(e, item)}
             onPointerUp={() => onUp(item)}
-            title={`${item.title} · ${fmtTime(item.start)}–${fmtTime(item.end)}`}
-            className={`absolute overflow-hidden rounded-sm border px-1 py-0.5 select-none ${kindClasses(item.kind)} ${
+            title={`${item.title} · ${fmtTime(item.start)}–${fmtTime(item.end)}${kind === "atRisk" ? " · AT RISK" : ""}`}
+            className={`absolute overflow-hidden rounded-sm border px-1 py-0.5 select-none ${kindClasses(kind)} ${
               item.kind !== "fixed" ? "cursor-grab touch-none active:cursor-grabbing" : ""
             } ${dragging || resizing ? "z-20 opacity-90 shadow-lg" : ""}`}
             style={{
@@ -571,8 +587,8 @@ export function WeekDragGrid({
             ) : null}
             <ScheduleItemTitle
               item={item}
-              icon={item.kind === "fixed" ? "🔒 " : ""}
-              className={`block w-full truncate text-[10.5px] font-bold ${item.kind === "atRisk" ? "text-ground" : "text-ink"}`}
+              icon={kind === "fixed" ? "🔒 " : kind === "atRisk" ? "⚠ " : ""}
+              className={`block w-full truncate text-[10.5px] font-bold ${kind === "atRisk" ? "text-ground" : "text-ink"}`}
             />
           </div>
         );

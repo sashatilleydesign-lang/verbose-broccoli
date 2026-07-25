@@ -31,6 +31,7 @@ export type ScheduleItem = {
   clientColor?: string;
   note?: string | null;
   deadlineType?: string | null;
+  dueDate?: Date | null;
 };
 
 async function blocksAndEventsBetween(from: Date, to: Date): Promise<ScheduleItem[]> {
@@ -57,6 +58,7 @@ async function blocksAndEventsBetween(from: Date, to: Date): Promise<ScheduleIte
       clientColor: b.task.project?.client?.colorTag,
       note: b.task.note,
       deadlineType: b.task.deadlineType,
+      dueDate: b.task.dueDate,
     };
   });
 

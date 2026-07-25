@@ -114,6 +114,12 @@ directory for the actual dev values used locally.
   action even committed, on every re-render that reconstructs the
   `items` array by reference (as `WeekDragGrid`'s `flatMap`-derived list
   does on every render, unlike `DayDragItems`' stable prop reference).
+  Also home to `effectiveKind` (§11.11): since `item.end` already
+  reflects the live drag/resize override, recomputing at-risk fresh on
+  every render — rather than trusting the server-computed `item.kind`
+  from before the drag started — is what makes a hard-deadline block
+  flip to the at-risk treatment the instant a live position would land
+  past its due date, not just after the drop and the next page load.
   Also home to click-to-create (§11.8): a background click-surface layer
   sits as a *sibling* of the item layer (not its ancestor), so a click
   landing on an item never bubbles into it — only a genuine click on
