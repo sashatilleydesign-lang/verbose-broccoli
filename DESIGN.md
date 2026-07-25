@@ -801,4 +801,8 @@ manually-invoked "Save as template" / "From template" pair on each
 client's project list, backed by `ProjectTemplate`/`TemplateTask`; no
 dates are ever templated, and tasks created from a template start in
 `"later"` with no next action auto-pinned, same as any other project
-creation. The rest of §11 (§11.6 onward) is still queued.
+creation. §11.6 (reminders v0) is also built — a dismissible in-tab
+toast, polled every 30s, for a `ScheduledBlock`'s start time arriving or
+a hard-deadline task crossing into overdue, with no push infrastructure
+(v1's real Web Push still waits on a deployed HTTPS domain per §10). The
+rest of §11 (§11.7 onward) is still queued.

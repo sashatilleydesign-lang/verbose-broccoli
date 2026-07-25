@@ -67,7 +67,22 @@ directory for the actual dev values used locally.
   name/title only, everything else optional and editable later, `search.ts`'s
   `searchAll` for the quick-jump palette, `tasks.ts`'s `startSession`/
   `endSession` for the focus-session timer, `templates.ts`'s
-  `saveProjectAsTemplate`/`createProjectFromTemplate`)
+  `saveProjectAsTemplate`/`createProjectFromTemplate`, `reminders.ts`'s
+  read-only `getReminderCandidates` for the in-tab toast watcher)
+- `src/components/ReminderWatcher.tsx` — reminders v0 (§11.6): polls
+  `getReminderCandidates` every 30s for `ScheduledBlock`s whose start
+  time just arrived and hard-deadline tasks that just went overdue,
+  surfacing each as a dismissible in-tab toast. No push infrastructure —
+  v1 (real Web Push per §10) waits on a deployed HTTPS domain. Dedup
+  state lives in `sessionStorage` rather than a plain in-memory ref,
+  since `AppShell` (and this watcher with it) is mounted per-page rather
+  than in the root layout — an in-memory set would reset, and re-nag
+  with the same toast, on every navigation between pages in the same
+  tab. The "starting" reminder is keyed on the `ScheduledBlock`'s own id
+  rather than the task's, since `reflowSchedule()` deletes and recreates
+  every block from scratch — keying on the task id would let a stale
+  seen-entry permanently suppress the reminder for that task even after
+  a reflow moved it to a genuinely new time.
 - `src/components/QuickJump.tsx` — the Cmd+K palette (§11.2): fuzzy
   substring search across Clients/Projects/Tasks/email threads, plus fixed
   nav shortcuts and a "mark next action done" quick action. Open/close
