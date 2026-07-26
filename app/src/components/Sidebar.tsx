@@ -11,7 +11,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex md:w-60 md:flex-none md:flex-col md:border-r md:border-line md:bg-panel">
+    <aside className="hidden md:sticky md:top-0 md:flex md:h-screen md:w-60 md:flex-none md:flex-col md:self-start md:overflow-y-auto md:border-r md:border-line md:bg-panel">
       <div className="px-5 py-6">
         <p className="text-lg font-bold">
           Strobe<span className="text-accent">.</span>
