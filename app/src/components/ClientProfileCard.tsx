@@ -2,12 +2,14 @@
 
 import { useState, useTransition } from "react";
 import { updateClientProfile } from "@/app/actions/entities";
+import { CLIENT_COLOR_PALETTE } from "@/lib/clientColors";
 
 type ClientProfile = {
   contactEmail: string | null;
   contactPhone: string | null;
   rate: string | null;
   notes: string | null;
+  colorTag: string;
 };
 
 // Client profile (§11.10) — contact info, rate, and relationship notes,
@@ -19,6 +21,7 @@ export function ClientProfileCard({ clientId, profile }: { clientId: string; pro
   const hasProfile = profile.contactEmail || profile.contactPhone || profile.rate || profile.notes;
   const [editing, setEditing] = useState(false);
   const [pending, startTransition] = useTransition();
+  const [colorTag, setColorTag] = useState(profile.colorTag);
 
   if (!editing) {
     return (
@@ -106,6 +109,22 @@ export function ClientProfileCard({ clientId, profile }: { clientId: string; pro
           className="min-h-9 w-full rounded-md border border-line bg-panel px-2 py-1.5 text-[13px] text-ink"
         />
       </div>
+      <div className="flex flex-col gap-1">
+        <span className="text-[11px] font-bold text-ink-dim uppercase">Color</span>
+        <input type="hidden" name="colorTag" value={colorTag} />
+        <div className="flex items-center gap-1.5 py-1">
+          {CLIENT_COLOR_PALETTE.map((c) => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => setColorTag(c)}
+              aria-label={`Use color ${c}`}
+              className="h-6 w-6 flex-none rounded-full"
+              style={{ backgroundColor: c, boxShadow: colorTag === c ? `0 0 0 2px var(--panel), 0 0 0 4px ${c}` : "none" }}
+            />
+          ))}
+        </div>
+      </div>
       <button
         type="submit"
         disabled={pending}
@@ -115,7 +134,10 @@ export function ClientProfileCard({ clientId, profile }: { clientId: string; pro
       </button>
       <button
         type="button"
-        onClick={() => setEditing(false)}
+        onClick={() => {
+          setColorTag(profile.colorTag);
+          setEditing(false);
+        }}
         className="min-h-9 rounded-md border border-line px-3 text-[12.5px] font-semibold text-ink-dim hover:text-ink"
       >
         Cancel

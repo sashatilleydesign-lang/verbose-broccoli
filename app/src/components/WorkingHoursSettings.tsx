@@ -21,6 +21,8 @@ function fmtMinutes(minute: number): string {
 // UserScheduleProfile settings (§11.15): a recurring weekly template of
 // multiple labeled windows per day, not one start/end range, plus
 // per-date exceptions — see scheduler.ts for how reflow reads this.
+// Rendered inside SettingsDrawer's slideout panel, which supplies its
+// own title/close chrome, so this only returns the settings content.
 export async function WorkingHoursSettings() {
   const { recurring, oneOff, daysOff } = await getScheduleProfile();
 
@@ -31,13 +33,8 @@ export async function WorkingHoursSettings() {
   }
 
   return (
-    <details className="shadow-panel mt-8 rounded-md border border-line bg-panel p-5">
-      <summary className="cursor-pointer text-[13px] font-bold text-ink-dim hover:text-accent">
-        Working hours
-      </summary>
-
-      <div className="mt-4 space-y-5">
-        <div>
+    <div className="space-y-5">
+      <div>
           <p className="mb-2 text-[11px] font-bold tracking-wide text-ink-dim uppercase">Recurring windows</p>
           <div className="space-y-1.5">
             {DAY_NAMES.map((name, dow) => (
@@ -241,6 +238,5 @@ export async function WorkingHoursSettings() {
           </div>
         </div>
       </div>
-    </details>
   );
 }

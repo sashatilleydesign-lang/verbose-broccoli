@@ -84,6 +84,7 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
             contactPhone: client.contactPhone,
             rate: client.rate,
             notes: client.notes,
+            colorTag: client.colorTag,
           }}
         />
         {pinnedNext ? (

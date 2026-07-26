@@ -16,6 +16,7 @@ import { ClientDot } from "@/components/ClientBadge";
 import { TaskTitleButton } from "@/components/TaskTitleButton";
 import { createCalendarEvent, deleteCalendarEvent } from "@/app/actions/schedule";
 import { WorkingHoursSettings } from "@/components/WorkingHoursSettings";
+import { SettingsDrawer } from "@/components/SettingsDrawer";
 
 const ROW_H = 56;
 const WEEK_ROW_H = 44;
@@ -104,24 +105,27 @@ export default async function SchedulePage({
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <ViewTabs view={view} anchor={anchor} />
-        <NavRow
-          view={view}
-          anchor={anchor}
-          label={
-            view === "day"
-              ? anchor.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })
-              : view === "week"
-                ? `Week of ${startOfWeek(anchor).toLocaleDateString(undefined, { month: "short", day: "numeric" })}`
-                : anchor.toLocaleDateString(undefined, { month: "long", year: "numeric" })
-          }
-        />
+        <div className="flex flex-wrap items-center gap-3">
+          <NavRow
+            view={view}
+            anchor={anchor}
+            label={
+              view === "day"
+                ? anchor.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })
+                : view === "week"
+                  ? `Week of ${startOfWeek(anchor).toLocaleDateString(undefined, { month: "short", day: "numeric" })}`
+                  : anchor.toLocaleDateString(undefined, { month: "long", year: "numeric" })
+            }
+          />
+          <SettingsDrawer label="Working hours">
+            <WorkingHoursSettings />
+          </SettingsDrawer>
+        </div>
       </div>
 
       {view === "day" ? <DayView anchor={anchor} todayKey={todayKey} /> : null}
       {view === "week" ? <WeekView anchor={anchor} todayKey={todayKey} /> : null}
       {view === "month" ? <MonthView anchor={anchor} todayKey={todayKey} /> : null}
-
-      <WorkingHoursSettings />
     </AppShell>
   );
 }

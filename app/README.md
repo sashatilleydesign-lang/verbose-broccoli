@@ -182,27 +182,48 @@ directory for the actual dev values used locally.
   `bottom-20` so it stacks above the now-permanent FAB instead of
   overlapping it.
 - `src/components/WorkingHoursSettings.tsx` — the working-hours settings
-  panel (§11.15): a collapsible `<details>` on the Schedule page listing
-  `WorkWindow` recurring rows grouped by day-of-week, with forms (backed
-  by `src/app/actions/scheduleProfile.ts`) to add/remove a recurring
-  window (optionally tagged with a preferred `context`), take a whole day
-  off (`ScheduleDayOff`), or open a one-off extra window on an otherwise-
-  off day — the same `WorkWindow` model with `date` set instead of
-  `dayOfWeek`. Its form ids are `ww`-prefixed (`ww-startTime`, etc.) since
-  the page already has an unrelated "Add a fixed event" form using the
-  plain `startTime`/`endTime` ids — a real duplicate-id bug caught during
-  QA (Playwright's `page.fill`/`page.click` silently resolved to the
-  first DOM match, not a thrown ambiguity error).
+  content (§11.15): `WorkWindow` recurring rows grouped by day-of-week,
+  with forms (backed by `src/app/actions/scheduleProfile.ts`) to add/
+  remove a recurring window (optionally tagged with a preferred
+  `context`), take a whole day off (`ScheduleDayOff`), or open a one-off
+  extra window on an otherwise-off day — the same `WorkWindow` model with
+  `date` set instead of `dayOfWeek`. Its form ids are `ww`-prefixed
+  (`ww-startTime`, etc.) since the Schedule page already has an unrelated
+  "Add a fixed event" form using the plain `startTime`/`endTime` ids — a
+  real duplicate-id bug caught during QA (Playwright's
+  `page.fill`/`page.click` silently resolved to the first DOM match, not
+  a thrown ambiguity error). Rendered inside `SettingsDrawer` (see below)
+  rather than owning its own collapsible chrome — it's an async server
+  component passed as that client component's `children`, the standard
+  way to interleave the two without needing its own "is this open" state.
+- `src/components/SettingsDrawer.tsx` — a generic right-anchored slideout
+  (trigger button + backdrop + panel), the same overlay pattern
+  `MobileNav` already used for its mobile menu, reused here so
+  settings-style content doesn't need scroll-to-the-bottom-and-expand
+  (the original `<details>` treatment) to reach, and doesn't permanently
+  occupy page space either. Currently wraps `WorkingHoursSettings` from
+  the Schedule page header; written generically enough to wrap other
+  settings content later without a new one-off drawer per feature.
 - `src/components/ClientProfileCard.tsx` — the client profile (§11.10):
-  contact email/phone, rate, and free-form relationship notes, merged
-  directly into the top of the Workspace page rather than a separate
-  surface (Workspace already gave each client a merged task/email
-  timeline — a second page duplicating that would just be two places to
-  check instead of one). Starts collapsed to a compact read line since
-  it's a CRM-lite record you check occasionally, not something you edit
-  every visit; toggling to the edit form is local client state
-  (`useState`), not a route or modal, so it never competes with the
-  timeline below it for a URL.
+  contact email/phone, rate, free-form relationship notes, and a color
+  swatch picker (§11.7, see `lib/clientColors.ts`), merged directly into
+  the top of the Workspace page rather than a separate surface (Workspace
+  already gave each client a merged task/email timeline — a second page
+  duplicating that would just be two places to check instead of one).
+  Starts collapsed to a compact read line since it's a CRM-lite record
+  you check occasionally, not something you edit every visit; toggling
+  to the edit form is local client state (`useState`), not a route or
+  modal, so it never competes with the timeline below it for a URL.
+- `src/lib/clientColors.ts` — `CLIENT_COLOR_PALETTE`, a fixed set of 8
+  visually distinct hues for `Client.colorTag` (§11.7). `colorTag` had
+  existed since the schema's first draft with a single shared default,
+  and nothing ever assigned a different value — every client rendered
+  the exact same orange dot until `createClient` started auto-assigning
+  from this palette (cycling by existing client count) and
+  `ClientProfileCard` grew a swatch picker to recolor one later.
+  `scripts/backfill-client-colors.ts` is a one-time, safe-to-re-run
+  script for clients created before this existed — it reassigns only
+  ones still sitting on the shared default, in `createdAt` order.
 
 ## Scheduler notes
 
