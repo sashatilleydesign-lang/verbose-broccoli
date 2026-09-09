@@ -1,0 +1,233 @@
+// Strobe — Phase 1 schema
+// Scope: Client / Project / Task / mock EmailThread+EmailMessage / TaskEmailLink / CaptureItem
+// See /DESIGN.md §3 for the full data model this is drawn from.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ProjectStatus {
+  active
+  waiting
+  someday
+  done
+}
+
+enum TaskState {
+  next
+  later
+  waiting
+  stuck
+  done
+}
+
+enum Energy {
+  low
+  medium
+  high
+}
+
+enum TaskContext {
+  email
+  calls
+  deep_work
+  admin
+}
+
+enum DeadlineType {
+  hard
+  soft
+}
+
+enum EmailThreadStatus {
+  unprocessed
+  triaged
+  archived
+}
+
+model Client {
+  id           String        @id @default(cuid())
+  name         String
+  colorTag     String        @default("#ff4b1f")
+  // Client profile (§11.10) — a CRM-lite record (contact info, rate,
+  // relationship notes) merged into the existing Workspace timeline
+  // rather than a separate client-facing portal, which would need
+  // client accounts/auth this single-user app doesn't have.
+  contactEmail String?
+  contactPhone String?
+  rate         String?
+  notes        String?
+  createdAt    DateTime      @default(now())
+  projects     Project[]
+  threads      EmailThread[]
+}
+
+model Project {
+  id           String        @id @default(cuid())
+  name         String
+  status       ProjectStatus @default(active)
+  dueDate      DateTime?
+  nextActionId String?       @unique
+  clientId     String?
+  client       Client?       @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  tasks        Task[]        @relation("ProjectTasks")
+  nextAction   Task?         @relation("ProjectNextAction", fields: [nextActionId], references: [id], onDelete: SetNull)
+  createdAt    DateTime      @default(now())
+}
+
+// A reusable project shape (§11.5) — saved manually, instantiated
+// manually. Deliberately not auto-recurring: tasks appearing on their own
+// without the user initiating anything is a bad fit for ADHD object
+// permanence (see DESIGN.md §11.5). No dates are ever stored here, per
+// the project's existing "due date if real, not invented" rule — only
+// structure carries over.
+model ProjectTemplate {
+  id        String         @id @default(cuid())
+  name      String
+  tasks     TemplateTask[]
+  createdAt DateTime       @default(now())
+}
+
+model TemplateTask {
+  id               String          @id @default(cuid())
+  templateId       String
+  template         ProjectTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  title            String
+  order            Int
+  energy           Energy?
+  context          TaskContext?
+  estimatedMinutes Int?
+}
+
+model Task {
+  id               String          @id @default(cuid())
+  title            String
+  note             String?
+  state            TaskState       @default(next)
+  energy           Energy?
+  context          TaskContext?
+  deadlineType     DeadlineType?
+  dueDate          DateTime?
+  // Self-imposed urgency (DESIGN.md §11.14) — distinct from `dueDate`,
+  // rendered differently ("your target" vs "due"), and deliberately
+  // excluded from the scheduler's at-risk logic (scheduler.ts only ever
+  // reads dueDate/deadlineType) so a target can never trigger a false
+  // alarm. Only a real deadline does that.
+  targetDate       DateTime?
+  phase            String?
+  estimatedMinutes Int?
+  actualMinutes    Int?
+  // Set when a focus session (DESIGN.md §11.3) starts, cleared on
+  // completion or "End session" — deliberately re-armed each time
+  // rather than accumulated, so a stale forgotten session can never
+  // silently produce a nonsense multi-day actualMinutes.
+  startedAt        DateTime?
+  batchIndex       Int?
+  batchTotal       Int?
+  projectId        String?
+  project          Project?        @relation("ProjectTasks", fields: [projectId], references: [id], onDelete: Cascade)
+  asNextActionOf   Project?        @relation("ProjectNextAction")
+  emailLinks       TaskEmailLink[]
+  scheduledBlocks  ScheduledBlock[]
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  completedAt      DateTime?
+}
+
+model EmailThread {
+  id        String            @id @default(cuid())
+  subject   String
+  status    EmailThreadStatus @default(unprocessed)
+  clientId  String?
+  client    Client?           @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  messages  EmailMessage[]
+  taskLinks TaskEmailLink[]
+  createdAt DateTime          @default(now())
+}
+
+model EmailMessage {
+  id         String      @id @default(cuid())
+  threadId   String
+  thread     EmailThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  fromName   String
+  fromEmail  String
+  snippet    String
+  body       String
+  receivedAt DateTime
+  unread     Boolean     @default(true)
+}
+
+model TaskEmailLink {
+  id       String      @id @default(cuid())
+  taskId   String
+  threadId String
+  task     Task        @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  thread   EmailThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, threadId])
+}
+
+model CaptureItem {
+  id        String   @id @default(cuid())
+  text      String
+  triaged   Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// A task's current placement on the calendar, computed by the reflow
+// scheduler (src/lib/scheduler.ts). Kept separate from Task so a task can
+// be rescheduled repeatedly without losing its identity or history — see
+// DESIGN.md §3/§7.
+model ScheduledBlock {
+  id     String   @id @default(cuid())
+  taskId String
+  task   Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  start  DateTime
+  end    DateTime
+  // Splitting a task across multiple slots/days (§11.16) — set together
+  // (1-based) when a task's estimated duration didn't fit in one open
+  // window and got divided across several; both null for the common
+  // single-block case, which is still the vast majority of tasks.
+  partIndex Int?
+  partTotal Int?
+}
+
+// A fixed commitment the scheduler routes around — manually entered for
+// now (no external calendar sync yet, see DESIGN.md §7's phased plan).
+model CalendarEvent {
+  id    String   @id @default(cuid())
+  title String
+  start DateTime
+  end   DateTime
+}
+
+// UserScheduleProfile (§3/§11.15) — multiple labeled working windows per
+// day, not one start/end range. Exactly one of dayOfWeek/date is set:
+// dayOfWeek is a recurring weekly template row (0=Sunday..6=Saturday);
+// date is a one-off window for a specific date, the "extra hours on an
+// otherwise-off day" exception (e.g. working one particular Saturday
+// with no recurring Saturday windows at all). `context` is a soft
+// preference only — see scheduler.ts's fallback-to-any-window logic;
+// a task never becomes unschedulable purely over a label mismatch.
+model WorkWindow {
+  id           String       @id @default(cuid())
+  dayOfWeek    Int?
+  date         DateTime?
+  startMinute  Int
+  endMinute    Int
+  context      TaskContext?
+  createdAt    DateTime     @default(now())
+}
+
+// The other half of a per-date exception (§11.15): a specific date with
+// no work at all, overriding every recurring window (and any one-off
+// WorkWindow) that would otherwise apply to it.
+model ScheduleDayOff {
+  id   String   @id @default(cuid())
+  date DateTime @unique
+}

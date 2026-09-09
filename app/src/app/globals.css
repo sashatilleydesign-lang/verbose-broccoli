@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+/* Strobe design tokens — see DESIGN.md §9. Light by default, plain dark
+   theme as the alternative — no separate "intensity" concept, just a
+   normal light/dark switch. Accent blue stays reserved for the one
+   pinned next action and primary buttons, not general chrome, per §1. */
+:root {
+  --ground: #f6f7fb;
+  --panel: #ffffff;
+  --ink: #323338;
+  --ink-dim: #676879;
+  --accent: #0073ea;
+  --accent-dim: #e6f1fd;
+  --line: #e3e5ec;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ground: #14161c;
+    --panel: #1e212a;
+    --ink: #e6e7eb;
+    --ink-dim: #9498a3;
+    --accent: #579bfc;
+    --accent-dim: #1f3a5c;
+    --line: rgba(255, 255, 255, 0.1);
+  }
+}
+
+:root[data-theme="light"] {
+  --ground: #f6f7fb;
+  --panel: #ffffff;
+  --ink: #323338;
+  --ink-dim: #676879;
+  --accent: #0073ea;
+  --accent-dim: #e6f1fd;
+  --line: #e3e5ec;
+}
+
+:root[data-theme="dark"] {
+  --ground: #14161c;
+  --panel: #1e212a;
+  --ink: #e6e7eb;
+  --ink-dim: #9498a3;
+  --accent: #579bfc;
+  --accent-dim: #1f3a5c;
+  --line: rgba(255, 255, 255, 0.1);
+}
+
+@theme inline {
+  --color-ground: var(--ground);
+  --color-panel: var(--panel);
+  --color-ink: var(--ink);
+  --color-ink-dim: var(--ink-dim);
+  --color-accent: var(--accent);
+  --color-accent-dim: var(--accent-dim);
+  --color-line: var(--line);
+}
+
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+}
+
+.font-mono-strobe {
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+}
+
+.shadow-panel {
+  box-shadow:
+    0 1px 2px rgba(15, 18, 30, 0.06),
+    0 1px 4px rgba(15, 18, 30, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  .shadow-panel {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  }
+}
+
+:root[data-theme="dark"] .shadow-panel {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+:root[data-theme="light"] .shadow-panel {
+  box-shadow:
+    0 1px 2px rgba(15, 18, 30, 0.06),
+    0 1px 4px rgba(15, 18, 30, 0.08);
+}
