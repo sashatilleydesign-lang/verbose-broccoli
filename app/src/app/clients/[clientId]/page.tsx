@@ -183,11 +183,15 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
                 .filter((t) => t.state === "later" || t.state === "stuck" || t.state === "waiting")
                 .map((t) => ({
                   id: t.id,
-                  // Every task shows up somewhere in the workspace — a
-                  // stuck or waiting task doesn't just silently disappear.
-                  title: t.state === "later" ? t.title : `${t.title} (${t.state})`,
+                  title: t.title,
+                  state: t.state as "later" | "stuck" | "waiting",
                   note: t.note,
                   targetDate: t.targetDate,
+                  energy: t.energy as "low" | "medium" | "high" | null,
+                  context: t.context as "email" | "calls" | "deep_work" | "admin" | null,
+                  estimatedMinutes: t.estimatedMinutes,
+                  dueDate: t.dueDate ?? null,
+                  deadlineType: t.deadlineType as "hard" | "soft" | null,
                 }));
 
               return (

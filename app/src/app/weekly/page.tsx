@@ -5,6 +5,7 @@ import { markAsNext, touchTask } from "@/app/actions/weekly";
 import { daysSince, relativeTarget } from "@/lib/format";
 import { ClientBadge } from "@/components/ClientBadge";
 import { TaskTitleButton } from "@/components/TaskTitleButton";
+import { EditTaskButton } from "@/components/EditTaskButton";
 
 export default async function WeeklyReviewPage() {
   await verifySession();
@@ -42,7 +43,7 @@ export default async function WeeklyReviewPage() {
                     ) : null}
                   </span>
                 </div>
-                <div className="flex gap-4">
+                <div className="flex flex-wrap items-center gap-4">
                   <form action={markAsNext.bind(null, task.id)}>
                     <button type="submit" className="min-h-8 rounded-md border border-accent px-3 text-[12px] font-bold text-accent hover:bg-accent hover:text-ground">
                       Make it next
@@ -53,6 +54,18 @@ export default async function WeeklyReviewPage() {
                       Snooze a week
                     </button>
                   </form>
+                  <EditTaskButton
+                    task={{
+                      id: task.id,
+                      title: task.title,
+                      state: "stuck",
+                      energy: task.energy as "low" | "medium" | "high" | null,
+                      context: task.context as "email" | "calls" | "deep_work" | "admin" | null,
+                      estimatedMinutes: task.estimatedMinutes,
+                      dueDate: task.dueDate ?? null,
+                      deadlineType: task.deadlineType as "hard" | "soft" | null,
+                    }}
+                  />
                 </div>
               </div>
             ))}
@@ -80,7 +93,7 @@ export default async function WeeklyReviewPage() {
                     ) : null}
                   </span>
                 </div>
-                <div className="flex gap-4">
+                <div className="flex flex-wrap items-center gap-4">
                   <form action={markAsNext.bind(null, task.id)}>
                     <button type="submit" className="min-h-8 rounded-md border border-accent px-3 text-[12px] font-bold text-accent hover:bg-accent hover:text-ground">
                       Resolved — make next
@@ -91,6 +104,18 @@ export default async function WeeklyReviewPage() {
                       Still waiting
                     </button>
                   </form>
+                  <EditTaskButton
+                    task={{
+                      id: task.id,
+                      title: task.title,
+                      state: "waiting",
+                      energy: task.energy as "low" | "medium" | "high" | null,
+                      context: task.context as "email" | "calls" | "deep_work" | "admin" | null,
+                      estimatedMinutes: task.estimatedMinutes,
+                      dueDate: task.dueDate ?? null,
+                      deadlineType: task.deadlineType as "hard" | "soft" | null,
+                    }}
+                  />
                 </div>
               </div>
             ))}

@@ -2,9 +2,27 @@
 
 import { useState } from "react";
 import { TaskTitleButton } from "@/components/TaskTitleButton";
+import { EditTaskButton } from "@/components/EditTaskButton";
 import { relativeTarget } from "@/lib/format";
 
-type LaterTask = { id: string; title: string; note: string | null; targetDate: Date | null };
+type LaterTask = {
+  id: string;
+  title: string;
+  state: "later" | "stuck" | "waiting";
+  note: string | null;
+  targetDate: Date | null;
+  energy: "low" | "medium" | "high" | null;
+  context: "email" | "calls" | "deep_work" | "admin" | null;
+  estimatedMinutes: number | null;
+  dueDate: Date | null;
+  deadlineType: "hard" | "soft" | null;
+};
+
+const STATE_LABEL: Record<"later" | "stuck" | "waiting", string | null> = {
+  later: null,
+  stuck: "stuck",
+  waiting: "waiting on",
+};
 
 export function ExpandableLater({ tasks }: { tasks: LaterTask[] }) {
   const [open, setOpen] = useState(false);
@@ -22,9 +40,17 @@ export function ExpandableLater({ tasks }: { tasks: LaterTask[] }) {
       {open ? (
         <ul className="mt-3 space-y-2">
           {tasks.map((t) => (
-            <li key={t.id} className="text-[14px] text-ink-dim">
-              <TaskTitleButton task={t} />
-              {t.targetDate ? <span className="text-accent"> · 🎯 {relativeTarget(t.targetDate)}</span> : null}
+            <li key={t.id} className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-[14px] text-ink-dim">
+              <span className="flex items-baseline gap-2">
+                <TaskTitleButton task={t} />
+                {STATE_LABEL[t.state] ? (
+                  <span className="text-[11px] font-bold uppercase tracking-wide text-ink-dim">
+                    {STATE_LABEL[t.state]}
+                  </span>
+                ) : null}
+                {t.targetDate ? <span className="text-accent"> · 🎯 {relativeTarget(t.targetDate)}</span> : null}
+              </span>
+              <EditTaskButton task={t} />
             </li>
           ))}
         </ul>

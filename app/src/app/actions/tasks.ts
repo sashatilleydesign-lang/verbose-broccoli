@@ -119,6 +119,35 @@ export async function endSession(taskId: string) {
   revalidatePath("/focus");
 }
 
+export async function updateTaskMeta(
+  taskId: string,
+  state: "next" | "later" | "stuck" | "waiting",
+  energy: "low" | "medium" | "high" | null,
+  context: "email" | "calls" | "deep_work" | "admin" | null,
+  estimatedMinutes: number | null,
+  dueDateMs: number | null,
+  deadlineType: "hard" | "soft" | null
+) {
+  await verifySession();
+  const task = await prisma.task.update({
+    where: { id: taskId },
+    data: {
+      state,
+      energy,
+      context,
+      estimatedMinutes,
+      dueDate: dueDateMs === null ? null : new Date(dueDateMs),
+      deadlineType,
+    },
+    include: { project: true },
+  });
+  revalidatePath("/focus");
+  revalidatePath("/weekly");
+  revalidatePath("/clients");
+  revalidatePath("/schedule");
+  if (task.project?.clientId) revalidatePath(`/clients/${task.project.clientId}`);
+}
+
 // Task.note (§11.9) has existed since the schema's first draft, but
 // nothing in the UI opened it for reading or editing until now. Also
 // saves Task.targetDate (§11.14) from the same modal — self-imposed

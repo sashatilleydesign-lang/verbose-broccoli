@@ -8,6 +8,7 @@ import { ClientBadge } from "@/components/ClientBadge";
 import { TaskTitleButton } from "@/components/TaskTitleButton";
 import { archiveThread, convertThreadToTask } from "@/app/actions/emails";
 import { relativePast, relativeDeadline, relativeTarget } from "@/lib/format";
+import { EditTaskButton } from "@/components/EditTaskButton";
 
 const ENERGY_OPTIONS = [
   { value: undefined, label: "All" },
@@ -93,6 +94,20 @@ export default async function FocusPage({
                 startedAt: nextTask.startedAt,
               }}
             />
+            <div className="mt-2.5">
+              <EditTaskButton
+                task={{
+                  id: nextTask.id,
+                  title: nextTask.title,
+                  state: "next",
+                  energy: nextTask.energy as "low" | "medium" | "high" | null,
+                  context: nextTask.context as "email" | "calls" | "deep_work" | "admin" | null,
+                  estimatedMinutes: nextTask.estimatedMinutes,
+                  dueDate: nextTask.dueDate ?? null,
+                  deadlineType: nextTask.deadlineType as "hard" | "soft" | null,
+                }}
+              />
+            </div>
             {batchProgress ? (
               <div className="mt-3 flex gap-1.5" aria-hidden="true">
                 {Array.from({ length: batchProgress.total }, (_, i) => {
@@ -154,7 +169,7 @@ export default async function FocusPage({
 
         {deadlineTask ? (
           <div className="flex gap-4 p-4">
-            <div className="h-8.5 w-8.5 flex-none rounded-md border-2 border-dashed border-accent" />
+            <CompleteTaskButton key={deadlineTask.id} taskId={deadlineTask.id} />
             <div className="min-w-0 flex-1">
               <div className="mb-1.5 flex flex-wrap items-center gap-2">
                 {deadlineTask.project?.client ? (
@@ -167,12 +182,24 @@ export default async function FocusPage({
                 ) : null}
               </div>
               <TaskTitleButton task={deadlineTask} className="mb-1 block text-[15px] font-semibold" />
-              <p className="text-[13.5px] text-ink-dim capitalize">
+              <p className="mb-2 text-[13.5px] text-ink-dim capitalize">
                 {deadlineTask.dueDate ? relativeDeadline(deadlineTask.dueDate) : null}
                 {deadlineTask.targetDate ? (
                   <span className="text-accent normal-case"> · 🎯 your target: {relativeTarget(deadlineTask.targetDate)}</span>
                 ) : null}
               </p>
+              <EditTaskButton
+                task={{
+                  id: deadlineTask.id,
+                  title: deadlineTask.title,
+                  state: deadlineTask.state as "next" | "later" | "stuck" | "waiting",
+                  energy: deadlineTask.energy as "low" | "medium" | "high" | null,
+                  context: deadlineTask.context as "email" | "calls" | "deep_work" | "admin" | null,
+                  estimatedMinutes: deadlineTask.estimatedMinutes,
+                  dueDate: deadlineTask.dueDate ?? null,
+                  deadlineType: deadlineTask.deadlineType as "hard" | "soft" | null,
+                }}
+              />
             </div>
           </div>
         ) : null}
