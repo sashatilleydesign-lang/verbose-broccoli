@@ -112,7 +112,7 @@ export default function FocusScreen() {
 
   async function load() {
     setLoading(true);
-    try { setData(await api.focus()); } finally { setLoading(false); }
+    try { setData(await api.focus()); } catch { /* show empty state */ } finally { setLoading(false); }
   }
 
   useEffect(() => { load(); }, []);

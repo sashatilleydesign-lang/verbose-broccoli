@@ -52,7 +52,7 @@ export default function ClientDetailScreen() {
   async function load() {
     if (!id) return;
     setLoading(true);
-    try { setData(await api.client(id)); } finally { setLoading(false); }
+    try { setData(await api.client(id)); } catch { /* show error state */ } finally { setLoading(false); }
   }
 
   useEffect(() => { load(); }, [id]);

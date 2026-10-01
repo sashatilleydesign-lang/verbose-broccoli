@@ -44,7 +44,7 @@ export default function WeeklyScreen() {
 
   async function load() {
     setLoading(true);
-    try { setData(await api.weekly()); } finally { setLoading(false); }
+    try { setData(await api.weekly()); } catch { /* show empty state */ } finally { setLoading(false); }
   }
 
   useEffect(() => { load(); }, []);

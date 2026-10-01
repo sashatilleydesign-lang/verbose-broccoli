@@ -67,7 +67,7 @@ export default function CaptureScreen() {
 
   async function load() {
     setLoading(true);
-    try { setData(await api.capture()); } finally { setLoading(false); }
+    try { setData(await api.capture()); } catch { /* show empty state */ } finally { setLoading(false); }
   }
 
   useEffect(() => { load(); }, []);
