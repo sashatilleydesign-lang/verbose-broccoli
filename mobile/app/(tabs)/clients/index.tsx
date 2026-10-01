@@ -8,11 +8,11 @@ import {
   useColorScheme,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { Text } from "@/components/Text";
-import { ClientDot } from "@/components/ClientDot";
-import { api } from "@/lib/api";
-import { light, dark } from "@/lib/colors";
-import type { ClientSummary } from "@/lib/api";
+import { Text } from "../../../components/Text";
+import { ClientDot } from "../../../components/ClientDot";
+import { api } from "../../../lib/api";
+import { light, dark } from "../../../lib/colors";
+import type { ClientSummary } from "../../../lib/api";
 
 export default function ClientsScreen() {
   const scheme = useColorScheme();

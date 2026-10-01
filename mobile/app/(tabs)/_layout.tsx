@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router";
 import { useColorScheme } from "react-native";
-import { light, dark } from "@/lib/colors";
+import { light, dark } from "../../lib/colors";
 import Svg, { Path, Circle } from "react-native-svg";
 
 function FocusIcon({ color }: { color: string }) {

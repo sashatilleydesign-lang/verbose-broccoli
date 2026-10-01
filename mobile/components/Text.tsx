@@ -1,5 +1,5 @@
 import { Text as RNText, TextProps, StyleSheet } from "react-native";
-import { useColors } from "@/lib/colors";
+import { useColors } from "../lib/colors";
 
 type Variant = "display" | "title" | "reading" | "body" | "label" | "mono";
 

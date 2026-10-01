@@ -10,10 +10,10 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { Text } from "@/components/Text";
-import { api } from "@/lib/api";
-import { light, dark } from "@/lib/colors";
-import type { CaptureData, CaptureItem, EmailThread } from "@/lib/api";
+import { Text } from "../../components/Text";
+import { api } from "../../lib/api";
+import { light, dark } from "../../lib/colors";
+import type { CaptureData, CaptureItem, EmailThread } from "../../lib/api";
 
 function ThreadCard({ thread, onArchive, onConvert, colors }: {
   thread: EmailThread;

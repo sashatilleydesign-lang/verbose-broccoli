@@ -11,8 +11,8 @@ import {
   useColorScheme,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { api, setToken } from "@/lib/api";
-import { light, dark } from "@/lib/colors";
+import { api, setToken } from "../../lib/api";
+import { light, dark } from "../../lib/colors";
 
 export default function LoginScreen() {
   const router = useRouter();

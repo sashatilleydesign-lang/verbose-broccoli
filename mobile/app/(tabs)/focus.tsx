@@ -10,11 +10,11 @@ import {
   Modal,
   Animated,
 } from "react-native";
-import { Text } from "@/components/Text";
-import { ClientDot } from "@/components/ClientDot";
-import { api } from "@/lib/api";
-import { light, dark } from "@/lib/colors";
-import type { FocusData, Task } from "@/lib/api";
+import { Text } from "../../components/Text";
+import { ClientDot } from "../../components/ClientDot";
+import { api } from "../../lib/api";
+import { light, dark } from "../../lib/colors";
+import type { FocusData, Task } from "../../lib/api";
 
 function formatTime(seconds: number) {
   const m = Math.floor(seconds / 60).toString().padStart(2, "0");

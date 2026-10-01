@@ -6,11 +6,11 @@ import {
   ActivityIndicator,
   useColorScheme,
 } from "react-native";
-import { Text } from "@/components/Text";
-import { ClientDot } from "@/components/ClientDot";
-import { api } from "@/lib/api";
-import { light, dark } from "@/lib/colors";
-import type { ScheduleData, ScheduleItem } from "@/lib/api";
+import { Text } from "../../components/Text";
+import { ClientDot } from "../../components/ClientDot";
+import { api } from "../../lib/api";
+import { light, dark } from "../../lib/colors";
+import type { ScheduleData, ScheduleItem } from "../../lib/api";
 
 function formatHour(hour: number) {
   const h = hour % 12 || 12;

@@ -7,11 +7,11 @@ import {
   useColorScheme,
   TouchableOpacity,
 } from "react-native";
-import { Text } from "@/components/Text";
-import { ClientDot } from "@/components/ClientDot";
-import { api } from "@/lib/api";
-import { light, dark } from "@/lib/colors";
-import type { WeeklyData, Task } from "@/lib/api";
+import { Text } from "../../components/Text";
+import { ClientDot } from "../../components/ClientDot";
+import { api } from "../../lib/api";
+import { light, dark } from "../../lib/colors";
+import type { WeeklyData, Task } from "../../lib/api";
 
 function TaskRow({ task, onMarkNext, colors }: {
   task: Task;

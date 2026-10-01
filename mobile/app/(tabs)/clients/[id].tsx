@@ -8,11 +8,11 @@ import {
   useColorScheme,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Text } from "@/components/Text";
-import { ClientDot } from "@/components/ClientDot";
-import { api } from "@/lib/api";
-import { light, dark } from "@/lib/colors";
-import type { ClientDetail, Task, TimelineEntry, Project } from "@/lib/api";
+import { Text } from "../../../components/Text";
+import { ClientDot } from "../../../components/ClientDot";
+import { api } from "../../../lib/api";
+import { light, dark } from "../../../lib/colors";
+import type { ClientDetail, Task, TimelineEntry, Project } from "../../../lib/api";
 
 function TaskItem({ task, onPin, onTouch, colors }: {
   task: Task;
