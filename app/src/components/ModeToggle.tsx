@@ -39,7 +39,7 @@ export function ModeToggle() {
       aria-checked={isDark}
       aria-label="Toggle light / dark theme"
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="flex items-center gap-2 rounded-md border border-line px-2.5 py-1.5 text-[12px] font-semibold text-ink-dim hover:text-ink"
+      className="flex items-center gap-2 rounded-2xl border border-line px-2.5 py-1.5 text-[12px] font-semibold text-ink-dim hover:text-ink"
     >
       <span aria-hidden="true">{isDark ? "🌙" : "☀️"}</span>
       {isDark ? "Dark" : "Light"}

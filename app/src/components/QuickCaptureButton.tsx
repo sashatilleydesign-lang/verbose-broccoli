@@ -44,7 +44,7 @@ export function QuickCaptureButton() {
         <form
           onSubmit={handleSubmit}
           onClick={(e) => e.stopPropagation()}
-          className="shadow-panel fixed right-4 bottom-20 z-50 flex w-[min(90vw,360px)] gap-2 rounded-md border border-line bg-panel p-3"
+          className="shadow-panel fixed right-4 bottom-20 z-50 flex w-[min(90vw,360px)] gap-2 rounded-2xl border border-line bg-panel p-3"
         >
           <input
             ref={inputRef}
@@ -53,11 +53,11 @@ export function QuickCaptureButton() {
             required
             placeholder="Drop a thought…"
             aria-label="Quick capture"
-            className="min-h-10 flex-1 rounded-md border border-line bg-ground px-3 py-2 text-[14px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="min-h-10 flex-1 rounded-2xl border border-line bg-ground px-3 py-2 text-[14px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
           />
           <button
             type="submit"
-            className="min-h-10 flex-none rounded-md bg-accent px-3.5 text-[13px] font-semibold text-ground hover:opacity-90"
+            className="min-h-10 flex-none rounded-2xl bg-accent px-3.5 text-[13px] font-semibold text-ground hover:opacity-90"
           >
             Drop it
           </button>

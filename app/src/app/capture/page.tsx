@@ -21,7 +21,7 @@ export default async function CapturePage() {
         </p>
       </div>
 
-      <div className="shadow-panel rounded-md border border-line bg-panel p-6">
+      <div className="shadow-panel rounded-2xl border border-line bg-panel p-6">
         {items.length === 0 ? (
           <p className="text-[13.5px] text-ink-dim">Nothing waiting for a decision.</p>
         ) : (
@@ -34,7 +34,7 @@ export default async function CapturePage() {
               {items.map((item) => (
                 <li
                   key={item.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-dashed border-line bg-ground px-3.5 py-2.5"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-dashed border-line bg-ground px-3.5 py-2.5"
                 >
                   <span className="text-[14px] text-ink-dim">{item.text}</span>
                   <span className="flex gap-4">

@@ -47,7 +47,7 @@ function ViewTabs({ view, anchor }: { view: string; anchor: Date }) {
     { key: "month", label: "Month" },
   ];
   return (
-    <div className="flex items-center gap-1 rounded-md border border-line bg-panel p-1">
+    <div className="flex items-center gap-1 rounded-2xl border border-line bg-panel p-1">
       {tabs.map((t) => (
         <Link
           key={t.key}
@@ -68,14 +68,14 @@ function NavRow({ view, anchor, label }: { view: "day" | "week" | "month"; ancho
   const next = view === "day" ? addDays(anchor, 1) : view === "week" ? addDays(anchor, 7) : new Date(anchor.getFullYear(), anchor.getMonth() + 1, 1);
   return (
     <div className="flex items-center gap-3">
-      <Link href={viewHref(view, prev)} aria-label="Previous" className="rounded-md border border-line px-2.5 py-1.5 text-[13px] font-bold text-ink-dim hover:text-accent">
+      <Link href={viewHref(view, prev)} aria-label="Previous" className="rounded-2xl border border-line px-2.5 py-1.5 text-[13px] font-bold text-ink-dim hover:text-accent">
         ‹
       </Link>
       <span className="min-w-[11ch] text-center text-[13px] font-bold text-ink">{label}</span>
-      <Link href={viewHref(view, next)} aria-label="Next" className="rounded-md border border-line px-2.5 py-1.5 text-[13px] font-bold text-ink-dim hover:text-accent">
+      <Link href={viewHref(view, next)} aria-label="Next" className="rounded-2xl border border-line px-2.5 py-1.5 text-[13px] font-bold text-ink-dim hover:text-accent">
         ›
       </Link>
-      <Link href={viewHref(view, new Date())} className="rounded-md border border-line px-2.5 py-1.5 text-[11.5px] font-bold text-ink-dim uppercase hover:text-accent">
+      <Link href={viewHref(view, new Date())} className="rounded-2xl border border-line px-2.5 py-1.5 text-[11.5px] font-bold text-ink-dim uppercase hover:text-accent">
         Today
       </Link>
     </div>
@@ -141,7 +141,7 @@ async function DayView({ anchor, todayKey }: { anchor: Date; todayKey: string })
 
   return (
     <>
-      <div className="shadow-panel mb-8 rounded-md border border-line bg-panel">
+      <div className="shadow-panel mb-8 rounded-2xl border border-line bg-panel">
         <div className="flex items-center justify-between border-b border-line p-4">
           <h1 className="text-[15px] font-bold">{isToday ? "Today's schedule" : "Schedule"}</h1>
           <span className="text-[12px] text-ink-dim">
@@ -173,26 +173,26 @@ async function DayView({ anchor, todayKey }: { anchor: Date; todayKey: string })
         </div>
       </div>
 
-      <div className="shadow-panel mb-8 rounded-md border border-line bg-panel p-5">
+      <div className="shadow-panel mb-8 rounded-2xl border border-line bg-panel p-5">
         <p className="mb-3 text-[11.5px] font-bold tracking-wide text-ink-dim uppercase">Add a fixed event</p>
         <form action={createCalendarEvent} className="flex flex-wrap items-end gap-3">
           <div className="flex flex-col gap-1">
             <label className="text-[11px] font-bold text-ink-dim uppercase" htmlFor="title">Title</label>
-            <input id="title" name="title" required placeholder="Call — Kite Studio" className="min-h-10 rounded-md border border-line bg-ground px-3 py-2 text-[14px] text-ink" />
+            <input id="title" name="title" required placeholder="Call — Kite Studio" className="min-h-10 rounded-2xl border border-line bg-ground px-3 py-2 text-[14px] text-ink" />
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-[11px] font-bold text-ink-dim uppercase" htmlFor="date">Date</label>
-            <input id="date" name="date" type="date" required defaultValue={dateKey(anchor)} className="min-h-10 rounded-md border border-line bg-ground px-3 py-2 text-[14px] text-ink" />
+            <input id="date" name="date" type="date" required defaultValue={dateKey(anchor)} className="min-h-10 rounded-2xl border border-line bg-ground px-3 py-2 text-[14px] text-ink" />
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-[11px] font-bold text-ink-dim uppercase" htmlFor="startTime">Start</label>
-            <input id="startTime" name="startTime" type="time" required className="min-h-10 rounded-md border border-line bg-ground px-3 py-2 text-[14px] text-ink" />
+            <input id="startTime" name="startTime" type="time" required className="min-h-10 rounded-2xl border border-line bg-ground px-3 py-2 text-[14px] text-ink" />
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-[11px] font-bold text-ink-dim uppercase" htmlFor="endTime">End</label>
-            <input id="endTime" name="endTime" type="time" required className="min-h-10 rounded-md border border-line bg-ground px-3 py-2 text-[14px] text-ink" />
+            <input id="endTime" name="endTime" type="time" required className="min-h-10 rounded-2xl border border-line bg-ground px-3 py-2 text-[14px] text-ink" />
           </div>
-          <button type="submit" className="min-h-10 rounded-md bg-accent px-4 text-[13px] font-semibold text-ground hover:opacity-90">
+          <button type="submit" className="min-h-10 rounded-2xl bg-accent px-4 text-[13px] font-semibold text-ground hover:opacity-90">
             Add
           </button>
         </form>
@@ -203,7 +203,7 @@ async function DayView({ anchor, todayKey }: { anchor: Date; todayKey: string })
         {upcoming.size === 0 ? (
           <p className="text-[13.5px] text-ink-dim">Nothing scheduled beyond this day yet.</p>
         ) : (
-          <div className="shadow-panel divide-y divide-line rounded-md border border-line bg-panel">
+          <div className="shadow-panel divide-y divide-line rounded-2xl border border-line bg-panel">
             {[...upcoming.entries()].map(([day, items]) => (
               <div key={day} className="p-4">
                 <p className="mb-2 text-[12px] font-bold text-ink-dim">
@@ -264,7 +264,7 @@ async function WeekView({ anchor, todayKey }: { anchor: Date; todayKey: string }
   const totalHours = gridEndHour - gridStartHour;
 
   return (
-    <div className="shadow-panel mb-8 overflow-hidden rounded-md border border-line bg-panel">
+    <div className="shadow-panel mb-8 overflow-hidden rounded-2xl border border-line bg-panel">
       <div className="grid" style={{ gridTemplateColumns: "56px repeat(7, 1fr)" }}>
         <div className="border-b border-line" />
         {week.map((d) => (
@@ -287,7 +287,7 @@ async function MonthView({ anchor, todayKey }: { anchor: Date; todayKey: string 
   const MAX_CHIPS = 3;
 
   return (
-    <div className="shadow-panel mb-8 overflow-hidden rounded-md border border-line bg-panel">
+    <div className="shadow-panel mb-8 overflow-hidden rounded-2xl border border-line bg-panel">
       <div className="grid grid-cols-7 border-b border-line">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((w) => (
           <div key={w} className="px-2 py-2 text-center text-[10.5px] font-bold tracking-wide text-ink-dim uppercase">

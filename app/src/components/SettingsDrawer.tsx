@@ -15,7 +15,7 @@ export function SettingsDrawer({ label, children }: { label: string; children: R
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 rounded-md border border-line px-3 py-1.5 text-[12.5px] font-bold text-ink-dim hover:text-ink"
+        className="flex items-center gap-1.5 rounded-2xl border border-line px-3 py-1.5 text-[12.5px] font-bold text-ink-dim hover:text-ink"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="h-4 w-4">
           <circle cx="12" cy="12" r="3" />
@@ -34,7 +34,7 @@ export function SettingsDrawer({ label, children }: { label: string; children: R
                 type="button"
                 aria-label={`Close ${label}`}
                 onClick={() => setOpen(false)}
-                className="rounded-md p-1.5 text-ink-dim hover:text-ink"
+                className="rounded-2xl p-1.5 text-ink-dim hover:text-ink"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="h-5 w-5">
                   <path d="M6 6l12 12M18 6 6 18" />

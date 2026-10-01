@@ -71,7 +71,7 @@ export async function WorkingHoursSettings() {
               <select
                 id="ww-dayOfWeek"
                 name="dayOfWeek"
-                className="min-h-9 rounded-md border border-line bg-ground px-2 py-1.5 text-[13px] text-ink"
+                className="min-h-9 rounded-2xl border border-line bg-ground px-2 py-1.5 text-[13px] text-ink"
               >
                 {DAY_NAMES.map((name, dow) => (
                   <option key={dow} value={dow}>
@@ -89,7 +89,7 @@ export async function WorkingHoursSettings() {
                 name="startTime"
                 type="time"
                 required
-                className="min-h-9 rounded-md border border-line bg-ground px-2 py-1.5 text-[13px] text-ink"
+                className="min-h-9 rounded-2xl border border-line bg-ground px-2 py-1.5 text-[13px] text-ink"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -101,7 +101,7 @@ export async function WorkingHoursSettings() {
                 name="endTime"
                 type="time"
                 required
-                className="min-h-9 rounded-md border border-line bg-ground px-2 py-1.5 text-[13px] text-ink"
+                className="min-h-9 rounded-2xl border border-line bg-ground px-2 py-1.5 text-[13px] text-ink"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -111,7 +111,7 @@ export async function WorkingHoursSettings() {
               <select
                 id="ww-context"
                 name="context"
-                className="min-h-9 rounded-md border border-line bg-ground px-2 py-1.5 text-[13px] text-ink"
+                className="min-h-9 rounded-2xl border border-line bg-ground px-2 py-1.5 text-[13px] text-ink"
               >
                 {CONTEXT_OPTIONS.map((c) => (
                   <option key={c.value} value={c.value}>
@@ -122,7 +122,7 @@ export async function WorkingHoursSettings() {
             </div>
             <button
               type="submit"
-              className="min-h-9 rounded-md bg-accent px-3.5 text-[12.5px] font-semibold text-ground hover:opacity-90"
+              className="min-h-9 rounded-2xl bg-accent px-3.5 text-[12.5px] font-semibold text-ground hover:opacity-90"
             >
               Add window
             </button>
@@ -180,12 +180,12 @@ export async function WorkingHoursSettings() {
                   name="date"
                   type="date"
                   required
-                  className="min-h-9 rounded-md border border-line bg-ground px-2 py-1.5 text-[13px] text-ink"
+                  className="min-h-9 rounded-2xl border border-line bg-ground px-2 py-1.5 text-[13px] text-ink"
                 />
               </div>
               <button
                 type="submit"
-                className="min-h-9 rounded-md border border-line px-3 text-[12.5px] font-semibold text-ink-dim hover:text-ink"
+                className="min-h-9 rounded-2xl border border-line px-3 text-[12.5px] font-semibold text-ink-dim hover:text-ink"
               >
                 Add
               </button>
@@ -201,7 +201,7 @@ export async function WorkingHoursSettings() {
                   name="date"
                   type="date"
                   required
-                  className="min-h-9 rounded-md border border-line bg-ground px-2 py-1.5 text-[13px] text-ink"
+                  className="min-h-9 rounded-2xl border border-line bg-ground px-2 py-1.5 text-[13px] text-ink"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -213,7 +213,7 @@ export async function WorkingHoursSettings() {
                   name="startTime"
                   type="time"
                   required
-                  className="min-h-9 rounded-md border border-line bg-ground px-2 py-1.5 text-[13px] text-ink"
+                  className="min-h-9 rounded-2xl border border-line bg-ground px-2 py-1.5 text-[13px] text-ink"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -225,12 +225,12 @@ export async function WorkingHoursSettings() {
                   name="endTime"
                   type="time"
                   required
-                  className="min-h-9 rounded-md border border-line bg-ground px-2 py-1.5 text-[13px] text-ink"
+                  className="min-h-9 rounded-2xl border border-line bg-ground px-2 py-1.5 text-[13px] text-ink"
                 />
               </div>
               <button
                 type="submit"
-                className="min-h-9 rounded-md border border-line px-3 text-[12.5px] font-semibold text-ink-dim hover:text-ink"
+                className="min-h-9 rounded-2xl border border-line px-3 text-[12.5px] font-semibold text-ink-dim hover:text-ink"
               >
                 Add
               </button>

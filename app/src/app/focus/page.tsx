@@ -54,7 +54,7 @@ export default async function FocusPage({
                 key={opt.label}
                 href={href}
                 className={
-                  "min-h-8 rounded-md border px-3 py-1.5 text-[12px] font-bold transition " +
+                  "min-h-8 rounded-2xl border px-3 py-1.5 text-[12px] font-bold transition " +
                   (active
                     ? "border-accent bg-accent text-ground"
                     : "border-line bg-panel text-ink-dim hover:text-ink hover:border-ink-dim")
@@ -68,7 +68,7 @@ export default async function FocusPage({
       </div>
 
       {nextTask ? (
-        <div className="shadow-panel mb-8 flex gap-4 rounded-md border border-line border-l-3 border-l-accent bg-panel p-5">
+        <div className="shadow-panel mb-8 flex gap-4 rounded-2xl border border-line border-l-3 border-l-accent bg-panel p-5">
           <CompleteTaskButton key={nextTask.id} taskId={nextTask.id} />
           <div className="min-w-0 flex-1">
             <div className="mb-1.5 flex flex-wrap items-center gap-2">
@@ -134,10 +134,10 @@ export default async function FocusPage({
         <p className="mb-2 text-[11.5px] font-bold tracking-wide text-ink-dim uppercase">Also worth knowing</p>
       ) : null}
 
-      <div className="shadow-panel rounded-md border border-line bg-panel">
+      <div className="shadow-panel rounded-2xl border border-line bg-panel">
         {emailThread && email ? (
           <div className="flex gap-4 border-b border-line p-4">
-            <div className="flex h-9 w-9 flex-none items-center justify-center rounded-md border border-line text-[12px] font-extrabold text-ink-dim">
+            <div className="flex h-9 w-9 flex-none items-center justify-center rounded-2xl border border-line text-[12px] font-extrabold text-ink-dim">
               {email.fromName.slice(0, 2).toUpperCase()}
             </div>
             <div className="min-w-0 flex-1">

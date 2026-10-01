@@ -32,7 +32,7 @@ export function SessionOverlay({ task }: { task: Task }) {
       <form action={startSession.bind(null, task.id)}>
         <button
           type="submit"
-          className="min-h-9 rounded-md border border-line px-3 text-[12.5px] font-semibold text-ink-dim hover:text-ink"
+          className="min-h-9 rounded-2xl border border-line px-3 text-[12.5px] font-semibold text-ink-dim hover:text-ink"
         >
           Start focus session
         </button>
@@ -54,7 +54,7 @@ export function SessionOverlay({ task }: { task: Task }) {
       </p>
 
       {timeUp && !nudgeDismissed ? (
-        <div className="shadow-panel mb-8 flex items-center gap-3 rounded-md border border-line bg-panel px-4 py-3">
+        <div className="shadow-panel mb-8 flex items-center gap-3 rounded-2xl border border-line bg-panel px-4 py-3">
           <p className="text-[13.5px] text-ink-dim">Time&apos;s up — take a break if you need one, or keep going.</p>
           <button
             type="button"
@@ -76,14 +76,14 @@ export function SessionOverlay({ task }: { task: Task }) {
               showUndo({ message: "Task completed.", onUndo: () => undoCompleteTask(task.id, undo) });
             })
           }
-          className="min-h-11 rounded-md bg-accent px-5 text-[13.5px] font-semibold text-ground hover:opacity-90"
+          className="min-h-11 rounded-2xl bg-accent px-5 text-[13.5px] font-semibold text-ground hover:opacity-90"
         >
           Done
         </button>
         <button
           type="button"
           onClick={() => startTransition(() => endSession(task.id))}
-          className="min-h-11 rounded-md border border-line px-5 text-[13.5px] font-semibold text-ink-dim hover:text-ink"
+          className="min-h-11 rounded-2xl border border-line px-5 text-[13.5px] font-semibold text-ink-dim hover:text-ink"
         >
           End session
         </button>

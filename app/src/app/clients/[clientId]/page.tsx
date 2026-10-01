@@ -70,7 +70,7 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
         </p>
       </div>
 
-      <div className="shadow-panel rounded-md border border-line bg-panel p-6">
+      <div className="shadow-panel rounded-2xl border border-line bg-panel p-6">
         <div className="mb-1 flex flex-wrap items-center gap-3">
           <h1 className="flex items-center gap-2.5 text-xl font-bold">
             <ClientDot colorTag={client.colorTag} />
@@ -129,11 +129,11 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
             required
             placeholder="New project name"
             aria-label="New project name"
-            className="min-h-11 flex-1 rounded-md border border-line bg-panel px-3.5 py-2.5 text-[14px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="min-h-11 flex-1 rounded-2xl border border-line bg-panel px-3.5 py-2.5 text-[14px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
           />
           <button
             type="submit"
-            className="min-h-11 rounded-md bg-accent px-4 text-[13px] font-semibold text-ground hover:opacity-90"
+            className="min-h-11 rounded-2xl bg-accent px-4 text-[13px] font-semibold text-ground hover:opacity-90"
           >
             Add
           </button>
@@ -146,7 +146,7 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
               required
               aria-label="Project template"
               defaultValue=""
-              className="min-h-11 rounded-md border border-line bg-panel px-3 py-2.5 text-[13.5px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className="min-h-11 rounded-2xl border border-line bg-panel px-3 py-2.5 text-[13.5px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               <option value="" disabled>
                 From template…
@@ -163,11 +163,11 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
               required
               placeholder="New project name"
               aria-label="New project name from template"
-              className="min-h-11 flex-1 rounded-md border border-line bg-panel px-3.5 py-2.5 text-[14px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className="min-h-11 flex-1 rounded-2xl border border-line bg-panel px-3.5 py-2.5 text-[14px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
             />
             <button
               type="submit"
-              className="min-h-11 rounded-md border border-line px-4 text-[13px] font-semibold text-ink-dim hover:text-ink"
+              className="min-h-11 rounded-2xl border border-line px-4 text-[13px] font-semibold text-ink-dim hover:text-ink"
             >
               Use template
             </button>
@@ -195,7 +195,7 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
                 }));
 
               return (
-                <div key={project.id} className="shadow-panel rounded-md border border-line bg-panel p-4">
+                <div key={project.id} className="shadow-panel rounded-2xl border border-line bg-panel p-4">
                   <div className="mb-2.5 flex flex-wrap items-center gap-2">
                     <p className="text-[14.5px] font-semibold">{project.name}</p>
                     {project.status !== "active" ? (
@@ -217,11 +217,11 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
                           required
                           placeholder="Template name"
                           aria-label={`Template name for ${project.name}`}
-                          className="min-h-9 flex-1 rounded-md border border-line bg-ground px-3 py-1.5 text-[13.5px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                          className="min-h-9 flex-1 rounded-2xl border border-line bg-ground px-3 py-1.5 text-[13.5px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
                         />
                         <button
                           type="submit"
-                          className="min-h-9 rounded-md border border-line px-3 text-[12px] font-semibold text-ink-dim hover:text-ink"
+                          className="min-h-9 rounded-2xl border border-line px-3 text-[12px] font-semibold text-ink-dim hover:text-ink"
                         >
                           Save
                         </button>
@@ -244,11 +244,11 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
                       required
                       placeholder="New task"
                       aria-label={`New task for ${project.name}`}
-                      className="min-h-9 flex-1 rounded-md border border-line bg-ground px-3 py-1.5 text-[13.5px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                      className="min-h-9 flex-1 rounded-2xl border border-line bg-ground px-3 py-1.5 text-[13.5px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
                     />
                     <button
                       type="submit"
-                      className="min-h-9 rounded-md bg-accent px-3 text-[12px] font-semibold text-ground hover:opacity-90"
+                      className="min-h-9 rounded-2xl bg-accent px-3 text-[12px] font-semibold text-ground hover:opacity-90"
                     >
                       Add
                     </button>

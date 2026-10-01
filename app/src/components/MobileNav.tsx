@@ -19,7 +19,7 @@ export function MobileNav() {
           type="button"
           aria-label="Open menu"
           onClick={() => setOpen(true)}
-          className="rounded-md p-1.5 text-ink-dim hover:text-ink"
+          className="rounded-2xl p-1.5 text-ink-dim hover:text-ink"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="h-6 w-6">
             <path d="M3 6h18M3 12h18M3 18h18" />
@@ -28,7 +28,7 @@ export function MobileNav() {
         <p className="text-base font-bold">
           Strobe<span className="text-accent">.</span>
         </p>
-        <button type="button" aria-label="Search" onClick={openQuickJump} className="rounded-md p-1.5 text-ink-dim hover:text-ink">
+        <button type="button" aria-label="Search" onClick={openQuickJump} className="rounded-2xl p-1.5 text-ink-dim hover:text-ink">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="h-5 w-5">
             <circle cx="11" cy="11" r="7" />
             <path d="m20 20-3.5-3.5" />
@@ -53,7 +53,7 @@ export function MobileNav() {
                 type="button"
                 aria-label="Close menu"
                 onClick={() => setOpen(false)}
-                className="rounded-md p-1.5 text-ink-dim hover:text-ink"
+                className="rounded-2xl p-1.5 text-ink-dim hover:text-ink"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="h-5 w-5">
                   <path d="M6 6l12 12M18 6 6 18" />
@@ -71,7 +71,7 @@ export function MobileNav() {
                     href={item.href}
                     onClick={() => setOpen(false)}
                     className={
-                      "flex items-center gap-3 rounded-md px-3 py-3 text-[15px] font-semibold transition " +
+                      "flex items-center gap-3 rounded-2xl px-3 py-3 text-[15px] font-semibold transition " +
                       (active ? "bg-accent-dim text-accent" : "text-ink-dim hover:bg-ground hover:text-ink")
                     }
                   >
@@ -87,7 +87,7 @@ export function MobileNav() {
               <form action={logout}>
                 <button
                   type="submit"
-                  className="w-full rounded-md px-3 py-2 text-left text-[13px] font-semibold text-ink-dim hover:text-ink"
+                  className="w-full rounded-2xl px-3 py-2 text-left text-[13px] font-semibold text-ink-dim hover:text-ink"
                 >
                   Sign out
                 </button>

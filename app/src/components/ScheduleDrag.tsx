@@ -125,7 +125,7 @@ function QuickAddPopover({
 
   return (
     <div
-      className="shadow-panel absolute z-30 rounded-md border border-accent bg-panel p-1.5"
+      className="shadow-panel absolute z-30 rounded-2xl border border-accent bg-panel p-1.5"
       style={style}
       onPointerDown={(e) => e.stopPropagation()}
     >
@@ -344,10 +344,16 @@ export function DayDragItems({ items, gridStart, rowH }: { items: ScheduleItem[]
             onPointerDown={(e) => onDown(e, item)}
             onPointerMove={(e) => onMove(e, item)}
             onPointerUp={() => onUp(item)}
-            className={`absolute right-1 left-1 overflow-hidden rounded-md border px-3 py-1.5 select-none ${kindClasses(kind)} ${
+            className={`absolute right-1 left-1 overflow-hidden rounded-2xl border px-3 py-1.5 select-none ${kindClasses(kind)} ${
               item.kind !== "fixed" ? "cursor-grab touch-none active:cursor-grabbing" : ""
             } ${dragging || resizing ? "z-10 opacity-90 shadow-lg" : ""}`}
-            style={{ top, height }}
+            style={{
+              top,
+              height,
+              ...(item.clientColor && kind === "movable"
+                ? { backgroundColor: item.clientColor + "28", borderColor: item.clientColor + "66" }
+                : {}),
+            }}
           >
             {/* Rendered before the title/detail content (not after), so
                 where the two visually overlap on a very short block —
@@ -363,7 +369,7 @@ export function DayDragItems({ items, gridStart, rowH }: { items: ScheduleItem[]
             ) : null}
             <div className="flex min-w-0 items-start justify-between gap-2">
               <ScheduleItemTitle
-                item={item}
+                item={{ ...item, title: item.clientName ? `${item.clientName} – ${item.title}` : item.title }}
                 icon={kind === "fixed" ? "🔒 " : kind === "atRisk" ? "⚠ " : ""}
                 className={`min-w-0 truncate text-[12.5px] font-bold ${kind === "atRisk" ? "text-ground" : "text-ink"}`}
               />
@@ -375,11 +381,6 @@ export function DayDragItems({ items, gridStart, rowH }: { items: ScheduleItem[]
               <span>
                 {fmtTime(item.start)}–{fmtTime(item.end)}
               </span>
-              {item.clientName ? (
-                <span className="inline-flex items-center gap-1">
-                  · {item.clientColor ? <ClientDot colorTag={item.clientColor} /> : null} {item.clientName}
-                </span>
-              ) : null}
               {item.partTotal ? (
                 <span>
                   · Part {item.partIndex} of {item.partTotal}
@@ -606,6 +607,9 @@ export function WeekDragGrid({
               height,
               left: `calc(56px + (100% - 56px) * ${colIndex} / 7 + 2px)`,
               width: `calc((100% - 56px) / 7 - 4px)`,
+              ...(item.clientColor && kind === "movable"
+                ? { backgroundColor: item.clientColor + "28", borderColor: item.clientColor + "66" }
+                : {}),
             }}
           >
             {/* Rendered before the title (not after) so a narrow block
@@ -620,7 +624,7 @@ export function WeekDragGrid({
               />
             ) : null}
             <ScheduleItemTitle
-              item={item}
+              item={{ ...item, title: item.clientName ? `${item.clientName} – ${item.title}` : item.title }}
               icon={kind === "fixed" ? "🔒 " : kind === "atRisk" ? "⚠ " : ""}
               className={`block w-full truncate text-[10.5px] font-bold ${kind === "atRisk" ? "text-ground" : "text-ink"}`}
             />

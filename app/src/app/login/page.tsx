@@ -8,7 +8,7 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-ground px-5">
-      <form action={formAction} className="w-full max-w-sm rounded-md border border-line bg-panel p-7 shadow-panel">
+      <form action={formAction} className="w-full max-w-sm rounded-2xl border border-line bg-panel p-7 shadow-panel">
         <p className="text-xl font-bold">
           Strobe<span className="text-accent">.</span>
         </p>
@@ -23,7 +23,7 @@ export default function LoginPage() {
           type="email"
           required
           autoFocus
-          className="mb-4 w-full rounded-md border border-line bg-ground px-4 py-3 text-[15px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="mb-4 w-full rounded-2xl border border-line bg-ground px-4 py-3 text-[15px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
         />
 
         <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-ink-dim" htmlFor="password">
@@ -34,7 +34,7 @@ export default function LoginPage() {
           name="password"
           type="password"
           required
-          className="mb-5 w-full rounded-md border border-line bg-ground px-4 py-3 text-[15px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="mb-5 w-full rounded-2xl border border-line bg-ground px-4 py-3 text-[15px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
         />
 
         {state?.error ? <p className="mb-4 text-sm text-accent">{state.error}</p> : null}
@@ -42,7 +42,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={pending}
-          className="min-h-11 w-full rounded-md bg-accent font-semibold text-ground transition hover:opacity-90 disabled:opacity-60"
+          className="min-h-11 w-full rounded-2xl bg-accent font-semibold text-ground transition hover:opacity-90 disabled:opacity-60"
         >
           {pending ? "Signing in…" : "Sign in"}
         </button>

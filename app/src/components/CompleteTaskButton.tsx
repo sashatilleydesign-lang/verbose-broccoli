@@ -24,7 +24,7 @@ export function CompleteTaskButton({ taskId }: { taskId: string }) {
         });
       }}
       className={
-        "h-8.5 w-8.5 flex flex-none items-center justify-center rounded-md border-2 transition " +
+        "h-8.5 w-8.5 flex flex-none items-center justify-center rounded-2xl border-2 transition " +
         (done ? "border-accent bg-accent" : "border-accent bg-transparent hover:bg-accent/10")
       }
     >

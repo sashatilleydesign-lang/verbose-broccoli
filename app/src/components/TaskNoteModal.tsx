@@ -47,7 +47,7 @@ function NoteEditor({ target }: { target: NoteTarget }) {
 
   return (
     <div
-      className="shadow-panel w-full max-w-lg rounded-md border border-line bg-panel p-5"
+      className="shadow-panel w-full max-w-lg rounded-2xl border border-line bg-panel p-5"
       onClick={(e) => e.stopPropagation()}
     >
       <p className="mb-1 text-[11px] font-bold tracking-wide text-ink-dim uppercase">Note</p>
@@ -58,7 +58,7 @@ function NoteEditor({ target }: { target: NoteTarget }) {
         onChange={(e) => setDraft(e.target.value)}
         placeholder="Nothing written yet — add context, a brief, or anything worth remembering about this task."
         rows={8}
-        className="min-h-32 w-full resize-y rounded-md border border-line bg-ground p-3 text-[14px] leading-relaxed text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="min-h-32 w-full resize-y rounded-2xl border border-line bg-ground p-3 text-[14px] leading-relaxed text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
       />
 
       <div className="mt-3 flex items-center gap-2.5">
@@ -73,7 +73,7 @@ function NoteEditor({ target }: { target: NoteTarget }) {
           // Self-imposed only — never used for at-risk logic (§7), so
           // there's no reason to restrict it to future dates the way a
           // real deadline picker might.
-          className="min-h-9 rounded-md border border-line bg-ground px-2.5 py-1.5 text-[13px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="min-h-9 rounded-2xl border border-line bg-ground px-2.5 py-1.5 text-[13px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
         />
         {targetDate ? (
           <button
@@ -90,14 +90,14 @@ function NoteEditor({ target }: { target: NoteTarget }) {
         <button
           type="button"
           onClick={closeTaskNote}
-          className="min-h-9 rounded-md border border-line px-4 text-[13px] font-semibold text-ink-dim hover:text-ink"
+          className="min-h-9 rounded-2xl border border-line px-4 text-[13px] font-semibold text-ink-dim hover:text-ink"
         >
           Cancel
         </button>
         <button
           type="button"
           onClick={handleSave}
-          className="min-h-9 rounded-md bg-accent px-4 text-[13px] font-semibold text-ground hover:opacity-90"
+          className="min-h-9 rounded-2xl bg-accent px-4 text-[13px] font-semibold text-ground hover:opacity-90"
         >
           Save
         </button>

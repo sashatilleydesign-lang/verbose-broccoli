@@ -28,7 +28,7 @@ export default async function WeeklyReviewPage() {
           <p className="mb-3 text-[11.5px] font-bold tracking-wide text-ink-dim uppercase">
             Stuck — flagged, not nagged
           </p>
-          <div className="shadow-panel divide-y divide-line rounded-md border border-line bg-panel">
+          <div className="shadow-panel divide-y divide-line rounded-2xl border border-line bg-panel">
             {stuck.map((task) => (
               <div key={task.id} className="flex flex-wrap items-center gap-4 p-4">
                 <div className="min-w-[220px] flex-1 text-[14.5px]">
@@ -45,7 +45,7 @@ export default async function WeeklyReviewPage() {
                 </div>
                 <div className="flex flex-wrap items-center gap-4">
                   <form action={markAsNext.bind(null, task.id)}>
-                    <button type="submit" className="min-h-8 rounded-md border border-accent px-3 text-[12px] font-bold text-accent hover:bg-accent hover:text-ground">
+                    <button type="submit" className="min-h-8 rounded-2xl border border-accent px-3 text-[12px] font-bold text-accent hover:bg-accent hover:text-ground">
                       Make it next
                     </button>
                   </form>
@@ -78,7 +78,7 @@ export default async function WeeklyReviewPage() {
           <p className="mb-3 text-[11.5px] font-bold tracking-wide text-ink-dim uppercase">
             Waiting on someone else
           </p>
-          <div className="shadow-panel divide-y divide-line rounded-md border border-line bg-panel">
+          <div className="shadow-panel divide-y divide-line rounded-2xl border border-line bg-panel">
             {waiting.map((task) => (
               <div key={task.id} className="flex flex-wrap items-center gap-4 p-4">
                 <div className="min-w-[220px] flex-1 text-[14.5px]">
@@ -95,7 +95,7 @@ export default async function WeeklyReviewPage() {
                 </div>
                 <div className="flex flex-wrap items-center gap-4">
                   <form action={markAsNext.bind(null, task.id)}>
-                    <button type="submit" className="min-h-8 rounded-md border border-accent px-3 text-[12px] font-bold text-accent hover:bg-accent hover:text-ground">
+                    <button type="submit" className="min-h-8 rounded-2xl border border-accent px-3 text-[12px] font-bold text-accent hover:bg-accent hover:text-ground">
                       Resolved — make next
                     </button>
                   </form>
@@ -128,7 +128,7 @@ export default async function WeeklyReviewPage() {
           <p className="mb-3 text-[11.5px] font-bold tracking-wide text-ink-dim uppercase">
             Projects without a next action
           </p>
-          <div className="shadow-panel divide-y divide-line rounded-md border border-line bg-panel">
+          <div className="shadow-panel divide-y divide-line rounded-2xl border border-line bg-panel">
             {noNextAction.map((project) => (
               <div key={project.id} className="flex flex-wrap items-center gap-4 p-4">
                 <div className="min-w-[220px] flex-1 text-[14.5px]">
@@ -140,7 +140,7 @@ export default async function WeeklyReviewPage() {
                 </div>
                 {project.tasks[0] ? (
                   <form action={markAsNext.bind(null, project.tasks[0].id)}>
-                    <button type="submit" className="min-h-8 rounded-md border border-accent px-3 text-[12px] font-bold text-accent hover:bg-accent hover:text-ground">
+                    <button type="submit" className="min-h-8 rounded-2xl border border-accent px-3 text-[12px] font-bold text-accent hover:bg-accent hover:text-ground">
                       Set next action
                     </button>
                   </form>

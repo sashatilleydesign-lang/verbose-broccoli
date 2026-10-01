@@ -57,7 +57,7 @@ export function ClientProfileCard({ clientId, profile }: { clientId: string; pro
           setEditing(false);
         });
       }}
-      className="mb-4 flex flex-wrap items-end gap-2.5 rounded-md border border-line bg-ground p-3"
+      className="mb-4 flex flex-wrap items-end gap-2.5 rounded-2xl border border-line bg-ground p-3"
     >
       <div className="flex flex-col gap-1">
         <label className="text-[11px] font-bold text-ink-dim uppercase" htmlFor="cp-email">
@@ -68,7 +68,7 @@ export function ClientProfileCard({ clientId, profile }: { clientId: string; pro
           name="contactEmail"
           type="email"
           defaultValue={profile.contactEmail ?? ""}
-          className="min-h-9 rounded-md border border-line bg-panel px-2 py-1.5 text-[13px] text-ink"
+          className="min-h-9 rounded-2xl border border-line bg-panel px-2 py-1.5 text-[13px] text-ink"
         />
       </div>
       <div className="flex flex-col gap-1">
@@ -80,7 +80,7 @@ export function ClientProfileCard({ clientId, profile }: { clientId: string; pro
           name="contactPhone"
           type="text"
           defaultValue={profile.contactPhone ?? ""}
-          className="min-h-9 rounded-md border border-line bg-panel px-2 py-1.5 text-[13px] text-ink"
+          className="min-h-9 rounded-2xl border border-line bg-panel px-2 py-1.5 text-[13px] text-ink"
         />
       </div>
       <div className="flex flex-col gap-1">
@@ -93,7 +93,7 @@ export function ClientProfileCard({ clientId, profile }: { clientId: string; pro
           type="text"
           placeholder="$120/hr"
           defaultValue={profile.rate ?? ""}
-          className="min-h-9 w-28 rounded-md border border-line bg-panel px-2 py-1.5 text-[13px] text-ink"
+          className="min-h-9 w-28 rounded-2xl border border-line bg-panel px-2 py-1.5 text-[13px] text-ink"
         />
       </div>
       <div className="flex min-w-[220px] flex-1 flex-col gap-1">
@@ -106,7 +106,7 @@ export function ClientProfileCard({ clientId, profile }: { clientId: string; pro
           type="text"
           placeholder="Relationship notes…"
           defaultValue={profile.notes ?? ""}
-          className="min-h-9 w-full rounded-md border border-line bg-panel px-2 py-1.5 text-[13px] text-ink"
+          className="min-h-9 w-full rounded-2xl border border-line bg-panel px-2 py-1.5 text-[13px] text-ink"
         />
       </div>
       <div className="flex flex-col gap-1">
@@ -128,7 +128,7 @@ export function ClientProfileCard({ clientId, profile }: { clientId: string; pro
       <button
         type="submit"
         disabled={pending}
-        className="min-h-9 rounded-md bg-accent px-3.5 text-[12.5px] font-semibold text-ground hover:opacity-90 disabled:opacity-60"
+        className="min-h-9 rounded-2xl bg-accent px-3.5 text-[12.5px] font-semibold text-ground hover:opacity-90 disabled:opacity-60"
       >
         {pending ? "Saving…" : "Save"}
       </button>
@@ -138,7 +138,7 @@ export function ClientProfileCard({ clientId, profile }: { clientId: string; pro
           setColorTag(profile.colorTag);
           setEditing(false);
         }}
-        className="min-h-9 rounded-md border border-line px-3 text-[12.5px] font-semibold text-ink-dim hover:text-ink"
+        className="min-h-9 rounded-2xl border border-line px-3 text-[12.5px] font-semibold text-ink-dim hover:text-ink"
       >
         Cancel
       </button>

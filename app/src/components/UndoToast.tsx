@@ -18,7 +18,7 @@ export function UndoToast() {
 
   return (
     <div className="fixed bottom-4 left-4 z-40 md:left-[248px]">
-      <div className="shadow-panel flex items-center gap-4 rounded-md border border-line bg-panel px-4 py-3">
+      <div className="shadow-panel flex items-center gap-4 rounded-2xl border border-line bg-panel px-4 py-3">
         <p className="text-[13.5px] text-ink">{active.message}</p>
         <button
           type="button"

@@ -84,7 +84,7 @@ function TaskEditor({ target }: { target: EditTarget }) {
 
   return (
     <div
-      className="shadow-panel my-auto w-full max-w-lg rounded-md border border-line bg-panel p-5"
+      className="shadow-panel my-auto w-full max-w-lg rounded-2xl border border-line bg-panel p-5"
       onClick={(e) => e.stopPropagation()}
     >
       <p className="mb-1 text-[11px] font-bold tracking-wide text-ink-dim uppercase">Edit task</p>
@@ -107,7 +107,7 @@ function TaskEditor({ target }: { target: EditTarget }) {
               type="button"
               onClick={() => setState(opt.value)}
               className={
-                "min-h-8 rounded-md border px-3 py-1.5 text-[12px] font-bold transition " +
+                "min-h-8 rounded-2xl border px-3 py-1.5 text-[12px] font-bold transition " +
                 (state === opt.value
                   ? "border-accent bg-accent text-ground"
                   : "border-line bg-ground text-ink-dim hover:border-ink-dim hover:text-ink")
@@ -136,7 +136,7 @@ function TaskEditor({ target }: { target: EditTarget }) {
               type="button"
               onClick={() => setEnergy(opt.value)}
               className={
-                "min-h-8 rounded-md border px-3 py-1.5 text-[12px] font-bold capitalize transition " +
+                "min-h-8 rounded-2xl border px-3 py-1.5 text-[12px] font-bold capitalize transition " +
                 (energy === opt.value
                   ? "border-accent bg-accent text-ground"
                   : "border-line bg-ground text-ink-dim hover:border-ink-dim hover:text-ink")
@@ -166,7 +166,7 @@ function TaskEditor({ target }: { target: EditTarget }) {
               type="button"
               onClick={() => setContext(opt.value)}
               className={
-                "min-h-8 rounded-md border px-3 py-1.5 text-[12px] font-bold transition " +
+                "min-h-8 rounded-2xl border px-3 py-1.5 text-[12px] font-bold transition " +
                 (context === opt.value
                   ? "border-accent bg-accent text-ground"
                   : "border-line bg-ground text-ink-dim hover:border-ink-dim hover:text-ink")
@@ -193,7 +193,7 @@ function TaskEditor({ target }: { target: EditTarget }) {
           value={estimate}
           onChange={(e) => setEstimate(e.target.value)}
           placeholder="e.g. 30"
-          className="min-h-9 w-32 rounded-md border border-line bg-ground px-3 py-1.5 text-[14px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="min-h-9 w-32 rounded-2xl border border-line bg-ground px-3 py-1.5 text-[14px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
         />
       </div>
 
@@ -211,7 +211,7 @@ function TaskEditor({ target }: { target: EditTarget }) {
             type="date"
             value={dueDate}
             onChange={(e) => handleDueDateChange(e.target.value)}
-            className="min-h-9 rounded-md border border-line bg-ground px-3 py-1.5 text-[13px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="min-h-9 rounded-2xl border border-line bg-ground px-3 py-1.5 text-[13px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
           />
           {dueDate ? (
             <>
@@ -222,7 +222,7 @@ function TaskEditor({ target }: { target: EditTarget }) {
                     type="button"
                     onClick={() => setDeadlineType(d)}
                     className={
-                      "min-h-8 rounded-md border px-3 py-1.5 text-[12px] font-bold capitalize transition " +
+                      "min-h-8 rounded-2xl border px-3 py-1.5 text-[12px] font-bold capitalize transition " +
                       ((deadlineType ?? "soft") === d
                         ? "border-accent bg-accent text-ground"
                         : "border-line bg-ground text-ink-dim hover:border-ink-dim hover:text-ink")
@@ -250,14 +250,14 @@ function TaskEditor({ target }: { target: EditTarget }) {
           <button
             type="button"
             onClick={closeTaskEdit}
-            className="min-h-9 rounded-md border border-line px-4 text-[13px] font-semibold text-ink-dim hover:text-ink"
+            className="min-h-9 rounded-2xl border border-line px-4 text-[13px] font-semibold text-ink-dim hover:text-ink"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleSave}
-            className="min-h-9 rounded-md bg-accent px-4 text-[13px] font-semibold text-ground hover:opacity-90"
+            className="min-h-9 rounded-2xl bg-accent px-4 text-[13px] font-semibold text-ground hover:opacity-90"
           >
             Save
           </button>

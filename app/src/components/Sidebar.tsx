@@ -22,7 +22,7 @@ export function Sidebar() {
         <button
           type="button"
           onClick={openQuickJump}
-          className="flex w-full items-center justify-between rounded-md border border-line px-3 py-2 text-[13px] font-medium text-ink-dim hover:text-ink"
+          className="flex w-full items-center justify-between rounded-2xl border border-line px-3 py-2 text-[13px] font-medium text-ink-dim hover:text-ink"
         >
           Search
           <span className="font-mono-strobe text-[11px] text-ink-dim">⌘K</span>
@@ -38,7 +38,7 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={
-                "flex items-center gap-3 rounded-md px-3 py-2.5 text-[13.5px] font-semibold transition " +
+                "flex items-center gap-3 rounded-2xl px-3 py-2.5 text-[13.5px] font-semibold transition " +
                 (active ? "bg-accent-dim text-accent" : "text-ink-dim hover:bg-ground hover:text-ink")
               }
             >
@@ -54,7 +54,7 @@ export function Sidebar() {
         <form action={logout}>
           <button
             type="submit"
-            className="w-full rounded-md px-3 py-2 text-left text-[13px] font-semibold text-ink-dim hover:text-ink"
+            className="w-full rounded-2xl px-3 py-2 text-left text-[13px] font-semibold text-ink-dim hover:text-ink"
           >
             Sign out
           </button>

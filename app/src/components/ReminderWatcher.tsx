@@ -77,7 +77,7 @@ export function ReminderWatcher() {
       {toasts.map((t) => (
         <div
           key={t.toastId}
-          className="shadow-panel flex max-w-xs items-start gap-2.5 rounded-md border border-line bg-panel px-4 py-3"
+          className="shadow-panel flex max-w-xs items-start gap-2.5 rounded-2xl border border-line bg-panel px-4 py-3"
         >
           <span className="mt-0.5 text-[13px]">{t.kind === "atRisk" ? "⚠" : "⏰"}</span>
           <div className="min-w-0 flex-1">

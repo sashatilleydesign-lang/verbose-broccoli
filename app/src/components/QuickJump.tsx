@@ -95,7 +95,7 @@ export function QuickJump() {
         onClick={handleClose}
         className="absolute inset-0 bg-black/30"
       />
-      <div className="shadow-panel relative w-full max-w-lg overflow-hidden rounded-md border border-line bg-panel">
+      <div className="shadow-panel relative w-full max-w-lg overflow-hidden rounded-2xl border border-line bg-panel">
         <input
           ref={inputRef}
           type="text"
@@ -126,7 +126,7 @@ export function QuickJump() {
                   key={link.href}
                   href={link.href}
                   onClick={handleNavigate}
-                  className="block rounded-md px-2.5 py-2 text-[14px] font-medium text-ink hover:bg-ground"
+                  className="block rounded-2xl px-2.5 py-2 text-[14px] font-medium text-ink hover:bg-ground"
                 >
                   {link.label}
                 </Link>
@@ -142,7 +142,7 @@ export function QuickJump() {
                     });
                     handleClose();
                   }}
-                  className="block w-full rounded-md px-2.5 py-2 text-left text-[14px] font-medium text-ink hover:bg-ground"
+                  className="block w-full rounded-2xl px-2.5 py-2 text-left text-[14px] font-medium text-ink hover:bg-ground"
                 >
                   Mark &ldquo;{nextTask.title}&rdquo; done
                 </button>
@@ -173,7 +173,7 @@ function ResultGroup({
           key={item.id}
           href={resultHref(item.clientId)}
           onClick={onNavigate}
-          className="block truncate rounded-md px-2.5 py-2 text-[14px] font-medium text-ink hover:bg-ground"
+          className="block truncate rounded-2xl px-2.5 py-2 text-[14px] font-medium text-ink hover:bg-ground"
         >
           {item.label}
         </Link>

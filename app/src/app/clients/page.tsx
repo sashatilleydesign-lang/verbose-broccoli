@@ -32,11 +32,11 @@ export default async function ClientsPage() {
           required
           placeholder="New client name"
           aria-label="New client name"
-          className="min-h-11 flex-1 rounded-md border border-line bg-panel px-3.5 py-2.5 text-[14px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="min-h-11 flex-1 rounded-2xl border border-line bg-panel px-3.5 py-2.5 text-[14px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent"
         />
         <button
           type="submit"
-          className="min-h-11 rounded-md bg-accent px-4 text-[13px] font-semibold text-ground hover:opacity-90"
+          className="min-h-11 rounded-2xl bg-accent px-4 text-[13px] font-semibold text-ground hover:opacity-90"
         >
           Add
         </button>
@@ -45,7 +45,7 @@ export default async function ClientsPage() {
       {clients.length === 0 ? (
         <p className="text-[13.5px] text-ink-dim">No clients yet.</p>
       ) : (
-        <div className="shadow-panel divide-y divide-line rounded-md border border-line bg-panel">
+        <div className="shadow-panel divide-y divide-line rounded-2xl border border-line bg-panel">
           {clients.map((client) => (
             <Link
               key={client.id}

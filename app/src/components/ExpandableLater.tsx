@@ -33,7 +33,7 @@ export function ExpandableLater({ tasks }: { tasks: LaterTask[] }) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="min-h-10 rounded-md border border-dashed border-line px-4 py-2.5 text-[13px] font-bold text-ink-dim hover:border-accent hover:text-ink"
+        className="min-h-10 rounded-2xl border border-dashed border-line px-4 py-2.5 text-[13px] font-bold text-ink-dim hover:border-accent hover:text-ink"
       >
         {open ? "– hide the rest" : `+ ${tasks.length} more, not next yet — show them`}
       </button>
