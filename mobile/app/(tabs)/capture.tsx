@@ -17,8 +17,8 @@ import type { CaptureData, CaptureItem, EmailThread } from "../../lib/api";
 
 function ThreadCard({ thread, onArchive, onConvert, colors }: {
   thread: EmailThread;
-  onArchive: (id: number) => void;
-  onConvert: (id: number) => void;
+  onArchive: (id: string) => void;
+  onConvert: (id: string) => void;
   colors: typeof light;
 }) {
   return (
@@ -84,12 +84,12 @@ export default function CaptureScreen() {
     }
   }
 
-  async function handleArchive(threadId: number) {
+  async function handleArchive(threadId: string) {
     await api.archiveThread(threadId).catch(() => {});
     load();
   }
 
-  async function handleConvert(threadId: number) {
+  async function handleConvert(threadId: string) {
     await api.convertThread(threadId).catch(() => {});
     load();
   }

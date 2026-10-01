@@ -6,7 +6,6 @@ import {
   StyleSheet,
   ActivityIndicator,
   useColorScheme,
-  Pressable,
   Modal,
   Animated,
 } from "react-native";

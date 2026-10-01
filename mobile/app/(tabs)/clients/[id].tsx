@@ -57,12 +57,12 @@ export default function ClientDetailScreen() {
 
   useEffect(() => { load(); }, [id]);
 
-  async function handlePin(taskId: number) {
+  async function handlePin(taskId: string) {
     await api.markAsNext(taskId).catch(() => {});
     load();
   }
 
-  async function handleTouch(taskId: number) {
+  async function handleTouch(taskId: string) {
     await api.touchTask(taskId).catch(() => {});
     load();
   }
