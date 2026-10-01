@@ -20,11 +20,11 @@ async function main() {
   await prisma.project.deleteMany();
   await prisma.client.deleteMany();
 
-  const lumen = await prisma.client.create({ data: { name: "Lumen Skincare", colorTag: "#ff4b1f" } });
-  const nova = await prisma.client.create({ data: { name: "Nova Coffee Co.", colorTag: "#00c875" } });
-  const bramble = await prisma.client.create({ data: { name: "Bramble & Co.", colorTag: "#579bfc" } });
-  const kite = await prisma.client.create({ data: { name: "Kite Studio", colorTag: "#a25ddc" } });
-  const personal = await prisma.client.create({ data: { name: "Personal", colorTag: "#fdab3d" } });
+  const lumen = await prisma.client.create({ data: { name: "Lumen Skincare", colorTag: "#8a90e8" } });
+  const nova = await prisma.client.create({ data: { name: "Nova Coffee Co.", colorTag: "#d9a94a" } });
+  const bramble = await prisma.client.create({ data: { name: "Bramble & Co.", colorTag: "#5b9fd6" } });
+  const kite = await prisma.client.create({ data: { name: "Kite Studio", colorTag: "#b784e0" } });
+  const personal = await prisma.client.create({ data: { name: "Personal", colorTag: "#4fb3a4" } });
 
   // --- Lumen Skincare: the 10-ad batch, extracted from a brief ---
   const lumenThread = await prisma.emailThread.create({

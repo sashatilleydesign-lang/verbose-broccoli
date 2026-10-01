@@ -13,7 +13,7 @@ function formatClock(totalSeconds: number) {
   const abs = Math.abs(totalSeconds);
   const m = Math.floor(abs / 60);
   const s = abs % 60;
-  return `${sign}${m}:${String(s).padStart(2, "0")}`;
+  return `${sign}${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
 export function SessionOverlay({ task }: { task: Task }) {
@@ -32,8 +32,11 @@ export function SessionOverlay({ task }: { task: Task }) {
       <form action={startSession.bind(null, task.id)}>
         <button
           type="submit"
-          className="min-h-9 rounded-2xl border border-line px-3 text-[12.5px] font-semibold text-ink-dim hover:text-ink"
+          className="inline-flex items-center gap-2 rounded-2xl bg-accent px-4 py-2.5 text-[13px] font-semibold text-white hover:opacity-90"
         >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">
+            <path d="M2 1.5L10 6 2 10.5V1.5Z" />
+          </svg>
           Start focus session
         </button>
       </form>
@@ -43,50 +46,86 @@ export function SessionOverlay({ task }: { task: Task }) {
   const durationSeconds = (task.estimatedMinutes ?? DEFAULT_MINUTES) * 60;
   const elapsedSeconds = Math.floor((now - task.startedAt.getTime()) / 1000);
   const remaining = durationSeconds - elapsedSeconds;
+  const progress = Math.min(elapsedSeconds / durationSeconds, 1);
   const timeUp = remaining <= 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-ground px-6">
-      <p className="mb-3 text-[12px] font-bold tracking-wide text-ink-dim uppercase">Focus session</p>
-      <p className="mb-8 max-w-lg text-center text-[22px] font-bold leading-snug">{task.title}</p>
-      <p className={`font-mono-strobe mb-10 text-[56px] font-bold ${timeUp ? "text-ink-dim" : "text-ink"}`}>
-        {formatClock(remaining)}
-      </p>
-
-      {timeUp && !nudgeDismissed ? (
-        <div className="shadow-panel mb-8 flex items-center gap-3 rounded-2xl border border-line bg-panel px-4 py-3">
-          <p className="text-[13.5px] text-ink-dim">Time&apos;s up — take a break if you need one, or keep going.</p>
-          <button
-            type="button"
-            aria-label="Dismiss"
-            onClick={() => setNudgeDismissed(true)}
-            className="text-[13px] font-bold text-ink-dim hover:text-ink"
-          >
-            ✕
-          </button>
-        </div>
-      ) : null}
-
-      <div className="flex gap-3">
-        <button
-          type="button"
-          onClick={() =>
-            startTransition(async () => {
-              const undo = await completeTask(task.id);
-              showUndo({ message: "Task completed.", onUndo: () => undoCompleteTask(task.id, undo) });
-            })
-          }
-          className="min-h-11 rounded-2xl bg-accent px-5 text-[13.5px] font-semibold text-ground hover:opacity-90"
-        >
-          Done
-        </button>
+    <div className="fixed inset-0 z-50 flex flex-col bg-[#141210]">
+      {/* Header strip */}
+      <div className="flex items-center justify-between px-8 py-5">
+        <p className="text-[17px] font-semibold text-[#f0ede4]">
+          Strobe<span className="text-[#ff5a30]">.</span>
+        </p>
         <button
           type="button"
           onClick={() => startTransition(() => endSession(task.id))}
-          className="min-h-11 rounded-2xl border border-line px-5 text-[13.5px] font-semibold text-ink-dim hover:text-ink"
+          className="flex items-center gap-2 text-[12px] font-semibold text-[#8a8778] hover:text-[#f0ede4]"
         >
-          End session
+          <kbd className="rounded border border-[rgba(255,255,255,0.15)] px-1.5 py-0.5 font-mono text-[10px]">Esc</kbd>
+          end session
         </button>
+      </div>
+
+      {/* Main content — vertically centred */}
+      <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
+        <p className="font-mono-strobe mb-6 text-[10.5px] font-semibold tracking-widest text-[#8a8778] uppercase">
+          Focus session
+        </p>
+
+        <h1 className="font-display mb-10 max-w-2xl text-[42px] text-[#f0ede4]">{task.title}</h1>
+
+        {/* Countdown */}
+        <p className={`font-countdown text-[120px] leading-none tracking-tight ${timeUp ? "text-[#8a8778]" : "text-[#f0ede4]"}`}>
+          {formatClock(remaining)}
+        </p>
+
+        {/* Progress bar */}
+        <div className="mt-6 mb-3 h-px w-80 bg-[rgba(255,255,255,0.12)]">
+          <div
+            className="h-full bg-[#ff5a30] transition-all duration-1000"
+            style={{ width: `${progress * 100}%` }}
+          />
+        </div>
+
+        <p className="font-mono-strobe mb-12 text-[10.5px] text-[#8a8778]">
+          LEFT OF {String(task.estimatedMinutes ?? DEFAULT_MINUTES).padStart(2, "0")}:00
+        </p>
+
+        {timeUp && !nudgeDismissed ? (
+          <div className="mb-8 flex items-center gap-3 rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[#1e1c18] px-4 py-3">
+            <p className="text-[13.5px] text-[#8a8778]">Time&apos;s up — take a break, or keep going.</p>
+            <button
+              type="button"
+              aria-label="Dismiss"
+              onClick={() => setNudgeDismissed(true)}
+              className="text-[13px] font-bold text-[#8a8778] hover:text-[#f0ede4]"
+            >
+              ✕
+            </button>
+          </div>
+        ) : null}
+
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() =>
+              startTransition(async () => {
+                const undo = await completeTask(task.id);
+                showUndo({ message: "Task completed.", onUndo: () => undoCompleteTask(task.id, undo) });
+              })
+            }
+            className="min-h-11 rounded-2xl bg-[#ff5a30] px-6 text-[13.5px] font-semibold text-white hover:opacity-90"
+          >
+            ✓ Done
+          </button>
+          <button
+            type="button"
+            onClick={() => startTransition(() => endSession(task.id))}
+            className="min-h-11 rounded-2xl border border-[rgba(255,255,255,0.15)] px-6 text-[13.5px] font-semibold text-[#8a8778] hover:text-[#f0ede4]"
+          >
+            End session
+          </button>
+        </div>
       </div>
     </div>
   );

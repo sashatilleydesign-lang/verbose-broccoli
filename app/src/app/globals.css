@@ -1,49 +1,50 @@
 @import "tailwindcss";
 
-/* Strobe design tokens — see DESIGN.md §9. Light by default, plain dark
-   theme as the alternative — no separate "intensity" concept, just a
-   normal light/dark switch. Accent blue stays reserved for the one
-   pinned next action and primary buttons, not general chrome, per §1. */
+/* Strobe design tokens — see DESIGN.md §9.
+   Orange accent (#ff4b1f) is reserved for one thing at a time:
+   the pinned task, primary buttons, and "now" indicators.
+   Garamond sets what you read or decide on; Geist handles what
+   you click; Geist Mono handles times and counts. */
 :root {
-  --ground: #f6f7fb;
-  --panel: #ffffff;
-  --ink: #323338;
-  --ink-dim: #676879;
-  --accent: #0073ea;
-  --accent-dim: #e6f1fd;
-  --line: #e3e5ec;
+  --ground: #f5f3ee;
+  --panel: #fdfcf9;
+  --ink: #1a1a14;
+  --ink-dim: #7a7868;
+  --accent: #ff4b1f;
+  --accent-dim: #fff0ec;
+  --line: #e5e2d9;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --ground: #14161c;
-    --panel: #1e212a;
-    --ink: #e6e7eb;
-    --ink-dim: #9498a3;
-    --accent: #579bfc;
-    --accent-dim: #1f3a5c;
-    --line: rgba(255, 255, 255, 0.1);
+    --ground: #141210;
+    --panel: #1e1c18;
+    --ink: #f0ede4;
+    --ink-dim: #8a8778;
+    --accent: #ff5a30;
+    --accent-dim: #2a1a12;
+    --line: rgba(255, 255, 255, 0.09);
   }
 }
 
 :root[data-theme="light"] {
-  --ground: #f6f7fb;
-  --panel: #ffffff;
-  --ink: #323338;
-  --ink-dim: #676879;
-  --accent: #0073ea;
-  --accent-dim: #e6f1fd;
-  --line: #e3e5ec;
+  --ground: #f5f3ee;
+  --panel: #fdfcf9;
+  --ink: #1a1a14;
+  --ink-dim: #7a7868;
+  --accent: #ff4b1f;
+  --accent-dim: #fff0ec;
+  --line: #e5e2d9;
 }
 
 :root[data-theme="dark"] {
-  --ground: #14161c;
-  --panel: #1e212a;
-  --ink: #e6e7eb;
-  --ink-dim: #9498a3;
-  --accent: #579bfc;
-  --accent-dim: #1f3a5c;
-  --line: rgba(255, 255, 255, 0.1);
+  --ground: #141210;
+  --panel: #1e1c18;
+  --ink: #f0ede4;
+  --ink-dim: #8a8778;
+  --accent: #ff5a30;
+  --accent-dim: #2a1a12;
+  --line: rgba(255, 255, 255, 0.09);
 }
 
 @theme inline {
@@ -54,37 +55,63 @@
   --color-accent: var(--accent);
   --color-accent-dim: var(--accent-dim);
   --color-line: var(--line);
+
+  --font-sans: var(--font-geist, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  --font-serif: var(--font-garamond, Georgia, serif);
+  --font-mono: var(--font-geist-mono, ui-monospace, "SF Mono", monospace);
 }
 
 body {
   background: var(--ground);
   color: var(--ink);
-  font-family: system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-family: var(--font-geist, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
   line-height: 1.5;
 }
 
+/* Garamond display — pinned task title, client names, section headings */
+.font-display {
+  font-family: var(--font-garamond, Georgia, serif);
+  font-weight: 500;
+  line-height: 1.04;
+}
+
+/* Garamond italic — page leads, email quotes, notes */
+.font-reading {
+  font-family: var(--font-garamond, Georgia, serif);
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* Garamond tabular figures — countdown clock */
+.font-countdown {
+  font-family: var(--font-garamond, Georgia, serif);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* Geist Mono — times, counts, eyebrow labels */
 .font-mono-strobe {
-  font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+  font-family: var(--font-geist-mono, ui-monospace, "SF Mono", "Cascadia Code", monospace);
 }
 
 .shadow-panel {
   box-shadow:
-    0 1px 2px rgba(15, 18, 30, 0.06),
-    0 1px 4px rgba(15, 18, 30, 0.08);
+    0 1px 2px rgba(15, 12, 8, 0.06),
+    0 1px 4px rgba(15, 12, 8, 0.08);
 }
 
 @media (prefers-color-scheme: dark) {
   .shadow-panel {
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   }
 }
 
 :root[data-theme="dark"] .shadow-panel {
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 :root[data-theme="light"] .shadow-panel {
   box-shadow:
-    0 1px 2px rgba(15, 18, 30, 0.06),
-    0 1px 4px rgba(15, 18, 30, 0.08);
+    0 1px 2px rgba(15, 12, 8, 0.06),
+    0 1px 4px rgba(15, 12, 8, 0.08);
 }

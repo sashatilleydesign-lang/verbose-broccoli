@@ -5,14 +5,14 @@
 // swatch picker so "auto-assigned" and "manually chosen" draw from the
 // same set.
 export const CLIENT_COLOR_PALETTE = [
-  "#ff4b1f", // orange
-  "#00c875", // green
-  "#579bfc", // blue
-  "#a25ddc", // purple
-  "#e2445c", // red
-  "#fdab3d", // amber
-  "#66ccff", // sky
-  "#ff158a", // pink
+  "#8a90e8", // indigo
+  "#d9a94a", // ochre
+  "#5b9fd6", // sky
+  "#d987a6", // rose
+  "#4fb3a4", // teal
+  "#b784e0", // violet
+  "#8fb573", // sage
+  "#8fa3b8", // slate
 ];
 
 export function nextClientColor(existingClientCount: number): string {

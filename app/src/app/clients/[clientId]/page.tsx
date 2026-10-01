@@ -64,15 +64,12 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
   return (
     <AppShell>
       <div className="mb-6">
-        <p className="mb-2 text-[11.5px] font-bold tracking-wide text-accent uppercase">Client workspace</p>
-        <p className="max-w-[64ch] text-[15.5px] leading-relaxed text-ink-dim">
-          Every email and every task for this client, in one scroll — not two tabs.
-        </p>
+        <p className="font-mono-strobe mb-2 text-[10.5px] font-semibold tracking-widest text-ink-dim uppercase">Client workspace</p>
       </div>
 
       <div className="shadow-panel rounded-2xl border border-line bg-panel p-6">
-        <div className="mb-1 flex flex-wrap items-center gap-3">
-          <h1 className="flex items-center gap-2.5 text-xl font-bold">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+          <h1 className="font-display flex items-center gap-3 text-[36px] text-ink">
             <ClientDot colorTag={client.colorTag} />
             {client.name}
           </h1>
@@ -88,13 +85,22 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
           }}
         />
         {pinnedNext ? (
-          <p className="mb-6 text-[14px] text-ink-dim">
-            Pinned next action: <strong className="text-ink">{pinnedNext.title}</strong>
-          </p>
+          <div className="mb-6 flex items-center justify-between rounded-2xl border border-line bg-ground px-4 py-3">
+            <p className="text-[13.5px]">
+              <span className="font-mono-strobe mr-2 text-[10px] font-semibold tracking-widest text-accent uppercase">
+                ● Pinned next
+              </span>
+              <span className="font-medium text-ink">{pinnedNext.title}</span>
+            </p>
+          </div>
         ) : (
-          <p className="mb-6 text-[14px] text-ink-dim">No next action set yet.</p>
+          <p className="mb-6 text-[13.5px] text-ink-dim">No next action set yet.</p>
         )}
 
+        <h2 className="mb-4 flex items-baseline gap-2">
+          <span className="font-display text-[22px] text-ink">Timeline</span>
+          <span className="font-reading text-[15px] text-ink-dim">every email and task, one scroll</span>
+        </h2>
         <ol className="ml-1.5 space-y-5 border-l-2 border-line pl-6">
           {entries.map((entry, i) => (
             <li key={i} className="relative">
@@ -120,7 +126,9 @@ export default async function ClientWorkspacePage({ params }: { params: Promise<
       </div>
 
       <div className="mt-8">
-        <p className="mb-3 text-[11.5px] font-bold tracking-wide text-ink-dim uppercase">Projects</p>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="font-display text-[22px] text-ink">Projects</h2>
+        </div>
 
         <form action={createProject.bind(null, client.id)} className="mb-2.5 flex gap-2.5">
           <input

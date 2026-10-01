@@ -15,8 +15,8 @@ export default async function WeeklyReviewPage() {
   return (
     <AppShell>
       <div className="mb-6">
-        <p className="mb-2 text-[11.5px] font-bold tracking-wide text-accent uppercase">Weekly review</p>
-        <p className="max-w-[64ch] text-[15.5px] leading-relaxed text-ink-dim">
+        <p className="font-mono-strobe mb-2 text-[10.5px] font-semibold tracking-widest text-ink-dim uppercase">Weekly review</p>
+        <p className="font-reading max-w-[56ch] text-[18px] leading-relaxed text-ink-dim">
           {total > 0
             ? "A guided pass, not a demand. Nothing here is due right now — it's just been waiting for a decision."
             : "Nothing waiting for a decision. Everything either has a next action or isn't stuck."}

@@ -42,8 +42,11 @@ export default async function FocusPage({
   return (
     <AppShell>
       <div className="mb-6">
-        <p className="mb-2 text-[11.5px] font-bold tracking-wide text-accent uppercase">Right now</p>
-        <p className="mb-4 max-w-[64ch] text-[15.5px] leading-relaxed text-ink-dim">{subtitle}</p>
+        <p className="font-mono-strobe mb-2 flex items-center gap-2 text-[10.5px] font-semibold tracking-wide text-accent uppercase">
+          <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
+          Right now
+        </p>
+        <p className="font-reading mb-4 max-w-[56ch] text-[18px] leading-relaxed text-ink-dim">{subtitle}</p>
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-[11px] font-bold tracking-wide text-ink-dim uppercase">Energy today:</span>
           {ENERGY_OPTIONS.map((opt) => {
@@ -68,24 +71,58 @@ export default async function FocusPage({
       </div>
 
       {nextTask ? (
-        <div className="shadow-panel mb-8 flex gap-4 rounded-2xl border border-line border-l-3 border-l-accent bg-panel p-5">
-          <CompleteTaskButton key={nextTask.id} taskId={nextTask.id} />
-          <div className="min-w-0 flex-1">
-            <div className="mb-1.5 flex flex-wrap items-center gap-2">
-              {nextTask.project?.client ? (
-                <ClientBadge name={nextTask.project.client.name} colorTag={nextTask.project.client.colorTag} />
-              ) : null}
-              {nextTask.energy ? (
-                <span className="text-[13.5px] text-ink-dim">{nextTask.energy} energy</span>
-              ) : null}
+        <div className="shadow-panel mb-8 rounded-2xl border border-line bg-panel p-6">
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            {nextTask.project?.client ? (
+              <ClientBadge name={nextTask.project.client.name} colorTag={nextTask.project.client.colorTag} />
+            ) : null}
+            {nextTask.energy ? (
+              <span className="font-mono-strobe rounded border border-line px-2 py-0.5 text-[10.5px] font-semibold uppercase text-ink-dim">
+                {nextTask.energy} energy
+              </span>
+            ) : null}
+            {nextTask.context ? (
+              <span className="font-mono-strobe rounded border border-line px-2 py-0.5 text-[10.5px] font-semibold uppercase text-ink-dim">
+                {nextTask.context.replace("_", " ")}
+              </span>
+            ) : null}
+          </div>
+
+          <div className="mb-2 flex items-start gap-4">
+            <CompleteTaskButton key={nextTask.id} taskId={nextTask.id} />
+            <TaskTitleButton task={nextTask} className="font-display block text-[38px] leading-[1.08] text-ink" />
+          </div>
+
+          <p className="mb-5 ml-12 text-[13.5px] text-ink-dim">
+            {nextTask.estimatedMinutes ? `~${nextTask.estimatedMinutes} min` : "No estimate"}
+            {nextTask.targetDate ? (
+              <span className="text-accent"> · Your target: {relativeTarget(nextTask.targetDate)}</span>
+            ) : null}
+            {batchProgress ? (
+              <span className="text-ink-dim"> · {batchProgress.done} of {batchProgress.total} in batch</span>
+            ) : null}
+          </p>
+
+          {batchProgress ? (
+            <div className="mb-5 ml-12 flex gap-1.5" aria-hidden="true">
+              {Array.from({ length: batchProgress.total }, (_, i) => {
+                const idx = i + 1;
+                const isDone = idx <= batchProgress.done;
+                const isCurrent = idx === batchProgress.done + 1;
+                return (
+                  <span
+                    key={idx}
+                    className={
+                      "h-1.5 w-4 rounded-full " +
+                      (isDone ? "bg-accent opacity-40" : isCurrent ? "bg-accent" : "bg-line")
+                    }
+                  />
+                );
+              })}
             </div>
-            <TaskTitleButton task={nextTask} className="mb-1.5 block text-[20px] leading-snug font-bold" />
-            <p className="mb-2.5 text-[13.5px] text-ink-dim">
-              {nextTask.estimatedMinutes ? `~${nextTask.estimatedMinutes} min estimated` : "No estimate yet"}
-              {nextTask.targetDate ? (
-                <span className="text-accent"> · 🎯 your target: {relativeTarget(nextTask.targetDate)}</span>
-              ) : null}
-            </p>
+          ) : null}
+
+          <div className="ml-12 flex flex-wrap items-center gap-3">
             <SessionOverlay
               task={{
                 id: nextTask.id,
@@ -94,38 +131,18 @@ export default async function FocusPage({
                 startedAt: nextTask.startedAt,
               }}
             />
-            <div className="mt-2.5">
-              <EditTaskButton
-                task={{
-                  id: nextTask.id,
-                  title: nextTask.title,
-                  state: "next",
-                  energy: nextTask.energy as "low" | "medium" | "high" | null,
-                  context: nextTask.context as "email" | "calls" | "deep_work" | "admin" | null,
-                  estimatedMinutes: nextTask.estimatedMinutes,
-                  dueDate: nextTask.dueDate ?? null,
-                  deadlineType: nextTask.deadlineType as "hard" | "soft" | null,
-                }}
-              />
-            </div>
-            {batchProgress ? (
-              <div className="mt-3 flex gap-1.5" aria-hidden="true">
-                {Array.from({ length: batchProgress.total }, (_, i) => {
-                  const idx = i + 1;
-                  const isDone = idx <= batchProgress.done;
-                  const isCurrent = idx === batchProgress.done + 1;
-                  return (
-                    <span
-                      key={idx}
-                      className={
-                        "h-2 w-2 rounded-full " +
-                        (isDone ? "bg-accent-dim" : isCurrent ? "bg-accent shadow-[0_0_6px_var(--accent)]" : "bg-line")
-                      }
-                    />
-                  );
-                })}
-              </div>
-            ) : null}
+            <EditTaskButton
+              task={{
+                id: nextTask.id,
+                title: nextTask.title,
+                state: "next",
+                energy: nextTask.energy as "low" | "medium" | "high" | null,
+                context: nextTask.context as "email" | "calls" | "deep_work" | "admin" | null,
+                estimatedMinutes: nextTask.estimatedMinutes,
+                dueDate: nextTask.dueDate ?? null,
+                deadlineType: nextTask.deadlineType as "hard" | "soft" | null,
+              }}
+            />
           </div>
         </div>
       ) : null}
