@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "Strobe",
+    "slug": "strobe",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "scheme": "strobe",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.strobe.app"
+    },
+    "android": {
+      "package": "com.strobe.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#141210"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-secure-store"
+    ],
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png"
+    },
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
